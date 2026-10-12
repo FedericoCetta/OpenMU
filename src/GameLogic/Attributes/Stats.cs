@@ -163,6 +163,16 @@ public class Stats
     public static AttributeDefinition MoneyAmountRate { get; } = new(new Guid("D84D1A5C-3A56-4CB9-8DD4-158AFD4D1EDB"), "Money Drop Amount Rate", "Defines a multiplier for the amount of a money drop.");
 
     /// <summary>
+    /// Gets the item drop chance bonus attribute definition.
+    /// </summary>
+    /// <remarks>
+    /// It's added to the chance of the item drop groups of a monster kill, e.g. 0.05 turns a total item chance
+    /// of 30 % into 35 %. It's spread over the item groups in proportion to their chance and taken from the
+    /// chance that nothing drops, so the money drop isn't affected.
+    /// </remarks>
+    public static AttributeDefinition ItemDropChanceBonus { get; } = new(new Guid("6F1C3A5E-2B7D-4E8A-9C1F-3D5B7A9E0C24"), "Item Drop Chance Bonus", "Additional chance (0.05 = 5 percentage points) that a monster kill drops an item.");
+
+    /// <summary>
     /// Gets the current health attribute definition.
     /// </summary>
     public static AttributeDefinition CurrentHealth { get; } = new(new Guid("20686FFD-7A96-4BE2-9889-2A4DD9FF5A25"), "Current Health", string.Empty);

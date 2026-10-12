@@ -87,7 +87,8 @@ public class DefaultDropGenerator : IDropGenerator
         }
 
         uint money = 0;
-        var (droppedItems, moneyResult) = this.GenerateDrops(monster, gainedExperience);
+        var itemChanceBonus = player.Attributes?[Stats.ItemDropChanceBonus] ?? 0;
+        var (droppedItems, moneyResult) = this.GenerateDrops(monster, gainedExperience, itemChanceBonus);
         if (moneyResult > 0)
         {
             money = moneyResult;
@@ -270,7 +271,7 @@ public class DefaultDropGenerator : IDropGenerator
         return itemDefinition.MaximumDropLevel is not { } maxDropLevel || monsterLevel <= maxDropLevel;
     }
 
-    private (IList<Item>? Items, uint Money) GenerateDrops(MonsterDefinition monster, int gainedExperience)
+    private (IList<Item>? Items, uint Money) GenerateDrops(MonsterDefinition monster, int gainedExperience, double itemChanceBonus)
     {
         uint money = 0;
         List<Item>? droppedItems = null;
@@ -302,15 +303,16 @@ public class DefaultDropGenerator : IDropGenerator
         // Chance based groups.
         if (remainingDrops > 0 && this._chanceDropGroups.Count > 0)
         {
+            var chances = GetChances(this._chanceDropGroups, itemChanceBonus);
             double totalChance = 0;
-            foreach (var group in this._chanceDropGroups)
+            foreach (var chance in chances)
             {
-                totalChance += group.Chance;
+                totalChance += chance;
             }
 
             for (int i = 0; i < remainingDrops; i++)
             {
-                var group = this.SelectRandomGroup(this._chanceDropGroups, totalChance);
+                var group = this.SelectRandomGroup(this._chanceDropGroups, chances, totalChance);
                 if (group is null)
                 {
                     continue;
@@ -550,6 +552,64 @@ public class DefaultDropGenerator : IDropGenerator
             SpecialItemType.SocketItem => this.GenerateRandomItem(monsterLevel, true),
             _ => null,
         };
+    }
+
+    /// <summary>
+    /// Gets the chances of the groups, with the item chance bonus spread over the item groups in proportion to their chance.
+    /// </summary>
+    /// <param name="groups">The chance based drop groups.</param>
+    /// <param name="itemChanceBonus">The bonus to the total item chance, e.g. 0.05 for 5 percentage points.</param>
+    /// <returns>The chance of each group, in the order of the groups.</returns>
+    internal static double[] GetChances(IReadOnlyList<DropItemGroup> groups, double itemChanceBonus)
+    {
+        var chances = new double[groups.Count];
+        double itemChance = 0;
+        for (int i = 0; i < groups.Count; i++)
+        {
+            chances[i] = groups[i].Chance;
+            if (groups[i].ItemType != SpecialItemType.Money)
+            {
+                itemChance += groups[i].Chance;
+            }
+        }
+
+        if (itemChanceBonus <= 0 || itemChance <= 0)
+        {
+            return chances;
+        }
+
+        for (int i = 0; i < groups.Count; i++)
+        {
+            if (groups[i].ItemType != SpecialItemType.Money)
+            {
+                chances[i] += itemChanceBonus * groups[i].Chance / itemChance;
+            }
+        }
+
+        return chances;
+    }
+
+    private DropItemGroup? SelectRandomGroup(IReadOnlyList<DropItemGroup> groups, double[] chances, double totalChance)
+    {
+        var remainingThreshold = this._randomizer.NextDouble();
+        if (totalChance > 1.0)
+        {
+            remainingThreshold *= totalChance;
+        }
+
+        for (int i = 0; i < groups.Count; i++)
+        {
+            if (remainingThreshold > chances[i])
+            {
+                remainingThreshold -= chances[i];
+            }
+            else
+            {
+                return groups[i];
+            }
+        }
+
+        return null;
     }
 
     private DropItemGroup? SelectRandomGroup(IEnumerable<DropItemGroup> groups, double totalChance)

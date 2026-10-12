@@ -120,6 +120,49 @@ public class Account
     public virtual ItemStorage? Vault { get; set; }
 
     /// <summary>
+    /// Gets or sets the second vault. Like the vaults 3 to 6, it's an additional vault of MU GKZ.
+    /// </summary>
+    [MemberOfAggregate]
+    [HiddenAtCreation]
+    public virtual ItemStorage? Vault2 { get; set; }
+
+    /// <summary>
+    /// Gets or sets the third vault, which is available to VIP accounts.
+    /// </summary>
+    /// <remarks>
+    /// When the VIP expires, the vault and its items are kept; it's just not shown until the account is VIP again.
+    /// </remarks>
+    [MemberOfAggregate]
+    [HiddenAtCreation]
+    public virtual ItemStorage? Vault3 { get; set; }
+
+    /// <summary>
+    /// Gets or sets the fourth vault, which is available to VIP accounts.
+    /// </summary>
+    [MemberOfAggregate]
+    [HiddenAtCreation]
+    public virtual ItemStorage? Vault4 { get; set; }
+
+    /// <summary>
+    /// Gets or sets the fifth vault, which is available to VIP accounts.
+    /// </summary>
+    [MemberOfAggregate]
+    [HiddenAtCreation]
+    public virtual ItemStorage? Vault5 { get; set; }
+
+    /// <summary>
+    /// Gets or sets the sixth vault, which is available to VIP accounts.
+    /// </summary>
+    [MemberOfAggregate]
+    [HiddenAtCreation]
+    public virtual ItemStorage? Vault6 { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date and time (UTC) until which the account is VIP; <c>null</c> if it never was.
+    /// </summary>
+    public DateTime? VipUntil { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether this instance is vault extended.
     /// </summary>
     public bool IsVaultExtended { get; set; }

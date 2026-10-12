@@ -179,6 +179,12 @@ internal sealed class BasicModelConverter
         target.TimeZone = source.TimeZone;
         target.VaultPassword = source.VaultPassword;
         target.Vault = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Vault)!;
+        target.Vault2 = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Vault2)!;
+        target.Vault3 = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Vault3)!;
+        target.Vault4 = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Vault4)!;
+        target.Vault5 = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Vault5)!;
+        target.Vault6 = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Vault6)!;
+        target.VipUntil = source.VipUntil;
         target.IsVaultExtended = source.IsVaultExtended;
         target.WCoinC = source.WCoinC;
         target.WCoinP = source.WCoinP;

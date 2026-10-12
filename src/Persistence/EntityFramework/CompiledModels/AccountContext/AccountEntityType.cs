@@ -22,10 +22,10 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForAccountCo
                 "MUnique.OpenMU.Persistence.EntityFramework.Model.Account",
                 typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account),
                 baseEntityType,
-                propertyCount: 19,
-                navigationCount: 4,
-                foreignKeyCount: 1,
-                unnamedIndexCount: 2,
+                propertyCount: 25,
+                navigationCount: 9,
+                foreignKeyCount: 6,
+                unnamedIndexCount: 7,
                 keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
@@ -150,6 +150,46 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForAccountCo
                 sentinel: (short)0);
             timeZone.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
+            var vault2Id = runtimeEntityType.AddProperty(
+                "Vault2Id",
+                typeof(Guid?),
+                propertyInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetProperty("Vault2Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetField("<Vault2Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            vault2Id.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
+            var vault3Id = runtimeEntityType.AddProperty(
+                "Vault3Id",
+                typeof(Guid?),
+                propertyInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetProperty("Vault3Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetField("<Vault3Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            vault3Id.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
+            var vault4Id = runtimeEntityType.AddProperty(
+                "Vault4Id",
+                typeof(Guid?),
+                propertyInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetProperty("Vault4Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetField("<Vault4Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            vault4Id.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
+            var vault5Id = runtimeEntityType.AddProperty(
+                "Vault5Id",
+                typeof(Guid?),
+                propertyInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetProperty("Vault5Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetField("<Vault5Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            vault5Id.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
+            var vault6Id = runtimeEntityType.AddProperty(
+                "Vault6Id",
+                typeof(Guid?),
+                propertyInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetProperty("Vault6Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetField("<Vault6Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            vault6Id.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
             var vaultId = runtimeEntityType.AddProperty(
                 "VaultId",
                 typeof(Guid?),
@@ -164,6 +204,14 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForAccountCo
                 propertyInfo: typeof(MUnique.OpenMU.DataModel.Entities.Account).GetProperty("VaultPassword", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MUnique.OpenMU.DataModel.Entities.Account).GetField("<VaultPassword>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             vaultPassword.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
+            var vipUntil = runtimeEntityType.AddProperty(
+                "VipUntil",
+                typeof(DateTime?),
+                propertyInfo: typeof(MUnique.OpenMU.DataModel.Entities.Account).GetProperty("VipUntil", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.DataModel.Entities.Account).GetField("<VipUntil>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            vipUntil.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
             var wCoinC = runtimeEntityType.AddProperty(
                 "WCoinC",
@@ -190,6 +238,26 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForAccountCo
                 unique: true);
 
             var index0 = runtimeEntityType.AddIndex(
+                new[] { vault2Id },
+                unique: true);
+
+            var index1 = runtimeEntityType.AddIndex(
+                new[] { vault3Id },
+                unique: true);
+
+            var index2 = runtimeEntityType.AddIndex(
+                new[] { vault4Id },
+                unique: true);
+
+            var index3 = runtimeEntityType.AddIndex(
+                new[] { vault5Id },
+                unique: true);
+
+            var index4 = runtimeEntityType.AddIndex(
+                new[] { vault6Id },
+                unique: true);
+
+            var index5 = runtimeEntityType.AddIndex(
                 new[] { vaultId },
                 unique: true);
 
@@ -197,6 +265,91 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForAccountCo
         }
 
         public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
+        {
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("Vault2Id") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id") }),
+                principalEntityType,
+                deleteBehavior: DeleteBehavior.Cascade,
+                unique: true);
+
+            var rawVault2 = declaringEntityType.AddNavigation("RawVault2",
+                runtimeForeignKey,
+                onDependent: true,
+                typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.ItemStorage),
+                propertyInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetProperty("RawVault2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+            return runtimeForeignKey;
+        }
+
+        public static RuntimeForeignKey CreateForeignKey2(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
+        {
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("Vault3Id") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id") }),
+                principalEntityType,
+                deleteBehavior: DeleteBehavior.Cascade,
+                unique: true);
+
+            var rawVault3 = declaringEntityType.AddNavigation("RawVault3",
+                runtimeForeignKey,
+                onDependent: true,
+                typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.ItemStorage),
+                propertyInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetProperty("RawVault3", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+            return runtimeForeignKey;
+        }
+
+        public static RuntimeForeignKey CreateForeignKey3(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
+        {
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("Vault4Id") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id") }),
+                principalEntityType,
+                deleteBehavior: DeleteBehavior.Cascade,
+                unique: true);
+
+            var rawVault4 = declaringEntityType.AddNavigation("RawVault4",
+                runtimeForeignKey,
+                onDependent: true,
+                typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.ItemStorage),
+                propertyInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetProperty("RawVault4", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+            return runtimeForeignKey;
+        }
+
+        public static RuntimeForeignKey CreateForeignKey4(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
+        {
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("Vault5Id") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id") }),
+                principalEntityType,
+                deleteBehavior: DeleteBehavior.Cascade,
+                unique: true);
+
+            var rawVault5 = declaringEntityType.AddNavigation("RawVault5",
+                runtimeForeignKey,
+                onDependent: true,
+                typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.ItemStorage),
+                propertyInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetProperty("RawVault5", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+            return runtimeForeignKey;
+        }
+
+        public static RuntimeForeignKey CreateForeignKey5(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
+        {
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("Vault6Id") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id") }),
+                principalEntityType,
+                deleteBehavior: DeleteBehavior.Cascade,
+                unique: true);
+
+            var rawVault6 = declaringEntityType.AddNavigation("RawVault6",
+                runtimeForeignKey,
+                onDependent: true,
+                typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.ItemStorage),
+                propertyInfo: typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account).GetProperty("RawVault6", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+            return runtimeForeignKey;
+        }
+
+        public static RuntimeForeignKey CreateForeignKey6(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
         {
             var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("VaultId") },
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id") }),

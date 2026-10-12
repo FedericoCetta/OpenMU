@@ -77,6 +77,136 @@ internal partial class Account : MUnique.OpenMU.DataModel.Entities.Account, IIde
         }
     }
 
+    /// <summary>
+    /// Gets or sets the identifier of <see cref="Vault2"/>.
+    /// </summary>
+    public Guid? Vault2Id { get; set; }
+
+    /// <summary>
+    /// Gets the raw object of <see cref="Vault2" />.
+    /// </summary>
+    [ForeignKey(nameof(Vault2Id))]
+    public ItemStorage RawVault2
+    {
+        get => base.Vault2 as ItemStorage;
+        set => base.Vault2 = value;
+    }
+
+    /// <inheritdoc/>
+    [NotMapped]
+    public override MUnique.OpenMU.DataModel.Entities.ItemStorage Vault2
+    {
+        get => base.Vault2;set
+        {
+            base.Vault2 = value;
+            this.Vault2Id = this.RawVault2?.Id;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the identifier of <see cref="Vault3"/>.
+    /// </summary>
+    public Guid? Vault3Id { get; set; }
+
+    /// <summary>
+    /// Gets the raw object of <see cref="Vault3" />.
+    /// </summary>
+    [ForeignKey(nameof(Vault3Id))]
+    public ItemStorage RawVault3
+    {
+        get => base.Vault3 as ItemStorage;
+        set => base.Vault3 = value;
+    }
+
+    /// <inheritdoc/>
+    [NotMapped]
+    public override MUnique.OpenMU.DataModel.Entities.ItemStorage Vault3
+    {
+        get => base.Vault3;set
+        {
+            base.Vault3 = value;
+            this.Vault3Id = this.RawVault3?.Id;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the identifier of <see cref="Vault4"/>.
+    /// </summary>
+    public Guid? Vault4Id { get; set; }
+
+    /// <summary>
+    /// Gets the raw object of <see cref="Vault4" />.
+    /// </summary>
+    [ForeignKey(nameof(Vault4Id))]
+    public ItemStorage RawVault4
+    {
+        get => base.Vault4 as ItemStorage;
+        set => base.Vault4 = value;
+    }
+
+    /// <inheritdoc/>
+    [NotMapped]
+    public override MUnique.OpenMU.DataModel.Entities.ItemStorage Vault4
+    {
+        get => base.Vault4;set
+        {
+            base.Vault4 = value;
+            this.Vault4Id = this.RawVault4?.Id;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the identifier of <see cref="Vault5"/>.
+    /// </summary>
+    public Guid? Vault5Id { get; set; }
+
+    /// <summary>
+    /// Gets the raw object of <see cref="Vault5" />.
+    /// </summary>
+    [ForeignKey(nameof(Vault5Id))]
+    public ItemStorage RawVault5
+    {
+        get => base.Vault5 as ItemStorage;
+        set => base.Vault5 = value;
+    }
+
+    /// <inheritdoc/>
+    [NotMapped]
+    public override MUnique.OpenMU.DataModel.Entities.ItemStorage Vault5
+    {
+        get => base.Vault5;set
+        {
+            base.Vault5 = value;
+            this.Vault5Id = this.RawVault5?.Id;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the identifier of <see cref="Vault6"/>.
+    /// </summary>
+    public Guid? Vault6Id { get; set; }
+
+    /// <summary>
+    /// Gets the raw object of <see cref="Vault6" />.
+    /// </summary>
+    [ForeignKey(nameof(Vault6Id))]
+    public ItemStorage RawVault6
+    {
+        get => base.Vault6 as ItemStorage;
+        set => base.Vault6 = value;
+    }
+
+    /// <inheritdoc/>
+    [NotMapped]
+    public override MUnique.OpenMU.DataModel.Entities.ItemStorage Vault6
+    {
+        get => base.Vault6;set
+        {
+            base.Vault6 = value;
+            this.Vault6Id = this.RawVault6?.Id;
+        }
+    }
+
 
     /// <inheritdoc/>
     public override bool Equals(object obj)

@@ -93,10 +93,8 @@ public class TalkNpcAction
 
                 break;
             case NpcWindow.VaultStorage:
-                player.Account!.Vault ??= player.PersistenceContext.CreateNew<ItemStorage>();
-                var warehouseSize = player.Account.IsVaultExtended ? InventoryConstants.WarehouseSize * 2 : InventoryConstants.WarehouseSize;
-                player.Vault = new Storage(warehouseSize, player.Account.Vault);
-                await player.InvokeViewPlugInAsync<IShowVaultPlugIn>(p => p.ShowVaultAsync()).ConfigureAwait(false);
+                // Opens vault 1; with the VIP plugin, the client also gets the vault selection.
+                await Vip.VipActions.OpenVaultAsync(player).ConfigureAwait(false);
                 break;
             case NpcWindow.GuildMaster:
                 if (await this.IsPlayedAllowedToCreateGuildAsync(player).ConfigureAwait(false))

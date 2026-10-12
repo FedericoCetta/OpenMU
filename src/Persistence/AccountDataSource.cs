@@ -20,8 +20,8 @@ public sealed class AccountDataSource : DataSourceBase<Account>
     {
         { typeof(Account), a => Enumerable.Repeat(a, 1) },
         { typeof(Character), a => a.Characters },
-        { typeof(ItemStorage), a => a.Characters.Select(c => c.Inventory).Concat(Enumerable.Repeat(a.Vault, 1)).Where(i => i is not null) },
-        { typeof(Item), a => a.Characters.SelectMany(c => c.Inventory?.Items ?? Enumerable.Empty<Item>()).Concat(a.Vault?.Items ?? Enumerable.Empty<Item>()) },
+        { typeof(ItemStorage), a => a.Characters.Select(c => c.Inventory).Concat(Vaults(a)).Where(i => i is not null) },
+        { typeof(Item), a => a.Characters.SelectMany(c => c.Inventory?.Items ?? Enumerable.Empty<Item>()).Concat(Vaults(a).SelectMany(v => v?.Items ?? Enumerable.Empty<Item>())) },
         { typeof(StatAttribute), a => a.Characters.SelectMany(c => c.Attributes) },
         { typeof(LetterHeader), a => a.Characters.SelectMany(c => c.Letters) },
         { typeof(SkillEntry), a => a.Characters.SelectMany(c => c.LearnedSkills) },
@@ -48,6 +48,16 @@ public sealed class AccountDataSource : DataSourceBase<Account>
 
     /// <inheritdoc />
     protected override IReadOnlyDictionary<Type, Func<Account, IEnumerable>> TypeToEnumerables => Enumerables;
+
+    private static IEnumerable<ItemStorage?> Vaults(Account account)
+    {
+        yield return account.Vault;
+        yield return account.Vault2;
+        yield return account.Vault3;
+        yield return account.Vault4;
+        yield return account.Vault5;
+        yield return account.Vault6;
+    }
 
     /// <inheritdoc />
     protected override async ValueTask<IContext> CreateNewContextAsync()

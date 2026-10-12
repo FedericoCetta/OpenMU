@@ -1,0 +1,138 @@
+// <copyright file="VipActions.cs" company="MUnique">
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+// </copyright>
+
+namespace MUnique.OpenMU.GameLogic.Vip;
+
+using MUnique.OpenMU.GameLogic.CashShop;
+using MUnique.OpenMU.GameLogic.Views.Vault;
+using MUnique.OpenMU.GameLogic.Views.Vip;
+
+/// <summary>
+/// The actions of the VIP menu and of the vault selection.
+/// </summary>
+public class VipActions
+{
+    /// <summary>
+    /// Opens the first vault of the account, the one which opens when talking to the vault NPC.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    public static async ValueTask OpenVaultAsync(Player player)
+    {
+        await SwitchVaultAsync(player, 1).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Shows the VIP menu: the coins, the VIP state and the benefits.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    public async ValueTask ShowInfoAsync(Player player)
+    {
+        if (player.Account is not { } account || VipPlugIn.GetConfiguration(player.GameContext) is not { } configuration)
+        {
+            await player.InvokeViewPlugInAsync<IShowVipPlugIn>(p => p.ShowVipBuyResultAsync(VipBuyResult.NotAvailable)).ConfigureAwait(false);
+            return;
+        }
+
+        // Coins which were granted in the admin panel are added now.
+        await player.ApplyPendingCashShopCoinGrantsAsync().ConfigureAwait(false);
+        await this.SendInfoAsync(player, account, configuration).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Buys one VIP period with coins. Buying while VIP extends the end.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    public async ValueTask BuyAsync(Player player)
+    {
+        if (player.Account is not { } account || VipPlugIn.GetConfiguration(player.GameContext) is not { } configuration)
+        {
+            await player.InvokeViewPlugInAsync<IShowVipPlugIn>(p => p.ShowVipBuyResultAsync(VipBuyResult.NotAvailable)).ConfigureAwait(false);
+            return;
+        }
+
+        var result = await player.RunPersistenceExclusiveAsync(async () =>
+        {
+            await player.ApplyPendingCashShopCoinGrantsAsync().ConfigureAwait(false);
+            var coins = account.GetCashShopCoins(configuration.CoinType);
+            if (coins < configuration.Price)
+            {
+                return VipBuyResult.NotEnoughCoins;
+            }
+
+            var previousEnd = account.VipUntil;
+            var start = account.IsVip() ? account.VipUntil!.Value : DateTime.UtcNow;
+            account.SetCashShopCoins(configuration.CoinType, coins - configuration.Price);
+            account.VipUntil = start.AddDays(configuration.DaysPerPurchase);
+
+            bool saved;
+            try
+            {
+                saved = await player.SaveProgressAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                player.Logger.LogError(ex, "Couldn't save the VIP purchase of player {player}.", player);
+                saved = false;
+            }
+
+            if (!saved)
+            {
+                account.SetCashShopCoins(configuration.CoinType, coins);
+                account.VipUntil = previousEnd;
+                return VipBuyResult.Failed;
+            }
+
+            return VipBuyResult.Success;
+        }).ConfigureAwait(false);
+
+        if (result == VipBuyResult.Success)
+        {
+            player.Logger.LogInformation("Player {player} bought VIP for {price} {coinType}, VIP until {vipUntil}.", player, configuration.Price, configuration.CoinType, account.VipUntil);
+            VipPlugIn.UpdateBonuses(player);
+        }
+
+        await player.InvokeViewPlugInAsync<IShowVipPlugIn>(p => p.ShowVipBuyResultAsync(result)).ConfigureAwait(false);
+        await this.SendInfoAsync(player, account, configuration).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Switches the open vault to another vault of the account.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    /// <param name="number">The number of the vault, 1 to <see cref="AccountVaults.MaximumVaults"/>.</param>
+    public async ValueTask SelectVaultAsync(Player player, int number)
+    {
+        if (player.Vault is null
+            || player.OpenedNpc?.Definition.NpcWindow != NpcWindow.VaultStorage
+            || player.Account is not { } account
+            || number < 1
+            || number > account.GetAvailableVaults(player.GameContext))
+        {
+            return;
+        }
+
+        await SwitchVaultAsync(player, number).ConfigureAwait(false);
+    }
+
+    private static async ValueTask SwitchVaultAsync(Player player, int number)
+    {
+        var account = player.Account!;
+        var storage = account.GetOrCreateVault(number, player.PersistenceContext);
+        var warehouseSize = account.IsVaultExtended ? InventoryConstants.WarehouseSize * 2 : InventoryConstants.WarehouseSize;
+        player.Vault = new Storage(warehouseSize, storage);
+        await player.InvokeViewPlugInAsync<IShowVaultPlugIn>(p => p.ShowVaultAsync()).ConfigureAwait(false);
+
+        if (VipPlugIn.GetConfiguration(player.GameContext) is not null)
+        {
+            var available = account.GetAvailableVaults(player.GameContext);
+            await player.InvokeViewPlugInAsync<IShowVipPlugIn>(p => p.ShowVaultSelectionAsync(number, available)).ConfigureAwait(false);
+        }
+    }
+
+    private async ValueTask SendInfoAsync(Player player, Account account, VipConfiguration configuration)
+    {
+        var info = new VipInfo(account.GetCashShopCoins(configuration.CoinType), account.IsVip() ? account.VipUntil : null, configuration);
+        await player.InvokeViewPlugInAsync<IShowVipPlugIn>(p => p.ShowVipInfoAsync(info)).ConfigureAwait(false);
+    }
+}

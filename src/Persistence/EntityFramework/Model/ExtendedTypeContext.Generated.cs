@@ -132,6 +132,11 @@ public class ExtendedTypeContext : Microsoft.EntityFrameworkCore.DbContext
 
         // All members which are marked with the MemberOfAggregateAttribute, should be defined with ON DELETE CASCADE.
         modelBuilder.Entity<Account>().HasOne(entity => entity.RawVault).WithOne().OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Account>().HasOne(entity => entity.RawVault2).WithOne().OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Account>().HasOne(entity => entity.RawVault3).WithOne().OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Account>().HasOne(entity => entity.RawVault4).WithOne().OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Account>().HasOne(entity => entity.RawVault5).WithOne().OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Account>().HasOne(entity => entity.RawVault6).WithOne().OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Account>().HasMany(entity => entity.RawCharacters).WithOne().OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Account>().HasMany(entity => entity.RawAttributes).WithOne().OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<AppearanceData>().HasMany(entity => entity.RawEquippedItems).WithOne().OnDelete(DeleteBehavior.Cascade);

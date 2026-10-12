@@ -94,6 +94,42 @@
   <data name="Account_Vault_Description" xml:space="preserve">
     <value></value>
   </data>
+  <data name="Account_Vault2_Caption" xml:space="preserve">
+    <value>Vault 2</value>
+  </data>
+  <data name="Account_Vault2_Description" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="Account_Vault3_Caption" xml:space="preserve">
+    <value>Vault 3</value>
+  </data>
+  <data name="Account_Vault3_Description" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="Account_Vault4_Caption" xml:space="preserve">
+    <value>Vault 4</value>
+  </data>
+  <data name="Account_Vault4_Description" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="Account_Vault5_Caption" xml:space="preserve">
+    <value>Vault 5</value>
+  </data>
+  <data name="Account_Vault5_Description" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="Account_Vault6_Caption" xml:space="preserve">
+    <value>Vault 6</value>
+  </data>
+  <data name="Account_Vault6_Description" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="Account_VipUntil_Caption" xml:space="preserve">
+    <value>VIP Until</value>
+  </data>
+  <data name="Account_VipUntil_Description" xml:space="preserve">
+    <value></value>
+  </data>
   <data name="Account_IsVaultExtended_Caption" xml:space="preserve">
     <value>Is Vault Extended</value>
   </data>

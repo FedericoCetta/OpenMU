@@ -1,0 +1,65 @@
+// <copyright file="VipConfiguration.cs" company="MUnique">
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+// </copyright>
+
+namespace MUnique.OpenMU.GameLogic.Vip;
+
+/// <summary>
+/// The configuration of the VIP of MU GKZ: what it costs and what it gives.
+/// </summary>
+public class VipConfiguration
+{
+    /// <summary>
+    /// Gets or sets the price of the VIP, in the coin of <see cref="CoinType"/>.
+    /// </summary>
+    [Display(Name = "Price", Description = "The price of one VIP period, in the coin of the coin type.")]
+    public int Price { get; set; } = 1000;
+
+    /// <summary>
+    /// Gets or sets the coin with which the VIP is paid. MU GKZ calls WCoin (C) "GKZ Coins".
+    /// </summary>
+    [Display(Name = "Coin type", Description = "The coin with which the VIP is paid. They're granted in the admin panel, on the cash shop coins page of the account.")]
+    public CashShopCoinType CoinType { get; set; } = CashShopCoinType.WCoinC;
+
+    /// <summary>
+    /// Gets or sets the name of the coin which the players see.
+    /// </summary>
+    [Display(Name = "Coin name", Description = "The name of the coin which the players see in the VIP menu.")]
+    public string CoinName { get; set; } = "GKZ Coins";
+
+    /// <summary>
+    /// Gets or sets the number of days which one purchase adds.
+    /// </summary>
+    [Display(Name = "Days per purchase", Description = "The number of days which one purchase adds. Buying while VIP extends the end.")]
+    public int DaysPerPurchase { get; set; } = 30;
+
+    /// <summary>
+    /// Gets or sets the additional experience, e.g. 0.45 for 45 % more.
+    /// </summary>
+    [Display(Name = "Experience bonus", Description = "The additional experience, e.g. 0.45 for 45 % more.")]
+    public float ExperienceBonus { get; set; } = 0.45f;
+
+    /// <summary>
+    /// Gets or sets the additional chance that a monster drops an item, e.g. 0.05 for 5 percentage points.
+    /// </summary>
+    [Display(Name = "Item drop chance bonus", Description = "The additional chance that a monster kill drops an item, e.g. 0.05 for 5 percentage points (30 % becomes 35 %).")]
+    public float ItemDropChanceBonus { get; set; } = 0.05f;
+
+    /// <summary>
+    /// Gets or sets the additional zen of money drops, e.g. 0.5 for 50 % more.
+    /// </summary>
+    [Display(Name = "Zen drop bonus", Description = "The additional zen of money drops, e.g. 0.5 for 50 % more.")]
+    public float MoneyBonus { get; set; } = 0.5f;
+
+    /// <summary>
+    /// Gets or sets the number of vaults of accounts without VIP.
+    /// </summary>
+    [Display(Name = "Vaults without VIP", Description = "The number of vaults of accounts without VIP (1 to 6).")]
+    public int NormalVaults { get; set; } = 2;
+
+    /// <summary>
+    /// Gets or sets the number of vaults of VIP accounts.
+    /// </summary>
+    [Display(Name = "Vaults with VIP", Description = "The number of vaults of VIP accounts (1 to 6). The items of vaults above the limit are kept when the VIP ends.")]
+    public int VipVaults { get; set; } = AccountVaults.MaximumVaults;
+}

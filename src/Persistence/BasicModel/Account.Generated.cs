@@ -106,6 +106,96 @@ public partial class Account : MUnique.OpenMU.DataModel.Entities.Account, IIdent
         set => base.Vault = value;
     }
 
+    /// <summary>
+    /// Gets the raw object of <see cref="Vault2" />.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("vault2")]
+    public ItemStorage RawVault2
+    {
+        get => base.Vault2 as ItemStorage;
+        set => base.Vault2 = value;
+    }
+
+    /// <inheritdoc/>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public override MUnique.OpenMU.DataModel.Entities.ItemStorage Vault2
+    {
+        get => base.Vault2;
+        set => base.Vault2 = value;
+    }
+
+    /// <summary>
+    /// Gets the raw object of <see cref="Vault3" />.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("vault3")]
+    public ItemStorage RawVault3
+    {
+        get => base.Vault3 as ItemStorage;
+        set => base.Vault3 = value;
+    }
+
+    /// <inheritdoc/>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public override MUnique.OpenMU.DataModel.Entities.ItemStorage Vault3
+    {
+        get => base.Vault3;
+        set => base.Vault3 = value;
+    }
+
+    /// <summary>
+    /// Gets the raw object of <see cref="Vault4" />.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("vault4")]
+    public ItemStorage RawVault4
+    {
+        get => base.Vault4 as ItemStorage;
+        set => base.Vault4 = value;
+    }
+
+    /// <inheritdoc/>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public override MUnique.OpenMU.DataModel.Entities.ItemStorage Vault4
+    {
+        get => base.Vault4;
+        set => base.Vault4 = value;
+    }
+
+    /// <summary>
+    /// Gets the raw object of <see cref="Vault5" />.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("vault5")]
+    public ItemStorage RawVault5
+    {
+        get => base.Vault5 as ItemStorage;
+        set => base.Vault5 = value;
+    }
+
+    /// <inheritdoc/>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public override MUnique.OpenMU.DataModel.Entities.ItemStorage Vault5
+    {
+        get => base.Vault5;
+        set => base.Vault5 = value;
+    }
+
+    /// <summary>
+    /// Gets the raw object of <see cref="Vault6" />.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("vault6")]
+    public ItemStorage RawVault6
+    {
+        get => base.Vault6 as ItemStorage;
+        set => base.Vault6 = value;
+    }
+
+    /// <inheritdoc/>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public override MUnique.OpenMU.DataModel.Entities.ItemStorage Vault6
+    {
+        get => base.Vault6;
+        set => base.Vault6 = value;
+    }
+
 
     /// <inheritdoc/>
     public override bool Equals(object obj)

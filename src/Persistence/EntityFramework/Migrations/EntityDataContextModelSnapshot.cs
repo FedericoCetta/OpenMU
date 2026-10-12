@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
 {
-    [DbContext(typeof(EntityDataContext))]
+    [DbContext(typeof(MUnique.OpenMU.Persistence.EntityFramework.EntityDataContext))]
     partial class EntityDataContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -79,12 +79,30 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
                     b.Property<short>("TimeZone")
                         .HasColumnType("smallint");
 
+                    b.Property<Guid?>("Vault2Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("Vault3Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("Vault4Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("Vault5Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("Vault6Id")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("VaultId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("VaultPassword")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("VipUntil")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("WCoinC")
                         .HasColumnType("integer");
@@ -95,6 +113,21 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("LoginName")
+                        .IsUnique();
+
+                    b.HasIndex("Vault2Id")
+                        .IsUnique();
+
+                    b.HasIndex("Vault3Id")
+                        .IsUnique();
+
+                    b.HasIndex("Vault4Id")
+                        .IsUnique();
+
+                    b.HasIndex("Vault5Id")
+                        .IsUnique();
+
+                    b.HasIndex("Vault6Id")
                         .IsUnique();
 
                     b.HasIndex("VaultId")
@@ -4198,12 +4231,47 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
 
             modelBuilder.Entity("MUnique.OpenMU.Persistence.EntityFramework.Model.Account", b =>
                 {
+                    b.HasOne("MUnique.OpenMU.Persistence.EntityFramework.Model.ItemStorage", "RawVault2")
+                        .WithOne()
+                        .HasForeignKey("MUnique.OpenMU.Persistence.EntityFramework.Model.Account", "Vault2Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MUnique.OpenMU.Persistence.EntityFramework.Model.ItemStorage", "RawVault3")
+                        .WithOne()
+                        .HasForeignKey("MUnique.OpenMU.Persistence.EntityFramework.Model.Account", "Vault3Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MUnique.OpenMU.Persistence.EntityFramework.Model.ItemStorage", "RawVault4")
+                        .WithOne()
+                        .HasForeignKey("MUnique.OpenMU.Persistence.EntityFramework.Model.Account", "Vault4Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MUnique.OpenMU.Persistence.EntityFramework.Model.ItemStorage", "RawVault5")
+                        .WithOne()
+                        .HasForeignKey("MUnique.OpenMU.Persistence.EntityFramework.Model.Account", "Vault5Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MUnique.OpenMU.Persistence.EntityFramework.Model.ItemStorage", "RawVault6")
+                        .WithOne()
+                        .HasForeignKey("MUnique.OpenMU.Persistence.EntityFramework.Model.Account", "Vault6Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("MUnique.OpenMU.Persistence.EntityFramework.Model.ItemStorage", "RawVault")
                         .WithOne()
                         .HasForeignKey("MUnique.OpenMU.Persistence.EntityFramework.Model.Account", "VaultId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("RawVault");
+
+                    b.Navigation("RawVault2");
+
+                    b.Navigation("RawVault3");
+
+                    b.Navigation("RawVault4");
+
+                    b.Navigation("RawVault5");
+
+                    b.Navigation("RawVault6");
                 });
 
             modelBuilder.Entity("MUnique.OpenMU.Persistence.EntityFramework.Model.AccountCharacterClass", b =>
