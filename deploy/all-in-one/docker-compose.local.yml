@@ -1,0 +1,23 @@
+# Local overrides for this machine.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --no-build
+# Rebuild the image after code changes:
+#   docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.local.yml build openmu-startup
+services:
+  nginx-80:
+    # Port 80 is taken by IIS, so the admin panel is published on 8090 instead.
+    ports: !override
+      - "8090:80"
+    restart: unless-stopped
+
+  openmu-startup:
+    # Our own image, built from this repository's source (the published one lags behind).
+    image: mu-server/openmu:local
+    restart: unless-stopped
+    # The database was first initialized with the old game/chat server
+    # ports (55901-55906, 55980), so publish those as well.
+    ports:
+      - "55901-55906:55901-55906"
+      - "55980:55980"
+
+  database:
+    restart: unless-stopped
