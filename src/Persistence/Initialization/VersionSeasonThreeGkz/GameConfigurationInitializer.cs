@@ -29,5 +29,6 @@ internal class GameConfigurationInitializer : VersionSeasonSix.GameConfiguration
         this.GameConfiguration.MaximumMasterLevel = 0;
 
         new SeasonThreeContentPruner(this.Context, this.GameConfiguration).Initialize();
+        LorenciaBattleCenter.Apply(this.GameConfiguration);
     }
 }
