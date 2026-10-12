@@ -136,6 +136,11 @@ public class VipTest
         await this._actions.SelectVaultAsync(player, 3).ConfigureAwait(false);
         Assert.That(player.Vault!.ItemStorage, Is.SameAs(account.Vault3));
         GetView(player).Verify(v => v.ShowVaultSelectionAsync(3, 6), Times.Once);
+
+        // Switching keeps the window open: reopening it would make the client close the vault.
+        Mock.Get(player.ViewPlugIns.GetPlugIn<GameLogic.Views.Vault.IShowVaultPlugIn>()!).Verify(v => v.ShowVaultAsync(), Times.Once);
+        Mock.Get(player.ViewPlugIns.GetPlugIn<GameLogic.Views.NPC.IShowMerchantStoreItemListPlugIn>()!)
+            .Verify(v => v.ShowMerchantStoreItemListAsync(account.Vault3!.Items, GameLogic.Views.NPC.StoreKind.Normal), Times.Once);
         var vault3 = account.Vault3!;
         vault3.Money = 1234;
 

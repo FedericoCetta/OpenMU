@@ -5,6 +5,7 @@
 namespace MUnique.OpenMU.GameLogic.Vip;
 
 using MUnique.OpenMU.GameLogic.CashShop;
+using MUnique.OpenMU.GameLogic.Views.NPC;
 using MUnique.OpenMU.GameLogic.Views.Vault;
 using MUnique.OpenMU.GameLogic.Views.Vip;
 
@@ -118,16 +119,41 @@ public class VipActions
     private static async ValueTask SwitchVaultAsync(Player player, int number)
     {
         var account = player.Account!;
+        var isOpen = player.Vault is not null;
         var storage = account.GetOrCreateVault(number, player.PersistenceContext);
         var warehouseSize = account.IsVaultExtended ? InventoryConstants.WarehouseSize * 2 : InventoryConstants.WarehouseSize;
         player.Vault = new Storage(warehouseSize, storage);
-        await player.InvokeViewPlugInAsync<IShowVaultPlugIn>(p => p.ShowVaultAsync()).ConfigureAwait(false);
-
-        if (VipPlugIn.GetConfiguration(player.GameContext) is not null)
+        var vipActive = VipPlugIn.GetConfiguration(player.GameContext) is not null;
+        if (!isOpen)
         {
-            var available = account.GetAvailableVaults(player.GameContext);
-            await player.InvokeViewPlugInAsync<IShowVipPlugIn>(p => p.ShowVaultSelectionAsync(number, available)).ConfigureAwait(false);
+            await player.InvokeViewPlugInAsync<IShowVaultPlugIn>(p => p.ShowVaultAsync()).ConfigureAwait(false);
         }
+        else
+        {
+            // The vault window stays open: opening it again would make the client close it first,
+            // which tells the server that the vault was closed. The client clears the vault when the
+            // open vault changes, so the selection goes before the items.
+            if (vipActive)
+            {
+                await SendSelectionAsync(player, number).ConfigureAwait(false);
+            }
+
+            await player.InvokeViewPlugInAsync<IShowMerchantStoreItemListPlugIn>(p => p.ShowMerchantStoreItemListAsync(storage.Items, StoreKind.Normal)).ConfigureAwait(false);
+            await player.InvokeViewPlugInAsync<IUpdateVaultMoneyPlugIn>(p => p.UpdateVaultMoneyAsync(true)).ConfigureAwait(false);
+            await player.InvokeViewPlugInAsync<IUpdateVaultStatePlugIn>(p => p.UpdateStateAsync()).ConfigureAwait(false);
+            return;
+        }
+
+        if (vipActive)
+        {
+            await SendSelectionAsync(player, number).ConfigureAwait(false);
+        }
+    }
+
+    private static async ValueTask SendSelectionAsync(Player player, int number)
+    {
+        var available = player.Account!.GetAvailableVaults(player.GameContext);
+        await player.InvokeViewPlugInAsync<IShowVipPlugIn>(p => p.ShowVaultSelectionAsync(number, available)).ConfigureAwait(false);
     }
 
     private async ValueTask SendInfoAsync(Player player, Account account, VipConfiguration configuration)
