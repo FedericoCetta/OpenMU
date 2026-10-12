@@ -1,10 +1,11 @@
-// <copyright file="MaximumConnectionsPerIpPlugIn.cs" company="MUnique">
+﻿// <copyright file="MaximumConnectionsPerIpPlugIn.cs" company="MUnique">
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 // </copyright>
 
 namespace MUnique.OpenMU.GameLogic.PlugIns;
 
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -19,6 +20,12 @@ using MUnique.OpenMU.PlugIns;
 [Guid("2C779F5E-379E-4CE0-BFCC-CA6455D757B3")]
 public class MaximumConnectionsPerIpPlugIn : IPlayerStateChangingPlugIn, ISupportCustomConfiguration<MaximumConnectionsPerIpPlugInConfiguration>, ISupportDefaultCustomConfiguration, IDisabledByDefault
 {
+    /// <summary>
+    /// The game servers of this process, so that the limit can apply to all of them together.
+    /// Weak references, so stopped game servers don't stay in memory.
+    /// </summary>
+    private static readonly ConditionalWeakTable<IGameContext, object> GameContexts = new();
+
     /// <inheritdoc />
     public MaximumConnectionsPerIpPlugInConfiguration? Configuration { get; set; }
 
@@ -37,7 +44,16 @@ public class MaximumConnectionsPerIpPlugIn : IPlayerStateChangingPlugIn, ISuppor
         }
 
         var config = this.Configuration ?? CreateDefaultConfiguration();
-        var players = await player.GameContext.GetPlayersAsync().ConfigureAwait(false);
+        GameContexts.TryAdd(player.GameContext, new object());
+        var contexts = config.CountAllGameServers
+            ? GameContexts.Select(entry => entry.Key).ToList()
+            : [player.GameContext];
+        var players = new List<Player>();
+        foreach (var context in contexts)
+        {
+            players.AddRange(await context.GetPlayersAsync().ConfigureAwait(false));
+        }
+
         var sameIpCount = players.Count(p =>
             (p as IHasIpAddress)?.IpAddress == ipAddress
             && p != player

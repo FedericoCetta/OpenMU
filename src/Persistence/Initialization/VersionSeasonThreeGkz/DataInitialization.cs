@@ -63,5 +63,10 @@ public class DataInitialization : VersionSeasonSix.DataInitialization
         {
             plugInConfiguration.IsActive = false;
         }
+
+        if (plugInType == typeof(GameLogic.PlugIns.MaximumConnectionsPerIpPlugIn))
+        {
+            GkzConnectionLimit.Apply(plugInConfiguration);
+        }
     }
 }

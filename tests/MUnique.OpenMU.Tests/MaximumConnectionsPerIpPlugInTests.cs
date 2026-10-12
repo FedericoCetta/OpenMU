@@ -1,4 +1,4 @@
-// <copyright file="MaximumConnectionsPerIpPlugInTests.cs" company="MUnique">
+﻿// <copyright file="MaximumConnectionsPerIpPlugInTests.cs" company="MUnique">
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 // </copyright>
 
@@ -189,6 +189,75 @@ public class MaximumConnectionsPerIpPlugInTests
         await this._plugin.PlayerStateChangingAsync(joiningPlayer, eventArgs).ConfigureAwait(false);
 
         // Assert
+        Assert.That(eventArgs.Cancel, Is.False);
+    }
+
+    /// <summary>
+    /// Tests that players of another game server count, when the limit applies to all game servers together.
+    /// </summary>
+    [Test]
+    public async ValueTask PlayersOfOtherGameServersCountWhenConfiguredAsync()
+    {
+        // A unique address, so other tests which share the game servers of this process don't interfere.
+        const string ipAddress = "10.123.45.67";
+        var otherGameContext = (GameContext)(await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false)).GameContext;
+        var plugin = new MaximumConnectionsPerIpPlugIn
+        {
+            Configuration = new MaximumConnectionsPerIpPlugInConfiguration { MaximumConnectionsPerIp = 2, CountAllGameServers = true },
+        };
+
+        foreach (var context in new[] { this._gameContext, otherGameContext })
+        {
+            var player = new TestPlayer(context);
+            player.SetIpAddress(ipAddress);
+            await player.PlayerState.TryAdvanceToAsync(PlayerState.LoginScreen).ConfigureAwait(false);
+            await player.PlayerState.TryAdvanceToAsync(PlayerState.Authenticated).ConfigureAwait(false);
+            await context.AddPlayerAsync(player).ConfigureAwait(false);
+
+            // The plugin learns the game servers by the logins on them.
+            await plugin.PlayerStateChangingAsync(player, new StateMachine.StateChangeEventArgs { NextState = PlayerState.Authenticated }).ConfigureAwait(false);
+        }
+
+        var joiningPlayer = new TestPlayer(this._gameContext);
+        joiningPlayer.SetIpAddress(ipAddress);
+        await joiningPlayer.PlayerState.TryAdvanceToAsync(PlayerState.LoginScreen).ConfigureAwait(false);
+        var eventArgs = new StateMachine.StateChangeEventArgs { NextState = PlayerState.Authenticated };
+
+        await plugin.PlayerStateChangingAsync(joiningPlayer, eventArgs).ConfigureAwait(false);
+
+        Assert.That(eventArgs.Cancel, Is.True);
+    }
+
+    /// <summary>
+    /// Tests that players of another game server don't count by default.
+    /// </summary>
+    [Test]
+    public async ValueTask PlayersOfOtherGameServersDontCountByDefaultAsync()
+    {
+        const string ipAddress = "10.123.45.68";
+        var otherGameContext = (GameContext)(await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false)).GameContext;
+        var plugin = new MaximumConnectionsPerIpPlugIn
+        {
+            Configuration = new MaximumConnectionsPerIpPlugInConfiguration { MaximumConnectionsPerIp = 2 },
+        };
+
+        foreach (var context in new[] { this._gameContext, otherGameContext })
+        {
+            var player = new TestPlayer(context);
+            player.SetIpAddress(ipAddress);
+            await player.PlayerState.TryAdvanceToAsync(PlayerState.LoginScreen).ConfigureAwait(false);
+            await player.PlayerState.TryAdvanceToAsync(PlayerState.Authenticated).ConfigureAwait(false);
+            await context.AddPlayerAsync(player).ConfigureAwait(false);
+            await plugin.PlayerStateChangingAsync(player, new StateMachine.StateChangeEventArgs { NextState = PlayerState.Authenticated }).ConfigureAwait(false);
+        }
+
+        var joiningPlayer = new TestPlayer(this._gameContext);
+        joiningPlayer.SetIpAddress(ipAddress);
+        await joiningPlayer.PlayerState.TryAdvanceToAsync(PlayerState.LoginScreen).ConfigureAwait(false);
+        var eventArgs = new StateMachine.StateChangeEventArgs { NextState = PlayerState.Authenticated };
+
+        await plugin.PlayerStateChangingAsync(joiningPlayer, eventArgs).ConfigureAwait(false);
+
         Assert.That(eventArgs.Cancel, Is.False);
     }
 

@@ -142,6 +142,21 @@ internal class SeasonThreeGkzDataTest
     }
 
     /// <summary>
+    /// Tests that at most 2 accounts per IP address can be logged in, on all game servers together.
+    /// </summary>
+    [Test]
+    public void ConnectionsPerIpAreLimited()
+    {
+        var typeId = typeof(MUnique.OpenMU.GameLogic.PlugIns.MaximumConnectionsPerIpPlugIn).GUID;
+        var plugInConfiguration = this._configuration.PlugInConfigurations.Single(c => c.TypeId == typeId);
+        var configuration = plugInConfiguration.GetConfiguration<MUnique.OpenMU.GameLogic.PlugIns.MaximumConnectionsPerIpPlugInConfiguration>(null);
+
+        Assert.That(plugInConfiguration.IsActive, Is.True);
+        Assert.That(configuration!.MaximumConnectionsPerIp, Is.EqualTo(2));
+        Assert.That(configuration.CountAllGameServers, Is.True);
+    }
+
+    /// <summary>
     /// Tests that the database is marked with the key of this initialization, so that no Season 6 updates are offered.
     /// </summary>
     [Test]

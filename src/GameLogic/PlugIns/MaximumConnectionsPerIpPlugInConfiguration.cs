@@ -1,4 +1,4 @@
-// <copyright file="MaximumConnectionsPerIpPlugInConfiguration.cs" company="MUnique">
+﻿// <copyright file="MaximumConnectionsPerIpPlugInConfiguration.cs" company="MUnique">
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 // </copyright>
 
@@ -14,4 +14,11 @@ public class MaximumConnectionsPerIpPlugInConfiguration
     /// </summary>
     [System.ComponentModel.DataAnnotations.Display(Name = nameof(MUnique.OpenMU.GameLogic.Properties.PlugInResources.MaximumConnectionsPerIpPlugInConfiguration_MaximumConnectionsPerIp_Caption), ResourceType = typeof(MUnique.OpenMU.GameLogic.Properties.PlugInResources))]
     public int MaximumConnectionsPerIp { get; set; } = 3;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the limit applies to all game servers of this process together.
+    /// Otherwise, it applies to each game server separately, so a player could reach the limit on every server.
+    /// </summary>
+    [System.ComponentModel.DataAnnotations.Display(Name = "Count all game servers together")]
+    public bool CountAllGameServers { get; set; }
 }
