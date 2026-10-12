@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using MUnique.OpenMU.GameLogic;
 using MUnique.OpenMU.GameLogic.PlayerActions;
+using MUnique.OpenMU.GameLogic.Views.Login;
 using MUnique.OpenMU.GameServer.RemoteView;
 using MUnique.OpenMU.Network;
 using MUnique.OpenMU.Network.Packets;
@@ -43,6 +44,12 @@ public class LogInHandlerPlugIn : ISubPacketHandlerPlugIn
             if (packet.Length > 28 + 3)
             {
                 LoginShortPassword message = packet;
+                if (!IsClientSerialValid(player, message.ClientSerial))
+                {
+                    await RejectWrongClientAsync(player).ConfigureAwait(false);
+                    return;
+                }
+
                 await this.HandleLoginAsync(player, this.Decrypt(message.Username), this.Decrypt(message.Password), message.TickCount, ClientVersionResolver.Resolve(message.ClientVersion)).ConfigureAwait(false);
             }
             else
@@ -55,8 +62,33 @@ public class LogInHandlerPlugIn : ISubPacketHandlerPlugIn
         else
         {
             LoginLongPassword message = packet;
+            if (!IsClientSerialValid(player, message.ClientSerial))
+            {
+                await RejectWrongClientAsync(player).ConfigureAwait(false);
+                return;
+            }
+
             await this.HandleLoginAsync(player, this.Decrypt(message.Username), this.Decrypt(message.Password), message.TickCount, ClientVersionResolver.Resolve(message.ClientVersion)).ConfigureAwait(false);
         }
+    }
+
+    /// <summary>
+    /// Checks the serial of the game client against the serial which is configured for the client
+    /// of the endpoint. Game clients with another serial (e.g. modified or foreign clients) are rejected.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    /// <param name="clientSerial">The serial which was sent by the client.</param>
+    /// <returns><c>true</c>, if the login may continue.</returns>
+    private static bool IsClientSerialValid(Player player, ReadOnlySpan<byte> clientSerial)
+    {
+        return player is not RemotePlayer { ExpectedClientSerial: { Length: > 0 } expected }
+               || clientSerial.SequenceEqual(expected);
+    }
+
+    private static async ValueTask RejectWrongClientAsync(Player player)
+    {
+        player.Logger.LogWarning("Login rejected: the client serial doesn't match the configured serial. Address: {address}", (player as IHasIpAddress)?.IpAddress);
+        await player.InvokeViewPlugInAsync<IShowLoginResultPlugIn>(p => p.ShowLoginResultAsync(LoginResult.WrongVersion)).ConfigureAwait(false);
     }
 
     private string Decrypt(Span<byte> stringSpan)

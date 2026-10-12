@@ -1,4 +1,4 @@
-// <copyright file="RemotePlayer.cs" company="MUnique">
+﻿// <copyright file="RemotePlayer.cs" company="MUnique">
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 // </copyright>
 
@@ -23,6 +23,12 @@ public class RemotePlayer : Player, IClientVersionProvider, IHasIpAddress
     private readonly string? _ipAddress;
 
     private ClientVersion _clientVersion;
+
+    /// <summary>
+    /// Gets the serial which the game client has to send at login, as configured for the
+    /// endpoint the client connected to. <c>null</c> or empty means the serial isn't checked.
+    /// </summary>
+    public byte[]? ExpectedClientSerial { get; init; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RemotePlayer"/> class.

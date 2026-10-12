@@ -47,6 +47,15 @@ public class DataInitialization : VersionSeasonSix.DataInitialization
     protected override IGameMapsInitializer GameMapsInitializer => new GameMapsInitializer(this.Context, this.GameConfiguration);
 
     /// <inheritdoc />
+    protected override void CreateGameClientDefinition()
+    {
+        // Only the MU GKZ client; the original client isn't accepted.
+        var client = this.Context.CreateNew<GameClientDefinition>();
+        client.SetGuid(0x204D);
+        GkzClient.Apply(client);
+    }
+
+    /// <inheritdoc />
     protected override void OnPlugInConfigurationCreated(Type plugInType, PlugInConfiguration plugInConfiguration)
     {
         base.OnPlugInConfigurationCreated(plugInType, plugInConfiguration);
