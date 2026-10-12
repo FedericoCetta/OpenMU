@@ -8,6 +8,11 @@ services:
     ports: !override
       - "8090:80"
     restart: unless-stopped
+    # MU GKZ: own nginx configuration with the public launcher routes, and the published launcher files.
+    volumes: !override
+      - ./nginx/nginx.gkz.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/gkz-secrets.conf:/etc/nginx/gkz-secrets.conf:ro
+      - ../../../launcher-publish:/usr/share/nginx/gkz-launcher:ro
 
   openmu-startup:
     # Our own image, built from this repository's source (the published one lags behind).
