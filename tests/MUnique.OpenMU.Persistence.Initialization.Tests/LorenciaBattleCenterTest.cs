@@ -11,7 +11,7 @@ using MUnique.OpenMU.Persistence.Initialization.VersionSeasonThreeGkz;
 using MUnique.OpenMU.Persistence.InMemory;
 
 /// <summary>
-/// Tests the battle center of MU GKZ on the plaza of Lorencia.
+/// Tests the PvP ring of MU GKZ, which replaces the fountain of Lorencia.
 /// </summary>
 [TestFixture]
 internal class LorenciaBattleCenterTest
@@ -19,57 +19,95 @@ internal class LorenciaBattleCenterTest
     private const int TerrainHeaderSize = 3;
 
     /// <summary>
-    /// Tests that a new database contains the battle center.
+    /// Tests that a new database contains the ring.
     /// </summary>
     [Test]
-    public async Task NewDatabaseContainsBattleCenterAsync()
+    public async Task NewDatabaseContainsRingAsync()
     {
         var (_, configuration) = await CreateConfigurationAsync().ConfigureAwait(false);
 
-        AssertBattleCenter(configuration);
+        AssertRing(configuration);
     }
 
     /// <summary>
-    /// Tests that the update adds the battle center to an existing database, and that applying it twice changes nothing.
+    /// Tests that the update adds the ring to a database with the original Lorencia, and that applying it twice changes nothing.
     /// </summary>
     [Test]
-    public async Task UpdateAddsBattleCenterAsync()
+    public async Task UpdateAddsRingToOriginalLorenciaAsync()
     {
         var (provider, configuration) = await CreateConfigurationAsync().ConfigureAwait(false);
         var lorencia = GetLorencia(configuration);
         lorencia.UpdateTerrainFromResources();
-        var spawnGate = lorencia.ExitGates.Single(g => g.IsSpawnGate);
-        (spawnGate.X1, spawnGate.Y1, spawnGate.X2, spawnGate.Y2) = LorenciaBattleCenter.OriginalSpawnGate;
-        Assert.That(GetValue(lorencia, 140, 127), Is.Not.Zero, "precondition: the fountain is blocked");
+        SetSpawnGate(lorencia, LorenciaBattleCenter.OriginalSpawnGate);
 
+        await ApplyTwiceAndAssertAsync(provider, configuration).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Tests that the update replaces the first version of the battle center, which covered the whole plaza.
+    /// </summary>
+    [Test]
+    public async Task UpdateReplacesFirstVersionAsync()
+    {
+        var (provider, configuration) = await CreateConfigurationAsync().ConfigureAwait(false);
+        var lorencia = GetLorencia(configuration);
+        lorencia.UpdateTerrainFromResources();
+        var terrain = (byte[])lorencia.TerrainData!.Clone();
+        for (var y = 118; y <= 137; y++)
+        {
+            for (var x = 132; x <= 151; x++)
+            {
+                if (terrain[TerrainHeaderSize + x + (y * 256)] == 1)
+                {
+                    terrain[TerrainHeaderSize + x + (y * 256)] = 0;
+                }
+            }
+        }
+
+        lorencia.TerrainData = terrain;
+        SetSpawnGate(lorencia, LorenciaBattleCenter.FirstVersionSpawnGate);
+
+        await ApplyTwiceAndAssertAsync(provider, configuration).ConfigureAwait(false);
+    }
+
+    private static async Task ApplyTwiceAndAssertAsync(InMemoryPersistenceContextProvider provider, GameConfiguration configuration)
+    {
+        var lorencia = GetLorencia(configuration);
         var update = new AddLorenciaBattleCenterPlugInGkz();
         await update.ApplyUpdateAsync(provider.CreateNewContext(), configuration).ConfigureAwait(false);
         var terrainAfterFirstUpdate = lorencia.TerrainData;
         await update.ApplyUpdateAsync(provider.CreateNewContext(), configuration).ConfigureAwait(false);
 
-        AssertBattleCenter(configuration);
+        AssertRing(configuration);
         Assert.That(lorencia.TerrainData, Is.SameAs(terrainAfterFirstUpdate), "the second update changed the terrain");
     }
 
-    private static void AssertBattleCenter(GameConfiguration configuration)
+    private static void AssertRing(GameConfiguration configuration)
     {
         var lorencia = GetLorencia(configuration);
-        var area = LorenciaBattleCenter.Area;
+        var original = new GameMapDefinition { Number = lorencia.Number, Name = lorencia.Name };
+        original.UpdateTerrainFromResources();
+
         Assert.Multiple(() =>
         {
-            for (var y = area.Y1; y <= area.Y2; y++)
+            for (var y = 110; y <= 145; y++)
             {
-                for (var x = area.X1; x <= area.X2; x++)
+                for (var x = 125; x <= 158; x++)
                 {
-                    Assert.That(GetValue(lorencia, x, y), Is.Not.EqualTo(1), $"({x}, {y}) is still a safezone");
-                }
-            }
-
-            for (var y = LorenciaBattleCenter.Fountain.Y1; y <= LorenciaBattleCenter.Fountain.Y2; y++)
-            {
-                for (var x = LorenciaBattleCenter.Fountain.X1; x <= LorenciaBattleCenter.Fountain.X2; x++)
-                {
-                    Assert.That(GetValue(lorencia, x, y), Is.Zero, $"({x}, {y}) of the fountain isn't walkable");
+                    var value = GetValue(lorencia, x, y);
+                    var originalValue = GetValue(original, x, y);
+                    if (LorenciaBattleCenter.Contains(LorenciaBattleCenter.Fountain, x, y))
+                    {
+                        Assert.That(value, Is.Zero, $"({x}, {y}) of the fountain isn't walkable");
+                    }
+                    else if (LorenciaBattleCenter.IsInRing(x, y) && originalValue == 1)
+                    {
+                        Assert.That(value, Is.Zero, $"({x}, {y}) in the ring is still a safezone");
+                    }
+                    else
+                    {
+                        Assert.That(value, Is.EqualTo(originalValue), $"({x}, {y}) outside of the ring was changed");
+                    }
                 }
             }
 
@@ -82,10 +120,16 @@ internal class LorenciaBattleCenterTest
             {
                 for (var x = spawnGate.X1; x <= spawnGate.X2; x++)
                 {
-                    Assert.That(LorenciaBattleCenter.Contains(area, x, y), Is.False, $"spawn ({x}, {y}) is inside of the battle center");
+                    Assert.That(LorenciaBattleCenter.IsInRing(x, y), Is.False, $"spawn ({x}, {y}) is inside of the ring");
                 }
             }
         });
+    }
+
+    private static void SetSpawnGate(GameMapDefinition lorencia, (byte X1, byte Y1, byte X2, byte Y2) area)
+    {
+        var spawnGate = lorencia.ExitGates.Single(g => g.IsSpawnGate);
+        (spawnGate.X1, spawnGate.Y1, spawnGate.X2, spawnGate.Y2) = area;
     }
 
     private static byte GetValue(GameMapDefinition map, int x, int y) => map.TerrainData![TerrainHeaderSize + x + (y * 256)];

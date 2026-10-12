@@ -9,7 +9,8 @@ using MUnique.OpenMU.Persistence.Initialization.VersionSeasonThreeGkz;
 using MUnique.OpenMU.PlugIns;
 
 /// <summary>
-/// This update turns the plaza around the fountain of Lorencia into the battle center of MU GKZ.
+/// This update replaces the fountain of Lorencia by the PvP ring of MU GKZ.
+/// Version 1 turned the whole plaza into a battle area; version 2 limits it to the ring.
 /// </summary>
 [PlugIn]
 [Display(Name = PlugInName, Description = PlugInDescription)]
@@ -19,12 +20,12 @@ public class AddLorenciaBattleCenterPlugInGkz : UpdatePlugInBase
     /// <summary>
     /// The plug in name.
     /// </summary>
-    internal const string PlugInName = "MU GKZ: Lorencia battle center";
+    internal const string PlugInName = "MU GKZ: Lorencia PvP ring";
 
     /// <summary>
     /// The plug in description.
     /// </summary>
-    internal const string PlugInDescription = "Turns the plaza around the fountain of Lorencia into a battle area without safezone, removes the fountain and moves the spawn point of Lorencia to the street west of the plaza. Requires the matching client terrain (EncTerrain1.att).";
+    internal const string PlugInDescription = "Replaces the fountain of Lorencia by a PvP ring: inside of the ring there is no safezone. The spawn point of Lorencia is limited to the north part of the plaza. The terrain of Lorencia is reset to its original before. Requires the matching client (EncTerrain1.att/.obj and the ring model).";
 
     /// <inheritdoc />
     public override string DataInitializationKey => VersionSeasonThreeGkz.DataInitialization.Id;
@@ -39,7 +40,13 @@ public class AddLorenciaBattleCenterPlugInGkz : UpdatePlugInBase
     public override bool IsMandatory => false;
 
     /// <inheritdoc />
+    public override int Version => 2;
+
+    /// <inheritdoc />
     public override DateTime CreatedAt => new(2026, 10, 12, 0, 0, 0, DateTimeKind.Utc);
+
+    /// <inheritdoc />
+    public override DateTime UpdatedAt => new(2026, 10, 12, 12, 0, 0, DateTimeKind.Utc);
 
     /// <inheritdoc />
     protected override ValueTask ApplyAsync(IContext context, GameConfiguration gameConfiguration)
