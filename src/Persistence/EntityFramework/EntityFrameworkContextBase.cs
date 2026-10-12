@@ -359,6 +359,12 @@ internal class EntityFrameworkContextBase : IContext
 
     private bool DetachInternal(object item)
     {
+        if (this.Context.Model.FindEntityType(item.GetType()) is null)
+        {
+            // Not an entity, e.g. a value which is stored as part of its owner.
+            return false;
+        }
+
         var entry = this.Context.Entry(item);
         if (entry is null)
         {

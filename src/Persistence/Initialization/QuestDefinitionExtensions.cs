@@ -179,6 +179,9 @@ internal static class QuestDefinitionExtensions
 
         requirement.Item = item.Definition; // TODO?
 
+        // The item itself isn't referenced by the requirement (yet), so it must not be saved as an orphan.
+        context.Detach(item);
+
         questDefinition.RequiredItems.Add(requirement);
         return questDefinition;
     }

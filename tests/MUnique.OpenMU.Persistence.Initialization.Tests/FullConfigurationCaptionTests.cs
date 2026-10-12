@@ -1,4 +1,4 @@
-// <copyright file="FullConfigurationCaptionTests.cs" company="MUnique">
+﻿// <copyright file="FullConfigurationCaptionTests.cs" company="MUnique">
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 // </copyright>
 
@@ -22,6 +22,7 @@ internal class FullConfigurationCaptionTests
     [TestCase("075")]
     [TestCase("095d")]
     [TestCase("Season6")]
+    [TestCase("season3-gkz")]
     public async Task AllCaptionsCanBeTranslatedAsync(string version)
     {
         var referenceProvider = new InMemoryPersistenceContextProvider();
@@ -111,6 +112,7 @@ internal class FullConfigurationCaptionTests
         {
             "075" => new Version075.DataInitialization(provider, NullLoggerFactory.Instance),
             "095d" => new Version095d.DataInitialization(provider, NullLoggerFactory.Instance),
+            "season3-gkz" => new VersionSeasonThreeGkz.DataInitialization(provider, NullLoggerFactory.Instance),
             _ => new VersionSeasonSix.DataInitialization(provider, NullLoggerFactory.Instance),
         };
         await initializer.CreateInitialDataAsync(1, false).ConfigureAwait(false);

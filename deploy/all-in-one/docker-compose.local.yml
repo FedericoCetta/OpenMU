@@ -13,11 +13,9 @@ services:
     # Our own image, built from this repository's source (the published one lags behind).
     image: mu-server/openmu:local
     restart: unless-stopped
-    # The database was first initialized with the old game/chat server
-    # ports (55901-55906, 55980), so publish those as well.
-    ports:
-      - "55901-55906:55901-55906"
-      - "55980:55980"
+    # Only used when the database doesn't exist yet: initialize it with the MU GKZ Season 3 data.
+    # To re-initialize an existing database, run once with -reinit added.
+    command: ["-version:season3-gkz", "-resolveIP:loopback"]
 
   database:
     restart: unless-stopped

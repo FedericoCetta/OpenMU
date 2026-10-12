@@ -116,6 +116,12 @@
   <data name="DataInitialization_Description" xml:space="preserve">
     <value>Provides initial data for Season 6 Episode 3.</value>
   </data>
+  <data name="DataInitializationSeasonThreeGkz_Name" xml:space="preserve">
+    <value>MU GKZ Season 3 Initialization</value>
+  </data>
+  <data name="DataInitializationSeasonThreeGkz_Description" xml:space="preserve">
+    <value>Provides initial data for MU GKZ: the Season 6 Episode 3 data, trimmed down to the content of Season 3.</value>
+  </data>
   <data name="AddArrowsForFairyElf_Name" xml:space="preserve">
     <value>AddArrowsForFairyElf</value>
   </data>

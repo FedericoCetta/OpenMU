@@ -313,6 +313,24 @@ namespace MUnique.OpenMU.Persistence.Initialization.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Provides initial data for MU GKZ: the Season 6 Episode 3 data, trimmed down to the content of Season 3..
+        /// </summary>
+        public static string DataInitializationSeasonThreeGkz_Description {
+            get {
+                return ResourceManager.GetString("DataInitializationSeasonThreeGkz_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MU GKZ Season 3 Initialization.
+        /// </summary>
+        public static string DataInitializationSeasonThreeGkz_Name {
+            get {
+                return ResourceManager.GetString("DataInitializationSeasonThreeGkz_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Provides initial data for Version 0.75.
         /// </summary>
         public static string DataInitialization075_Description {

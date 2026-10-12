@@ -200,6 +200,8 @@ public abstract class DataInitializationBase : IDataInitializationPlugIn
             {
                 plugInConfiguration.IsActive = false;
             }
+
+            this.OnPlugInConfigurationCreated(plugInType, plugInConfiguration);
         });
 
         this.AddAllUpdateEntries(plugInManager);
@@ -211,6 +213,16 @@ public abstract class DataInitializationBase : IDataInitializationPlugIn
     /// Creates the game client definition.
     /// </summary>
     protected abstract void CreateGameClientDefinition();
+
+    /// <summary>
+    /// Called after the default configuration of a plugin has been created.
+    /// Allows a data initialization to adapt it, e.g. to deactivate features which don't exist in its version.
+    /// </summary>
+    /// <param name="plugInType">The type of the plugin.</param>
+    /// <param name="plugInConfiguration">The created plugin configuration.</param>
+    protected virtual void OnPlugInConfigurationCreated(Type plugInType, PlugInConfiguration plugInConfiguration)
+    {
+    }
 
     private void CreateDefaultPlugInConfiguration(Type plugInType, PlugInConfiguration plugInConfiguration, ReferenceHandler referenceHandler)
     {
@@ -228,6 +240,11 @@ public abstract class DataInitializationBase : IDataInitializationPlugIn
 
     private void AddAllUpdateEntries(PlugInManager plugInManager)
     {
+        // The state is always created, so that the key of a data initialization without
+        // any update plugins isn't guessed from its client version later.
+        var updateState = this.Context.CreateNew<ConfigurationUpdateState>();
+        updateState.InitializationKey = this.Key;
+
         var updates = plugInManager.GetStrategyProvider<Guid, IConfigurationUpdatePlugIn>()
                           ?.AvailableStrategies.Where(up => up.DataInitializationKey == this.Key)
                           .OrderBy(up => up.UpdatedAt)
@@ -248,9 +265,6 @@ public abstract class DataInitializationBase : IDataInitializationPlugIn
             entry.UpdatedAt = update.UpdatedAt;
             entry.InstalledAt = DateTime.UtcNow;
         }
-
-        var updateState = this.Context.CreateNew<ConfigurationUpdateState>();
-        updateState.InitializationKey = this.Key;
     }
 
     private async ValueTask CreateConnectServerDefinitionAsync()
