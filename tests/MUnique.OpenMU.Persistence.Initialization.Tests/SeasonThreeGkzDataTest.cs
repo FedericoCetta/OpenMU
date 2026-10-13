@@ -157,6 +157,24 @@ internal class SeasonThreeGkzDataTest
     }
 
     /// <summary>
+    /// Tests that the jewels stack up to 50 pieces, and that they're still not wearable.
+    /// </summary>
+    /// <param name="group">The item group.</param>
+    /// <param name="number">The item number.</param>
+    [TestCase(14, 13)]
+    [TestCase(14, 14)]
+    [TestCase(14, 16)]
+    [TestCase(12, 15)]
+    [TestCase(14, 22)]
+    public void JewelsStackUpToFifty(byte group, short number)
+    {
+        var jewel = this._configuration.Items.Single(i => i.Group == group && i.Number == number);
+
+        Assert.That(jewel.Durability, Is.EqualTo(50));
+        Assert.That(jewel.ItemSlot, Is.Null);
+    }
+
+    /// <summary>
     /// Tests that the database is marked with the key of this initialization, so that no Season 6 updates are offered.
     /// </summary>
     [Test]
