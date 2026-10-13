@@ -175,6 +175,30 @@ internal class SeasonThreeGkzDataTest
     }
 
     /// <summary>
+    /// Tests that the Talisman of Chaos Assembly exists, and that only the upgrades to +11, +12 and +13 accept it.
+    /// All level upgrades use the MU GKZ handler, which refuses the talisman in the others.
+    /// </summary>
+    [Test]
+    public void ChaosAssemblyTalismanProtectsElevenToThirteen()
+    {
+        var talisman = this._configuration.Items.Single(i => i.Group == 14 && i.Number == 96);
+        var upgrades = this._configuration.Monsters
+            .Single(m => m.NpcWindow == NpcWindow.ChaosMachine)
+            .ItemCraftings
+            .Select(c => (Crafting: c, Level: GkzChaosAssemblyTalisman.GetUpgradeTargetLevel(c)))
+            .Where(u => u.Level is not null)
+            .ToList();
+
+        Assert.That(upgrades.Select(u => u.Level), Is.EquivalentTo(new int?[] { 10, 11, 12, 13, 14, 15 }));
+        foreach (var (crafting, level) in upgrades)
+        {
+            Assert.That(crafting.ItemCraftingHandlerClassName, Is.EqualTo(typeof(MUnique.OpenMU.GameLogic.PlayerActions.Craftings.GkzItemUpgradeCrafting).FullName));
+            var acceptsTalisman = crafting.SimpleCraftingSettings!.RequiredItems.Any(r => r.PossibleItems.Contains(talisman) && r.MinimumAmount == 0 && r.MaximumAmount == 1);
+            Assert.That(acceptsTalisman, Is.EqualTo(level is >= 11 and <= 13), $"+{level}");
+        }
+    }
+
+    /// <summary>
     /// Tests that the database is marked with the key of this initialization, so that no Season 6 updates are offered.
     /// </summary>
     [Test]

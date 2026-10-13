@@ -28,4 +28,9 @@ public enum MixResult
     /// The item will be downgraded 2 or 3 levels and its item option will be removed.
     /// </summary>
     ThirdWingsDowngradedRandom = 3,
+
+    /// <summary>
+    /// The item goes back to level 0. MU GKZ: a failed upgrade with a Talisman of Chaos Assembly.
+    /// </summary>
+    DowngradedToZero = 4,
 }
