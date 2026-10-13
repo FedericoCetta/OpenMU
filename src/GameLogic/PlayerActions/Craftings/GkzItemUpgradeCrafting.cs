@@ -7,12 +7,15 @@ namespace MUnique.OpenMU.GameLogic.PlayerActions.Craftings;
 using MUnique.OpenMU.DataModel.Configuration.ItemCrafting;
 using MUnique.OpenMU.DataModel.Configuration.Items;
 using MUnique.OpenMU.GameLogic.PlayerActions.Items;
+using MUnique.OpenMU.GameLogic.Vip;
 using MUnique.OpenMU.GameLogic.Views.NPC;
 
 /// <summary>
 /// The item level upgrade (+10 to +15) of MU GKZ, with the Talisman of Chaos Assembly: when the upgrade fails,
 /// the item goes back to +0 instead of disappearing. The talisman is only allowed where the crafting lists it
 /// as an optional item (+11 to +13); in the other upgrades it's refused, so +14 and +15 stay pure chance.
+/// The success rates are fixed by level and VIP status (<see cref="SuccessRates"/>): luck or excellent options
+/// of the item don't change them.
 /// </summary>
 public class GkzItemUpgradeCrafting : SimpleItemCraftingHandler
 {
@@ -25,6 +28,19 @@ public class GkzItemUpgradeCrafting : SimpleItemCraftingHandler
     /// The item number of the Talisman of Chaos Assembly.
     /// </summary>
     public const short TalismanNumber = 96;
+
+    /// <summary>
+    /// The success rates by the level which the upgrade reaches: for VIP accounts and for the others.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<int, (byte Vip, byte Normal)> SuccessRates = new Dictionary<int, (byte Vip, byte Normal)>
+    {
+        { 10, (100, 95) },
+        { 11, (90, 80) },
+        { 12, (78, 72) },
+        { 13, (70, 60) },
+        { 14, (55, 40) },
+        { 15, (45, 25) },
+    };
 
     private readonly SimpleCraftingSettings _settings;
 
@@ -55,6 +71,12 @@ public class GkzItemUpgradeCrafting : SimpleItemCraftingHandler
             return error;
         }
 
+        if (this._settings.RequiredItems.FirstOrDefault(r => r.Reference == 1) is { } upgraded
+            && this.GetSuccessRate(player, upgraded.MinimumItemLevel + 1) is { } fixedRate)
+        {
+            successRate = fixedRate;
+        }
+
         if (items.Any(link => link.ItemRequirement.PossibleItems.Any(IsTalisman) && link.Items.Any()))
         {
             // With the talisman, a failure takes the upgraded item back to +0 instead of destroying it.
@@ -68,6 +90,19 @@ public class GkzItemUpgradeCrafting : SimpleItemCraftingHandler
         }
 
         return default;
+    }
+
+    /// <summary>
+    /// Gets the fixed success rate of the upgrade.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    /// <param name="targetLevel">The level which the upgrade reaches.</param>
+    /// <returns>The success rate, or <c>null</c> to keep the one of the settings.</returns>
+    protected virtual byte? GetSuccessRate(Player player, int targetLevel)
+    {
+        return SuccessRates.TryGetValue(targetLevel, out var rates)
+            ? player.Account?.IsVip() == true ? rates.Vip : rates.Normal
+            : null;
     }
 
     private static bool IsTalisman(ItemDefinition definition)

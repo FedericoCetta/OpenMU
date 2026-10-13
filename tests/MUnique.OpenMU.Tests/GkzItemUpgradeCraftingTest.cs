@@ -75,6 +75,26 @@ public class GkzItemUpgradeCraftingTest
         Assert.That(player.TemporaryStorage!.Items.Count(), Is.EqualTo(3));
     }
 
+    /// <summary>
+    /// Tests that the success rate of the upgrade to +11 is fixed by VIP status, whatever luck the item has.
+    /// </summary>
+    /// <param name="vip">Whether the account is VIP.</param>
+    /// <param name="expectedRate">The expected success rate.</param>
+    [TestCase(true, 90)]
+    [TestCase(false, 80)]
+    public async Task SuccessRateDependsOnVipAsync(bool vip, int expectedRate)
+    {
+        var player = await this.CreatePlayerAsync().ConfigureAwait(false);
+        player.Account!.VipUntil = vip ? DateTime.UtcNow.AddDays(1) : null;
+        await this.AddAsync(player, this._sword, 0, 10).ConfigureAwait(false);
+        await this.AddAsync(player, this._chaos, 1).ConfigureAwait(false);
+
+        var result = this.CreateHandler(acceptsTalisman: true, alwaysFails: false).TryGetRequiredItems(player, out _, out var successRate);
+
+        Assert.That(result, Is.Null);
+        Assert.That(successRate, Is.EqualTo(expectedRate));
+    }
+
     private static ItemDefinition CreateSword()
     {
         var sword = new BasicModel.ItemDefinition { Id = Guid.NewGuid(), Group = 0, Number = 1, Width = 1, Height = 3, Durability = 20, MaximumItemLevel = 15 };
@@ -82,10 +102,9 @@ public class GkzItemUpgradeCraftingTest
         return sword;
     }
 
-    private GkzItemUpgradeCrafting CreateHandler(bool acceptsTalisman)
+    private GkzItemUpgradeCrafting CreateHandler(bool acceptsTalisman, bool alwaysFails = true)
     {
-        // A success chance of 0, so the upgrade always fails.
-        var settings = new BasicModel.SimpleCraftingSettings { SuccessPercent = 0 };
+        var settings = new BasicModel.SimpleCraftingSettings();
         settings.RequiredItems.Add(new BasicModel.ItemCraftingRequiredItem
         {
             Reference = 1, MinimumAmount = 1, MaximumAmount = 1, MinimumItemLevel = 10, MaximumItemLevel = 10,
@@ -102,7 +121,7 @@ public class GkzItemUpgradeCraftingTest
         }
 
         settings.ResultItems.Add(new BasicModel.ItemCraftingResultItem { Reference = 1, AddLevel = 1 });
-        return new GkzItemUpgradeCrafting(settings);
+        return alwaysFails ? new AlwaysFailingUpgrade(settings) : new GkzItemUpgradeCrafting(settings);
     }
 
     private async ValueTask<Player> CreatePlayerAsync()
@@ -119,5 +138,18 @@ public class GkzItemUpgradeCraftingTest
         var item = new BasicModel.Item { Definition = definition, Level = level, Durability = definition.Durability };
         Assert.That(await player.TemporaryStorage!.AddItemAsync(slot, item).ConfigureAwait(false), Is.True);
         return item;
+    }
+
+    /// <summary>
+    /// An upgrade with a success chance of 0, so it always fails.
+    /// </summary>
+    private sealed class AlwaysFailingUpgrade : GkzItemUpgradeCrafting
+    {
+        public AlwaysFailingUpgrade(SimpleCraftingSettings settings)
+            : base(settings)
+        {
+        }
+
+        protected override byte? GetSuccessRate(Player player, int targetLevel) => 0;
     }
 }
