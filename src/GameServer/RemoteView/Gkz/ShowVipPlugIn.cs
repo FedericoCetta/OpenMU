@@ -39,6 +39,16 @@ public class ShowVipPlugIn : IShowVipPlugIn
     /// </summary>
     internal const int VaultSelectionLength = 6;
 
+    /// <summary>
+    /// C1 [size] EC 21 [status] [dragged item slot] [target item slot] [price u32] [coins u32].
+    /// </summary>
+    internal const int CombinationCheckLength = 15;
+
+    /// <summary>
+    /// C1 [size] EC 23 [status].
+    /// </summary>
+    internal const int CombinationResultLength = 5;
+
     private const byte Code = 0xEC;
     private const int CoinNameLength = 16;
 
@@ -100,6 +110,30 @@ public class ShowVipPlugIn : IShowVipPlugIn
             WriteHeader(span, VaultSelectionLength, 0x10);
             span[4] = (byte)currentVault;
             span[5] = (byte)availableVaults;
+        }).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async ValueTask ShowItemCombinationCheckAsync(ItemCombinationStatus status, byte sourceSlot, byte targetSlot, int price, int coins)
+    {
+        await this.SendAsync(CombinationCheckLength, span =>
+        {
+            WriteHeader(span, CombinationCheckLength, 0x21);
+            span[4] = (byte)status;
+            span[5] = sourceSlot;
+            span[6] = targetSlot;
+            BinaryPrimitives.WriteUInt32LittleEndian(span[7..], (uint)Math.Max(0, price));
+            BinaryPrimitives.WriteUInt32LittleEndian(span[11..], (uint)Math.Max(0, coins));
+        }).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async ValueTask ShowItemCombinationResultAsync(ItemCombinationStatus status)
+    {
+        await this.SendAsync(CombinationResultLength, span =>
+        {
+            WriteHeader(span, CombinationResultLength, 0x23);
+            span[4] = (byte)status;
         }).ConfigureAwait(false);
     }
 

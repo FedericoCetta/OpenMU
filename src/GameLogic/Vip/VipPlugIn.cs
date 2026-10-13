@@ -125,7 +125,10 @@ public class VipPlugIn : IFeaturePlugIn, IPeriodicTaskPlugIn, IPlayerStateChange
             && player.Account is { } account
             && account.IsVip())
         {
-            await player.ShowBlueMessageAsync($"VIP activo hasta el {account.VipUntil!.Value.ToLocalTime():dd/MM/yyyy HH:mm}.").ConfigureAwait(false);
+            // The time left, because the server's time zone isn't the player's.
+            var left = account.VipUntil!.Value - DateTime.UtcNow;
+            var text = left.TotalDays >= 1 ? $"{(int)left.TotalDays} días" : $"{Math.Max(1, (int)left.TotalHours)} horas";
+            await player.ShowBlueMessageAsync($"VIP activo: te quedan {text}.").ConfigureAwait(false);
         }
     }
 

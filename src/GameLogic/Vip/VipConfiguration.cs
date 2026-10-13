@@ -62,4 +62,28 @@ public class VipConfiguration
     /// </summary>
     [Display(Name = "Vaults with VIP", Description = "The number of vaults of VIP accounts (1 to 6). The items of vaults above the limit are kept when the VIP ends.")]
     public int VipVaults { get; set; } = AccountVaults.MaximumVaults;
+
+    /// <summary>
+    /// Gets or sets the price of an item combination, in the coin of <see cref="CoinType"/>.
+    /// </summary>
+    [Display(Name = "Item combination price", Description = "The price of combining two equal excellent items into a new one with random excellent options.")]
+    public int CombinationPrice { get; set; } = 15;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether only VIP accounts can combine items.
+    /// </summary>
+    [Display(Name = "Item combination only for VIP", Description = "Whether only VIP accounts can combine items.")]
+    public bool CombinationRequiresVip { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the chance that the combined item gets two excellent options, e.g. 0.3 for 30 %.
+    /// </summary>
+    [Display(Name = "Item combination: chance of 2 excellent options", Description = "The chance that the new item gets two excellent options, e.g. 0.3 for 30 %. The rest gets one, unless it gets three.")]
+    public double CombinationTwoOptionsChance { get; set; } = 0.3;
+
+    /// <summary>
+    /// Gets or sets the chance that the combined item gets three excellent options, e.g. 0.1 for 10 %. Three is the most.
+    /// </summary>
+    [Display(Name = "Item combination: chance of 3 excellent options", Description = "The chance that the new item gets three excellent options, e.g. 0.1 for 10 %. Three is the most.")]
+    public double CombinationThreeOptionsChance { get; set; } = 0.1;
 }

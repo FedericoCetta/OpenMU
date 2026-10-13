@@ -31,6 +31,37 @@ public enum VipBuyResult
 }
 
 /// <summary>
+/// Whether two items can be combined, or the result of a combination.
+/// </summary>
+public enum ItemCombinationStatus
+{
+    /// <summary>
+    /// The items can be combined, or were combined.
+    /// </summary>
+    Ok,
+
+    /// <summary>
+    /// Only VIP accounts can combine items.
+    /// </summary>
+    NotVip,
+
+    /// <summary>
+    /// The account doesn't have enough coins.
+    /// </summary>
+    NotEnoughCoins,
+
+    /// <summary>
+    /// The items can't be combined: they must be the same excellent item with the same level, in the inventory.
+    /// </summary>
+    InvalidItems,
+
+    /// <summary>
+    /// The combination isn't available on this server.
+    /// </summary>
+    NotAvailable,
+}
+
+/// <summary>
 /// The state of the VIP of an account, as the VIP menu shows it.
 /// </summary>
 /// <param name="Coins">The coins of the account.</param>
@@ -61,4 +92,20 @@ public interface IShowVipPlugIn : IViewPlugIn
     /// <param name="currentVault">The number of the open vault, 1 to 6.</param>
     /// <param name="availableVaults">The number of vaults which can be opened.</param>
     ValueTask ShowVaultSelectionAsync(int currentVault, int availableVaults);
+
+    /// <summary>
+    /// Shows whether two items can be combined: the confirmation with the price, or what's missing.
+    /// </summary>
+    /// <param name="status">The status.</param>
+    /// <param name="sourceSlot">The inventory slot of the dragged item.</param>
+    /// <param name="targetSlot">The inventory slot of the item it was dropped on.</param>
+    /// <param name="price">The price of the combination.</param>
+    /// <param name="coins">The coins of the account.</param>
+    ValueTask ShowItemCombinationCheckAsync(ItemCombinationStatus status, byte sourceSlot, byte targetSlot, int price, int coins);
+
+    /// <summary>
+    /// Shows the result of an item combination.
+    /// </summary>
+    /// <param name="status">The result.</param>
+    ValueTask ShowItemCombinationResultAsync(ItemCombinationStatus status);
 }
