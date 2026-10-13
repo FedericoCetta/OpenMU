@@ -35,10 +35,9 @@ public sealed class MarketService : IDisposable
     private List<MarketStore>? _stores;
 
     /// <summary>
-    /// The items of listings which were loaded from the database: the loader of the market context doesn't load the
-    /// items of the storage of a listing, so they're loaded with their own context, and kept out of the market context.
+    /// The items of the listings, created from their data (<see cref="MarketItemData"/>); they aren't persisted.
     /// </summary>
-    private Dictionary<Guid, Item> _loadedItems = [];
+    private Dictionary<MarketListing, Item> _items = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MarketService"/> class.
@@ -210,6 +209,14 @@ public sealed class MarketService : IDisposable
                 return MarketResult.ItemNotAllowed;
             }
 
+            // The market keeps a copy of the item as data; the item can be listed only if the copy is complete.
+            var itemData = MarketItemData.Serialize(item);
+            if (MarketItemData.Deserialize(itemData, this._gameContext.Configuration) is not { } marketItem
+                || marketItem.ItemOptions.Count != item.ItemOptions.Count(o => o.ItemOption is not null))
+            {
+                return MarketResult.ItemNotAllowed;
+            }
+
             // The item leaves the player first: the player is saved before the market gets it.
             await inventory.RemoveItemAsync(item).ConfigureAwait(false);
             await player.InvokeViewPlugInAsync<IItemRemovedPlugIn>(p => p.RemoveItemAsync(slot)).ConfigureAwait(false);
@@ -220,13 +227,9 @@ public sealed class MarketService : IDisposable
                 return MarketResult.Failed;
             }
 
-            var storage = this._context!.CreateNew<ItemStorage>();
-            var marketItem = this._context.CreateNew<Item>();
-            marketItem.AssignValues(item);
-            marketItem.ItemSlot = 0;
-            storage.Items.Add(marketItem);
-            var listing = this._context.CreateNew<MarketListing>();
-            listing.Storage = storage;
+            var listing = this._context!.CreateNew<MarketListing>();
+            listing.ItemData = itemData;
+            this._items[listing] = marketItem;
             listing.Price = price;
             listing.Currency = currency;
             listing.CreatedAt = now;
@@ -442,7 +445,7 @@ public sealed class MarketService : IDisposable
 
     private Item? GetItem(MarketListing listing)
     {
-        return listing.Storage?.Items.FirstOrDefault() ?? this._loadedItems.GetValueOrDefault(listing.Id);
+        return this._items.GetValueOrDefault(listing);
     }
 
     private static bool IsJewelItem(Item item, (byte Group, short Number) jewel)
@@ -659,8 +662,8 @@ public sealed class MarketService : IDisposable
 
     private async ValueTask RemoveListingAsync(MarketStore store, MarketListing listing)
     {
-        // A loaded item isn't in the market context: deleting its storage deletes it in the database (cascade).
-        this._loadedItems.Remove(listing.Id);
+        // Listings of the first version have the item in a storage: deleting the storage deletes it (cascade).
+        this._items.Remove(listing);
         store.Listings.Remove(listing);
         if (listing.Storage is { } storage)
         {
@@ -681,25 +684,23 @@ public sealed class MarketService : IDisposable
         {
             this._context = this._gameContext.PersistenceContextProvider.CreateNewTypedContext(typeof(MarketStore), false, this._gameContext.Configuration);
             this._stores = (await this._context.GetAsync<MarketStore>().ConfigureAwait(false)).ToList();
-            this._loadedItems = [];
+            this._items = new(ReferenceEqualityComparer.Instance);
             var listings = this._stores.SelectMany(s => s.Listings).ToList();
-            foreach (var listing in listings.Where(l => l.Storage is { } storage && storage.Items.Count == 0))
+            foreach (var listing in listings)
             {
-                using var storageContext = this._gameContext.PersistenceContextProvider.CreateNewTypedContext(typeof(ItemStorage), false, this._gameContext.Configuration);
-                var storage = await storageContext.GetByIdAsync<ItemStorage>(listing.Storage!.GetId()).ConfigureAwait(false);
-                if (storage?.Items.FirstOrDefault() is { } item)
+                if (listing.ItemData is { } data && MarketItemData.Deserialize(data, this._gameContext.Configuration) is { } item)
                 {
-                    this._loadedItems[listing.Id] = item;
+                    this._items[listing] = item;
                 }
             }
 
             this._gameContext.LoggerFactory.CreateLogger<MarketService>().LogInformation(
-                "Market loaded: {stores} stores, {listings} listings, {storages} with storage, {items} with item, {definitions} with item definition.",
+                "Market loaded: {stores} stores, {listings} listings, {items} with item, {definitions} with item definition, {options} item options.",
                 this._stores.Count,
                 listings.Count,
-                listings.Count(l => l.Storage is not null),
                 listings.Count(l => this.GetItem(l) is not null),
-                listings.Count(l => this.GetItem(l)?.Definition is not null));
+                listings.Count(l => this.GetItem(l)?.Definition is not null),
+                listings.Sum(l => this.GetItem(l)?.ItemOptions.Count ?? 0));
         }
 
         return this._stores;
@@ -726,7 +727,7 @@ public sealed class MarketService : IDisposable
         this._context?.Dispose();
         this._context = null;
         this._stores = null;
-        this._loadedItems = [];
+        this._items = new(ReferenceEqualityComparer.Instance);
         return ValueTask.CompletedTask;
     }
 }

@@ -17,10 +17,16 @@ public class MarketListing
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the storage which holds the listed item.
+    /// Gets or sets the storage which held the listed item, in the first version of the market; new listings keep
+    /// the item in <see cref="ItemData"/>.
     /// </summary>
     [MemberOfAggregate]
     public virtual ItemStorage? Storage { get; set; }
+
+    /// <summary>
+    /// Gets or sets the listed item, as data (see MarketItemData of the game logic).
+    /// </summary>
+    public string? ItemData { get; set; }
 
     /// <summary>
     /// Gets or sets the price, in the <see cref="Currency"/>.

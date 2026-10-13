@@ -12,7 +12,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForGensMembe
     public partial class GensMemberTypedContextModel
     {
         private GensMemberTypedContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("21848e15-e4d4-4b2e-85c0-76adbb5982da"), entityTypeCount: 1)
+            : base(skipDetectChanges: false, modelId: new Guid("d1960817-49c8-4bd4-9ba5-09ac30b6657b"), entityTypeCount: 1)
         {
         }
 

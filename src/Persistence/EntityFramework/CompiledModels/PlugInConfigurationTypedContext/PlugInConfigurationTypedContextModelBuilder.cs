@@ -12,7 +12,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForPlugInCon
     public partial class PlugInConfigurationTypedContextModel
     {
         private PlugInConfigurationTypedContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("1d345f2f-dd44-42ef-872a-97ecdce93097"), entityTypeCount: 2)
+            : base(skipDetectChanges: false, modelId: new Guid("2e2ade9a-0b60-4657-8e16-71c1af8a40b1"), entityTypeCount: 2)
         {
         }
 

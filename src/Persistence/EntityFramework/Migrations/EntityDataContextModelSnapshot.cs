@@ -3118,6 +3118,9 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ItemData")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("MarketStoreId")
                         .HasColumnType("uuid");
 

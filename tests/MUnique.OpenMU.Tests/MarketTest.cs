@@ -159,6 +159,36 @@ public class MarketTest
     }
 
     /// <summary>
+    /// Tests that an item keeps its options in the market, also after a restart of the server, and that the buyer
+    /// gets it with them.
+    /// </summary>
+    [Test]
+    public async Task ItemsKeepTheirOptionsAfterARestartAsync()
+    {
+        var excellent = new BasicModel.IncreasableItemOption { Id = Guid.NewGuid(), Number = 1 };
+        var definition = new BasicModel.ItemOptionDefinition { Id = Guid.NewGuid() };
+        definition.PossibleOptions.Add(excellent);
+        Mock.Get(this._seller.GameContext.Configuration).Setup(c => c.ItemOptions).Returns(new List<ItemOptionDefinition> { definition });
+        await this.OpenStoreAsync().ConfigureAwait(false);
+        var item = await this.AddArmorAsync(this._seller).ConfigureAwait(false);
+        item.Level = 11;
+        item.HasSkill = true;
+        item.ItemOptions.Add(new BasicModel.ItemOptionLink { ItemOption = excellent, Level = 0, Index = 2 });
+        Assert.That(await this._market.SellAsync(this._seller, 12, 1000, MarketCurrency.Zen).ConfigureAwait(false), Is.EqualTo(MarketResult.Success));
+
+        // A new market loads the listings from the persistence, like after a restart.
+        this._market.Dispose();
+        this._market = new MarketService(this._seller.GameContext, () => this._configuration, () => this._now);
+        var offer = (await this.GetPageAsync(MarketFilter.All).ConfigureAwait(false)).Single();
+        Assert.That((offer.Item.Level, offer.Item.HasSkill, offer.Item.ItemOptions.Single().ItemOption, offer.Item.ItemOptions.Single().Index), Is.EqualTo(((byte)11, true, (IncreasableItemOption)excellent, 2)));
+
+        this._buyer.Money = 1000;
+        Assert.That(await this._market.BuyAsync(this._buyer, offer.ListingId).ConfigureAwait(false), Is.EqualTo(MarketResult.Success));
+        var bought = this._buyer.Inventory!.Items.Single(i => i.Definition == this._armor);
+        Assert.That((bought.Level, bought.ItemOptions.Single().ItemOption), Is.EqualTo(((byte)11, (IncreasableItemOption)excellent)));
+    }
+
+    /// <summary>
     /// Tests that the market marks the own items, so the client doesn't offer to buy them.
     /// </summary>
     [Test]

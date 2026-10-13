@@ -2308,6 +2308,7 @@ internal sealed class BasicModelConverter
         this._converted.Add(source, target);
         target.Id = source.Id;
         target.Storage = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Storage)!;
+        target.ItemData = source.ItemData;
         target.Price = source.Price;
         target.Currency = source.Currency;
         target.CreatedAt = source.CreatedAt;
