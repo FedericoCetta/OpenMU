@@ -47,6 +47,9 @@ public enum MarketResult : byte
 
     /// <summary>Something went wrong; nothing changed.</summary>
     Failed = 12,
+
+    /// <summary>Not enough jewels, in the inventory and the jewel bank together.</summary>
+    NotEnoughJewels = 13,
 }
 
 /// <summary>
@@ -100,7 +103,8 @@ public sealed record MarketFilter(string Name, MarketCategory Category, bool Exc
 /// <param name="Price">The price.</param>
 /// <param name="Currency">The currency of the price.</param>
 /// <param name="TimeLeft">The time until the listing ends; zero or less when it ended.</param>
-public sealed record MarketOffer(Guid ListingId, string Seller, Item Item, long Price, MarketCurrency Currency, TimeSpan TimeLeft);
+/// <param name="IsOwn">Whether the item belongs to the store of the player who sees it.</param>
+public sealed record MarketOffer(Guid ListingId, string Seller, Item Item, long Price, MarketCurrency Currency, TimeSpan TimeLeft, bool IsOwn = false);
 
 /// <summary>
 /// The store of a player, as the market shows it.
@@ -110,6 +114,64 @@ public sealed record MarketOffer(Guid ListingId, string Seller, Item Item, long 
 /// <param name="StoreFee">The zen which opening the store costs.</param>
 /// <param name="PendingZen">The zen of sales to collect.</param>
 /// <param name="PendingCoins">The coins of sales to collect.</param>
+/// <param name="PendingJewels">The jewels of sales to collect, by currency (Bless to Creation).</param>
 /// <param name="MaximumListings">The most items for sale at once.</param>
 /// <param name="Listings">The items of the store, for sale or ended.</param>
-public sealed record MarketStoreState(bool IsOpen, TimeSpan OpenTimeLeft, int StoreFee, long PendingZen, int PendingCoins, int MaximumListings, IReadOnlyList<MarketOffer> Listings);
+public sealed record MarketStoreState(bool IsOpen, TimeSpan OpenTimeLeft, int StoreFee, long PendingZen, int PendingCoins, IReadOnlyDictionary<MarketCurrency, int> PendingJewels, int MaximumListings, IReadOnlyList<MarketOffer> Listings);
+
+/// <summary>
+/// The jewels which can be a market price.
+/// </summary>
+public static class MarketJewels
+{
+    /// <summary>
+    /// Gets the jewel currencies, with their item group and number.
+    /// </summary>
+    public static IReadOnlyDictionary<MarketCurrency, (byte Group, short Number)> Items { get; } = new Dictionary<MarketCurrency, (byte Group, short Number)>
+    {
+        { MarketCurrency.Bless, (14, 13) },
+        { MarketCurrency.Soul, (14, 14) },
+        { MarketCurrency.Chaos, (12, 15) },
+        { MarketCurrency.Life, (14, 16) },
+        { MarketCurrency.Creation, (14, 22) },
+    };
+
+    /// <summary>
+    /// Gets whether the currency is a jewel.
+    /// </summary>
+    /// <param name="currency">The currency.</param>
+    /// <returns><c>true</c>, if it's a jewel.</returns>
+    public static bool IsJewel(this MarketCurrency currency) => Items.ContainsKey(currency);
+
+    /// <summary>
+    /// Gets the pending jewels of a store, by currency.
+    /// </summary>
+    /// <param name="store">The store.</param>
+    /// <returns>The pending jewels.</returns>
+    public static Dictionary<MarketCurrency, int> GetPendingJewels(this MarketStore store) => new()
+    {
+        { MarketCurrency.Bless, store.PendingBless },
+        { MarketCurrency.Soul, store.PendingSoul },
+        { MarketCurrency.Chaos, store.PendingChaos },
+        { MarketCurrency.Life, store.PendingLife },
+        { MarketCurrency.Creation, store.PendingCreation },
+    };
+
+    /// <summary>
+    /// Adds jewels to the pending jewels of a store; a negative number takes them away.
+    /// </summary>
+    /// <param name="store">The store.</param>
+    /// <param name="currency">The jewel.</param>
+    /// <param name="count">The number of jewels.</param>
+    public static void AddPendingJewels(this MarketStore store, MarketCurrency currency, int count)
+    {
+        switch (currency)
+        {
+            case MarketCurrency.Bless: store.PendingBless += count; break;
+            case MarketCurrency.Soul: store.PendingSoul += count; break;
+            case MarketCurrency.Chaos: store.PendingChaos += count; break;
+            case MarketCurrency.Life: store.PendingLife += count; break;
+            case MarketCurrency.Creation: store.PendingCreation += count; break;
+        }
+    }
+}

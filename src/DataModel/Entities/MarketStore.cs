@@ -45,6 +45,31 @@ public class MarketStore
     public int PendingCoins { get; set; }
 
     /// <summary>
+    /// Gets or sets the Jewels of Bless of sold items which the owner didn't collect yet.
+    /// </summary>
+    public int PendingBless { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Jewels of Soul of sold items which the owner didn't collect yet.
+    /// </summary>
+    public int PendingSoul { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Jewels of Chaos of sold items which the owner didn't collect yet.
+    /// </summary>
+    public int PendingChaos { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Jewels of Life of sold items which the owner didn't collect yet.
+    /// </summary>
+    public int PendingLife { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Jewels of Creation of sold items which the owner didn't collect yet.
+    /// </summary>
+    public int PendingCreation { get; set; }
+
+    /// <summary>
     /// Gets or sets the listings of the store.
     /// </summary>
     [MemberOfAggregate]

@@ -18,9 +18,10 @@ using MUnique.OpenMU.PlugIns;
 /// <remarks>
 /// <list type="bullet">
 /// <item>Page (C2, EC 68): [page u16] [page count u16] [count] [offers].</item>
-/// <item>Store (C2, EC 69): [open] [open seconds left u32] [fee u32] [pending zen u32] [pending coins u32] [maximum listings] [count] [offers].</item>
+/// <item>Store (C2, EC 69): [open] [open seconds left u32] [fee u32] [pending zen u32] [pending coins u32] [maximum listings] [count]
+/// [pending jewels: Bless, Soul, Chaos, Life, Creation, u32 each] [offers].</item>
 /// <item>Result (C1, EC 6A): [result].</item>
-/// <item>An offer: [listing id, 16] [price u32] [currency] [seconds left i32, negative when ended] [seller, 10] [item length] [item data].</item>
+/// <item>An offer: [listing id, 16] [price u32] [currency] [seconds left i32, negative when ended] [seller, 10] [own] [item length] [item data].</item>
 /// </list>
 /// </remarks>
 [PlugIn]
@@ -39,7 +40,8 @@ public class ShowMarketPlugIn : IShowMarketPlugIn
 
     private const int HeaderSize = 5;
     private const int NameLength = 10;
-    private const int OfferHeaderSize = 16 + 4 + 1 + 4 + NameLength + 1;
+    private const int OfferHeaderSize = 16 + 4 + 1 + 4 + NameLength + 1 + 1;
+    private const int PendingJewelsSize = 5 * 4;
 
     private readonly RemotePlayer _player;
 
@@ -90,7 +92,7 @@ public class ShowMarketPlugIn : IShowMarketPlugIn
         {
             var serializer = this._player.ItemSerializer;
             var offers = state.Listings.Take(byte.MaxValue).ToList();
-            var span = connection.Output.GetSpan(HeaderSize + 19 + (offers.Count * (OfferHeaderSize + serializer.NeededSpace)));
+            var span = connection.Output.GetSpan(HeaderSize + 19 + PendingJewelsSize + (offers.Count * (OfferHeaderSize + serializer.NeededSpace)));
             var length = HeaderSize;
             span[length] = state.IsOpen ? (byte)1 : (byte)0;
             BinaryPrimitives.WriteUInt32LittleEndian(span[(length + 1)..], (uint)Math.Max(0, state.OpenTimeLeft.TotalSeconds));
@@ -100,6 +102,11 @@ public class ShowMarketPlugIn : IShowMarketPlugIn
             span[length + 17] = (byte)state.MaximumListings;
             span[length + 18] = (byte)offers.Count;
             length += 19;
+            foreach (var jewel in MarketJewels.Items.Keys)
+            {
+                BinaryPrimitives.WriteUInt32LittleEndian(span[length..], (uint)Math.Max(0, state.PendingJewels.GetValueOrDefault(jewel)));
+                length += 4;
+            }
             foreach (var offer in offers)
             {
                 length += WriteOffer(span[length..], offer, serializer);
@@ -150,6 +157,7 @@ public class ShowMarketPlugIn : IShowMarketPlugIn
         var name = span.Slice(25, NameLength);
         name.Clear();
         Encoding.UTF8.GetBytes(offer.Seller.AsSpan(0, Math.Min(offer.Seller.Length, NameLength)), name);
+        span[25 + NameLength] = offer.IsOwn ? (byte)1 : (byte)0;
         var itemLength = serializer.SerializeItem(span[(OfferHeaderSize)..], offer.Item);
         span[OfferHeaderSize - 1] = (byte)itemLength;
         return OfferHeaderSize + itemLength;

@@ -18,4 +18,29 @@ public enum MarketCurrency
     /// GKZ Coins (WCoinC).
     /// </summary>
     Coins = 1,
+
+    /// <summary>
+    /// Jewels of Bless.
+    /// </summary>
+    Bless = 2,
+
+    /// <summary>
+    /// Jewels of Soul.
+    /// </summary>
+    Soul = 3,
+
+    /// <summary>
+    /// Jewels of Chaos.
+    /// </summary>
+    Chaos = 4,
+
+    /// <summary>
+    /// Jewels of Life.
+    /// </summary>
+    Life = 5,
+
+    /// <summary>
+    /// Jewels of Creation.
+    /// </summary>
+    Creation = 6,
 }

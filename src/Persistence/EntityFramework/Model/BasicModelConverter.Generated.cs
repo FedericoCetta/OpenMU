@@ -2330,6 +2330,11 @@ internal sealed class BasicModelConverter
         target.PaidUntil = source.PaidUntil;
         target.PendingZen = source.PendingZen;
         target.PendingCoins = source.PendingCoins;
+        target.PendingBless = source.PendingBless;
+        target.PendingSoul = source.PendingSoul;
+        target.PendingChaos = source.PendingChaos;
+        target.PendingLife = source.PendingLife;
+        target.PendingCreation = source.PendingCreation;
         if (source.Listings is { } listingsItems)
         {
             foreach (var item in listingsItems)

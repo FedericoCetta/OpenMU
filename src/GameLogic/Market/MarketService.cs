@@ -65,6 +65,7 @@ public sealed class MarketService : IDisposable
             var now = this._now();
             var stores = await this.GetStoresAsync().ConfigureAwait(false);
             await this.RenewStoresAsync(stores, now).ConfigureAwait(false);
+            var ownerId = player.Account?.GetId();
             var all = stores
                 .Where(s => s.PaidUntil > now)
                 .SelectMany(s => s.Listings.Where(l => l.ExpiresAt > now && GetItem(l) is { } item && Matches(item, filter)).Select(l => (Store: s, Listing: l)))
@@ -72,7 +73,7 @@ public sealed class MarketService : IDisposable
                 .ToList();
             pageCount = Math.Max(1, (all.Count + PageSize - 1) / PageSize);
             page = Math.Clamp(page, 0, pageCount - 1);
-            offers = all.Skip(page * PageSize).Take(PageSize).Select(e => ToOffer(e.Store, e.Listing, now)).ToList();
+            offers = all.Skip(page * PageSize).Take(PageSize).Select(e => ToOffer(e.Store, e.Listing, now) with { IsOwn = e.Store.AccountId == ownerId }).ToList();
         }
         finally
         {
@@ -182,7 +183,12 @@ public sealed class MarketService : IDisposable
                 return MarketResult.LimitReached;
             }
 
-            var maximumPrice = currency == MarketCurrency.Coins ? this.Configuration.MaximumCoinPrice : this.Configuration.MaximumZenPrice;
+            var maximumPrice = currency switch
+            {
+                MarketCurrency.Coins => this.Configuration.MaximumCoinPrice,
+                _ when currency.IsJewel() => this.Configuration.MaximumJewelPrice,
+                _ => this.Configuration.MaximumZenPrice,
+            };
             if (price <= 0 || price > maximumPrice || !Enum.IsDefined(currency))
             {
                 return MarketResult.InvalidPrice;
@@ -262,9 +268,14 @@ public sealed class MarketService : IDisposable
                 return MarketResult.OwnListing;
             }
 
-            if (listing.Currency == MarketCurrency.Zen ? player.Money < listing.Price : account.WCoinC < listing.Price)
+            switch (listing.Currency)
             {
-                return listing.Currency == MarketCurrency.Zen ? MarketResult.NotEnoughZen : MarketResult.NotEnoughCoins;
+                case MarketCurrency.Zen when player.Money < listing.Price:
+                    return MarketResult.NotEnoughZen;
+                case MarketCurrency.Coins when account.WCoinC < listing.Price:
+                    return MarketResult.NotEnoughCoins;
+                case var jewel when jewel.IsJewel() && CountJewels(player, jewel) < listing.Price:
+                    return MarketResult.NotEnoughJewels;
             }
 
             if (inventory.CheckInvSpace(marketItem) is null)
@@ -280,9 +291,13 @@ public sealed class MarketService : IDisposable
             {
                 store.PendingZen += listing.Price;
             }
-            else
+            else if (listing.Currency == MarketCurrency.Coins)
             {
                 store.PendingCoins += (int)listing.Price;
+            }
+            else
+            {
+                store.AddPendingJewels(listing.Currency, (int)listing.Price);
             }
 
             if (!await this.TrySaveMarketAsync().ConfigureAwait(false))
@@ -297,9 +312,13 @@ public sealed class MarketService : IDisposable
                 player.TryRemoveMoney((int)listing.Price);
                 await player.InvokeViewPlugInAsync<IUpdateMoneyPlugIn>(p => p.UpdateMoneyAsync()).ConfigureAwait(false);
             }
-            else
+            else if (listing.Currency == MarketCurrency.Coins)
             {
                 account.WCoinC -= (int)listing.Price;
+            }
+            else
+            {
+                await TakeJewelsAsync(player, listing.Currency, (int)listing.Price).ConfigureAwait(false);
             }
 
             await inventory.AddItemAsync(item).ConfigureAwait(false);
@@ -369,30 +388,37 @@ public sealed class MarketService : IDisposable
 
             var stores = await this.GetStoresAsync().ConfigureAwait(false);
             await this.RenewStoresAsync(stores, this._now()).ConfigureAwait(false);
-            if (stores.FirstOrDefault(s => s.AccountId == account.GetId()) is not { } store || (store.PendingZen <= 0 && store.PendingCoins <= 0))
+            if (stores.FirstOrDefault(s => s.AccountId == account.GetId()) is not { } store)
             {
                 return MarketResult.NothingToCollect;
             }
 
-            // Only as much zen as the inventory can hold; the rest stays for later.
+            // Only as much zen as the inventory can hold; the rest stays for later. Jewels go to the jewel bank.
             var zen = (int)Math.Min(store.PendingZen, Math.Max(0, this._gameContext.Configuration.MaximumInventoryMoney - player.Money));
             var coins = store.PendingCoins;
-            if (zen <= 0 && coins <= 0)
+            var jewels = store.GetPendingJewels().Where(j => j.Value > 0).ToList();
+            if (zen <= 0 && coins <= 0 && jewels.Count == 0)
             {
                 return MarketResult.NothingToCollect;
             }
 
             store.PendingZen -= zen;
             store.PendingCoins = 0;
+            jewels.ForEach(j => store.AddPendingJewels(j.Key, -j.Value));
             if (!await this.TrySaveMarketAsync().ConfigureAwait(false))
             {
                 store.PendingZen += zen;
                 store.PendingCoins = coins;
+                jewels.ForEach(j => store.AddPendingJewels(j.Key, j.Value));
                 return MarketResult.Failed;
             }
 
             player.TryAddMoney(zen);
             account.WCoinC += coins;
+            foreach (var (jewel, count) in jewels)
+            {
+                AddToJewelBank(player, account, jewel, count);
+            }
             await player.InvokeViewPlugInAsync<IUpdateMoneyPlugIn>(p => p.UpdateMoneyAsync()).ConfigureAwait(false);
             await SavePlayerAsync(player).ConfigureAwait(false);
             player.Logger.LogInformation("Player {player} collected {zen} zen and {coins} coins from the market.", player, zen, coins);
@@ -409,6 +435,83 @@ public sealed class MarketService : IDisposable
     }
 
     private static Item? GetItem(MarketListing listing) => listing.Storage?.Items.FirstOrDefault();
+
+    private static bool IsJewelItem(Item item, (byte Group, short Number) jewel)
+    {
+        return item.Definition is { } definition && definition.Group == jewel.Group && definition.Number == jewel.Number && item.Level == 0
+               && item.ItemSlot >= InventoryConstants.EquippableSlotsCount;
+    }
+
+    private static int Pieces(Item item) => item.IsStackable() ? Math.Max(1, (int)item.Durability) : 1;
+
+    /// <summary>
+    /// Counts the jewels of the player: in the inventory and in the jewel bank.
+    /// </summary>
+    private static long CountJewels(Player player, MarketCurrency currency)
+    {
+        var jewel = MarketJewels.Items[currency];
+        var inInventory = player.Inventory?.Items.Where(i => IsJewelItem(i, jewel)).Sum(Pieces) ?? 0;
+        var inBank = player.Account?.BankItems.Where(b => b.ItemGroup == jewel.Group && b.ItemNumber == jewel.Number && b.ItemLevel == 0).Sum(b => (long)b.Count) ?? 0;
+        return inInventory + inBank;
+    }
+
+    /// <summary>
+    /// Takes jewels from the player: from the inventory first, the smallest stacks first, then from the jewel bank.
+    /// </summary>
+    private static async ValueTask TakeJewelsAsync(Player player, MarketCurrency currency, int count)
+    {
+        var jewel = MarketJewels.Items[currency];
+        var remaining = count;
+        foreach (var item in player.Inventory!.Items.Where(i => IsJewelItem(i, jewel)).OrderBy(Pieces).ToList())
+        {
+            var pieces = Pieces(item);
+            if (pieces <= remaining)
+            {
+                var slot = item.ItemSlot;
+                await player.Inventory.RemoveItemAsync(item).ConfigureAwait(false);
+                await player.PersistenceContext.DeleteAsync(item).ConfigureAwait(false);
+                await player.InvokeViewPlugInAsync<IItemRemovedPlugIn>(p => p.RemoveItemAsync(slot)).ConfigureAwait(false);
+                remaining -= pieces;
+            }
+            else
+            {
+                item.Durability -= remaining;
+                remaining = 0;
+                await player.InvokeViewPlugInAsync<IItemDurabilityChangedPlugIn>(p => p.ItemDurabilityChangedAsync(item, false)).ConfigureAwait(false);
+            }
+
+            if (remaining == 0)
+            {
+                return;
+            }
+        }
+
+        foreach (var bankItem in player.Account!.BankItems.Where(b => b.ItemGroup == jewel.Group && b.ItemNumber == jewel.Number && b.ItemLevel == 0))
+        {
+            var taken = Math.Min(remaining, bankItem.Count);
+            bankItem.Count -= taken;
+            remaining -= taken;
+            if (remaining == 0)
+            {
+                return;
+            }
+        }
+    }
+
+    private static void AddToJewelBank(Player player, Account account, MarketCurrency currency, int count)
+    {
+        var jewel = MarketJewels.Items[currency];
+        var bankItem = account.BankItems.FirstOrDefault(b => b.ItemGroup == jewel.Group && b.ItemNumber == jewel.Number && b.ItemLevel == 0);
+        if (bankItem is null)
+        {
+            bankItem = player.PersistenceContext.CreateNew<AccountBankItem>();
+            bankItem.ItemGroup = jewel.Group;
+            bankItem.ItemNumber = jewel.Number;
+            account.BankItems.Add(bankItem);
+        }
+
+        bankItem.Count += count;
+    }
 
     private static (MarketStore Store, MarketListing Listing)? FindListing(IEnumerable<MarketStore> stores, Guid listingId)
     {
@@ -513,15 +616,15 @@ public sealed class MarketService : IDisposable
         var maximum = player.Account is { } owner ? this.GetMaximumListings(owner) : configuration.MaximumListings;
         if (store is null)
         {
-            return new MarketStoreState(false, TimeSpan.Zero, configuration.StoreFee, 0, 0, maximum, []);
+            return new MarketStoreState(false, TimeSpan.Zero, configuration.StoreFee, 0, 0, new Dictionary<MarketCurrency, int>(), maximum, []);
         }
 
         var listings = store.Listings
             .Where(l => GetItem(l) is not null)
             .OrderBy(l => l.ExpiresAt)
-            .Select(l => ToOffer(store, l, now))
+            .Select(l => ToOffer(store, l, now) with { IsOwn = true })
             .ToList();
-        return new MarketStoreState(store.PaidUntil > now, store.PaidUntil - now, configuration.StoreFee, store.PendingZen, store.PendingCoins, maximum, listings);
+        return new MarketStoreState(store.PaidUntil > now, store.PaidUntil - now, configuration.StoreFee, store.PendingZen, store.PendingCoins, store.GetPendingJewels(), maximum, listings);
     }
 
     /// <summary>

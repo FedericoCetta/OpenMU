@@ -43,4 +43,9 @@ public class MarketConfiguration
     /// Gets or sets the highest price in coins.
     /// </summary>
     public long MaximumCoinPrice { get; set; } = 1_000_000;
+
+    /// <summary>
+    /// Gets or sets the highest price in jewels.
+    /// </summary>
+    public long MaximumJewelPrice { get; set; } = 10_000;
 }

@@ -21,7 +21,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForTradeCont
                 "MUnique.OpenMU.Persistence.EntityFramework.Model.MarketStore",
                 typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.MarketStore),
                 baseEntityType,
-                propertyCount: 6,
+                propertyCount: 11,
                 navigationCount: 1,
                 keyCount: 1);
 
@@ -59,6 +59,22 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForTradeCont
                 sentinel: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
             paidUntil.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
+            var pendingBless = runtimeEntityType.AddProperty(
+                "PendingBless",
+                typeof(int),
+                propertyInfo: typeof(MUnique.OpenMU.DataModel.Entities.MarketStore).GetProperty("PendingBless", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.DataModel.Entities.MarketStore).GetField("<PendingBless>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0);
+            pendingBless.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
+            var pendingChaos = runtimeEntityType.AddProperty(
+                "PendingChaos",
+                typeof(int),
+                propertyInfo: typeof(MUnique.OpenMU.DataModel.Entities.MarketStore).GetProperty("PendingChaos", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.DataModel.Entities.MarketStore).GetField("<PendingChaos>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0);
+            pendingChaos.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
             var pendingCoins = runtimeEntityType.AddProperty(
                 "PendingCoins",
                 typeof(int),
@@ -66,6 +82,30 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForTradeCont
                 fieldInfo: typeof(MUnique.OpenMU.DataModel.Entities.MarketStore).GetField("<PendingCoins>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0);
             pendingCoins.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
+            var pendingCreation = runtimeEntityType.AddProperty(
+                "PendingCreation",
+                typeof(int),
+                propertyInfo: typeof(MUnique.OpenMU.DataModel.Entities.MarketStore).GetProperty("PendingCreation", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.DataModel.Entities.MarketStore).GetField("<PendingCreation>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0);
+            pendingCreation.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
+            var pendingLife = runtimeEntityType.AddProperty(
+                "PendingLife",
+                typeof(int),
+                propertyInfo: typeof(MUnique.OpenMU.DataModel.Entities.MarketStore).GetProperty("PendingLife", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.DataModel.Entities.MarketStore).GetField("<PendingLife>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0);
+            pendingLife.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
+            var pendingSoul = runtimeEntityType.AddProperty(
+                "PendingSoul",
+                typeof(int),
+                propertyInfo: typeof(MUnique.OpenMU.DataModel.Entities.MarketStore).GetProperty("PendingSoul", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.DataModel.Entities.MarketStore).GetField("<PendingSoul>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0);
+            pendingSoul.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
             var pendingZen = runtimeEntityType.AddProperty(
                 "PendingZen",

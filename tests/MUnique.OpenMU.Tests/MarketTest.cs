@@ -131,6 +131,48 @@ public class MarketTest
     }
 
     /// <summary>
+    /// Tests a sale for jewels: the buyer pays from the inventory first, then from the jewel bank, and the seller
+    /// collects them into the jewel bank.
+    /// </summary>
+    [Test]
+    public async Task SellAndBuyForJewelsAsync()
+    {
+        var bless = new BasicModel.ItemDefinition { Id = Guid.NewGuid(), Group = 14, Number = 13, Width = 1, Height = 1, Durability = 50, Name = "Jewel of Bless" };
+        this._seller.GameContext.Configuration.Items.Add(bless);
+        await this.OpenStoreAsync().ConfigureAwait(false);
+        await this.AddArmorAsync(this._seller).ConfigureAwait(false);
+        Assert.That(await this._market.SellAsync(this._seller, 12, 30, MarketCurrency.Bless).ConfigureAwait(false), Is.EqualTo(MarketResult.Success));
+        var offer = (await this.GetPageAsync(MarketFilter.All).ConfigureAwait(false)).Single();
+        Assert.That(offer.Currency, Is.EqualTo(MarketCurrency.Bless));
+
+        var stack = new BasicModel.Item { Definition = bless, Durability = 20 };
+        await this._buyer.Inventory!.AddItemAsync(20, stack).ConfigureAwait(false);
+        Assert.That(await this._market.BuyAsync(this._buyer, offer.ListingId).ConfigureAwait(false), Is.EqualTo(MarketResult.NotEnoughJewels));
+
+        this._buyer.Account!.BankItems.Add(new BasicModel.AccountBankItem { ItemGroup = 14, ItemNumber = 13, Count = 15 });
+        Assert.That(await this._market.BuyAsync(this._buyer, offer.ListingId).ConfigureAwait(false), Is.EqualTo(MarketResult.Success));
+        Assert.That(this._buyer.Inventory.Items, Does.Not.Contain(stack), "the 20 of the inventory first");
+        Assert.That(this._buyer.Account.BankItems.Single().Count, Is.EqualTo(5), "then 10 of the bank");
+
+        Assert.That(await this._market.CollectAsync(this._seller).ConfigureAwait(false), Is.EqualTo(MarketResult.Success));
+        Assert.That(this._seller.Account!.BankItems.Single(b => b.ItemGroup == 14 && b.ItemNumber == 13).Count, Is.EqualTo(30));
+    }
+
+    /// <summary>
+    /// Tests that the market marks the own items, so the client doesn't offer to buy them.
+    /// </summary>
+    [Test]
+    public async Task OwnItemsAreMarkedAsync()
+    {
+        await this.OpenStoreAsync().ConfigureAwait(false);
+        await this.AddArmorAsync(this._seller).ConfigureAwait(false);
+        await this._market.SellAsync(this._seller, 12, 1000, MarketCurrency.Zen).ConfigureAwait(false);
+
+        Assert.That((await this.GetPageAsync(MarketFilter.All).ConfigureAwait(false)).Single().IsOwn, Is.False);
+        Assert.That((await this.GetPageAsync(MarketFilter.All, this._seller).ConfigureAwait(false)).Single().IsOwn, Is.True);
+    }
+
+    /// <summary>
     /// Tests that a player can't buy own items, and can take them back.
     /// </summary>
     [Test]
@@ -238,14 +280,15 @@ public class MarketTest
         return item;
     }
 
-    private async ValueTask<IReadOnlyList<MarketOffer>> GetPageAsync(MarketFilter filter)
+    private async ValueTask<IReadOnlyList<MarketOffer>> GetPageAsync(MarketFilter filter, Player? player = null)
     {
+        player ??= this._buyer;
         IReadOnlyList<MarketOffer> result = [];
-        var view = Mock.Get(this._buyer.ViewPlugIns.GetPlugIn<IShowMarketPlugIn>()!);
+        var view = Mock.Get(player.ViewPlugIns.GetPlugIn<IShowMarketPlugIn>()!);
         view.Setup(v => v.ShowMarketPageAsync(It.IsAny<IReadOnlyList<MarketOffer>>(), It.IsAny<int>(), It.IsAny<int>()))
             .Callback<IReadOnlyList<MarketOffer>, int, int>((offers, _, _) => result = offers)
             .Returns(ValueTask.CompletedTask);
-        await this._market.ShowPageAsync(this._buyer, filter, 0).ConfigureAwait(false);
+        await this._market.ShowPageAsync(player, filter, 0).ConfigureAwait(false);
         return result;
     }
 }

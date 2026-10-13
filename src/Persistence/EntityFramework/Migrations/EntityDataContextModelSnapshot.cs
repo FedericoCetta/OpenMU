@@ -3153,7 +3153,22 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
                     b.Property<DateTime>("PaidUntil")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("PendingBless")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PendingChaos")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PendingCoins")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PendingCreation")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PendingLife")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PendingSoul")
                         .HasColumnType("integer");
 
                     b.Property<long>("PendingZen")
