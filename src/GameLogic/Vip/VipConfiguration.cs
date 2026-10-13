@@ -78,12 +78,12 @@ public class VipConfiguration
     /// <summary>
     /// Gets or sets the chance that the combined item gets two excellent options, e.g. 0.3 for 30 %.
     /// </summary>
-    [Display(Name = "Item combination: chance of 2 excellent options", Description = "The chance that the new item gets two excellent options, e.g. 0.3 for 30 %. The rest gets one, unless it gets three.")]
-    public double CombinationTwoOptionsChance { get; set; } = 0.3;
+    [Display(Name = "Item combination: chance of 2 excellent options", Description = "The chance that the new item gets two excellent options, e.g. 0.25 for 25 %. The rest gets one, unless it gets three.")]
+    public double CombinationTwoOptionsChance { get; set; } = 0.25;
 
     /// <summary>
-    /// Gets or sets the chance that the combined item gets three excellent options, e.g. 0.1 for 10 %. Three is the most.
+    /// Gets or sets the chance that the combined item gets three excellent options, e.g. 0.05 for 5 %. Three is the most.
     /// </summary>
-    [Display(Name = "Item combination: chance of 3 excellent options", Description = "The chance that the new item gets three excellent options, e.g. 0.1 for 10 %. Three is the most.")]
-    public double CombinationThreeOptionsChance { get; set; } = 0.1;
+    [Display(Name = "Item combination: chance of 3 excellent options", Description = "The chance that the new item gets three excellent options, e.g. 0.05 for 5 %. Three is the most.")]
+    public double CombinationThreeOptionsChance { get; set; } = 0.05;
 }
