@@ -119,6 +119,8 @@ internal sealed class BasicModelConverter
             LevelBonus value => this.Convert(value),
             LevelDependentDamage value => this.Convert(value),
             MagicEffectDefinition value => this.Convert(value),
+            MarketListing value => this.Convert(value),
+            MarketStore value => this.Convert(value),
             MasterSkillDefinition value => this.Convert(value),
             MasterSkillRoot value => this.Convert(value),
             MiniGameChangeEvent value => this.Convert(value),
@@ -2289,6 +2291,50 @@ internal sealed class BasicModelConverter
             foreach (var item in powerUpDefinitionsPvpItems)
             {
                 target.PowerUpDefinitionsPvp.Add((MUnique.OpenMU.DataModel.Attributes.PowerUpDefinition)this.ConvertObject(item)!);
+            }
+        }
+
+        return target;
+    }
+
+    private BasicModel.MarketListing Convert(MarketListing source)
+    {
+        if (this._converted.TryGetValue(source, out var converted))
+        {
+            return (BasicModel.MarketListing)converted;
+        }
+
+        var target = new BasicModel.MarketListing();
+        this._converted.Add(source, target);
+        target.Id = source.Id;
+        target.Storage = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Storage)!;
+        target.Price = source.Price;
+        target.Currency = source.Currency;
+        target.CreatedAt = source.CreatedAt;
+        target.ExpiresAt = source.ExpiresAt;
+        return target;
+    }
+
+    private BasicModel.MarketStore Convert(MarketStore source)
+    {
+        if (this._converted.TryGetValue(source, out var converted))
+        {
+            return (BasicModel.MarketStore)converted;
+        }
+
+        var target = new BasicModel.MarketStore();
+        this._converted.Add(source, target);
+        target.Id = source.Id;
+        target.AccountId = source.AccountId;
+        target.OwnerName = source.OwnerName;
+        target.PaidUntil = source.PaidUntil;
+        target.PendingZen = source.PendingZen;
+        target.PendingCoins = source.PendingCoins;
+        if (source.Listings is { } listingsItems)
+        {
+            foreach (var item in listingsItems)
+            {
+                target.Listings.Add((MUnique.OpenMU.DataModel.Entities.MarketListing)this.ConvertObject(item)!);
             }
         }
 

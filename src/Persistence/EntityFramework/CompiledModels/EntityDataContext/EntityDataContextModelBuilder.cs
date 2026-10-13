@@ -12,7 +12,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForEntityDat
     public partial class EntityDataContextModel
     {
         private EntityDataContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("2ca04008-d21e-4518-802e-91977e216b59"), entityTypeCount: 120)
+            : base(skipDetectChanges: false, modelId: new Guid("7f5e8afb-e478-4d4c-af90-4de3780ba4aa"), entityTypeCount: 122)
         {
         }
 
@@ -106,6 +106,8 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForEntityDat
             var letterHeader = LetterHeaderEntityType.Create(this);
             var levelBonus = LevelBonusEntityType.Create(this);
             var magicEffectDefinition = MagicEffectDefinitionEntityType.Create(this);
+            var marketListing = MarketListingEntityType.Create(this);
+            var marketStore = MarketStoreEntityType.Create(this);
             var masterSkillDefinition = MasterSkillDefinitionEntityType.Create(this);
             var masterSkillDefinitionSkill = MasterSkillDefinitionSkillEntityType.Create(this);
             var masterSkillRoot = MasterSkillRootEntityType.Create(this);
@@ -315,6 +317,8 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForEntityDat
             MagicEffectDefinitionEntityType.CreateForeignKey3(magicEffectDefinition, powerUpDefinitionValue);
             MagicEffectDefinitionEntityType.CreateForeignKey4(magicEffectDefinition, powerUpDefinitionValue);
             MagicEffectDefinitionEntityType.CreateForeignKey5(magicEffectDefinition, gameConfiguration);
+            MarketListingEntityType.CreateForeignKey1(marketListing, marketStore);
+            MarketListingEntityType.CreateForeignKey2(marketListing, itemStorage);
             MasterSkillDefinitionEntityType.CreateForeignKey1(masterSkillDefinition, skill);
             MasterSkillDefinitionEntityType.CreateForeignKey2(masterSkillDefinition, masterSkillRoot);
             MasterSkillDefinitionEntityType.CreateForeignKey3(masterSkillDefinition, attributeDefinition);
@@ -471,6 +475,8 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForEntityDat
             LetterHeaderEntityType.CreateAnnotations(letterHeader);
             LevelBonusEntityType.CreateAnnotations(levelBonus);
             MagicEffectDefinitionEntityType.CreateAnnotations(magicEffectDefinition);
+            MarketListingEntityType.CreateAnnotations(marketListing);
+            MarketStoreEntityType.CreateAnnotations(marketStore);
             MasterSkillDefinitionEntityType.CreateAnnotations(masterSkillDefinition);
             MasterSkillDefinitionSkillEntityType.CreateAnnotations(masterSkillDefinitionSkill);
             MasterSkillRootEntityType.CreateAnnotations(masterSkillRoot);
