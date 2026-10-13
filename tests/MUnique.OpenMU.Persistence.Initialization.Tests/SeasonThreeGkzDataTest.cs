@@ -199,6 +199,31 @@ internal class SeasonThreeGkzDataTest
     }
 
     /// <summary>
+    /// Tests that the item shop of the X key exists with the catalog of GkzCashShop.json: everything for sale,
+    /// paid with GKZ Coins, deliverable, and nothing else of the Season 6 shop.
+    /// </summary>
+    [Test]
+    public void ItemShopHasTheGkzCatalog()
+    {
+        var catalog = GkzCashShop.Load();
+        var shop = this._configuration.CashShopConfiguration;
+
+        Assert.That(shop, Is.Not.Null);
+        Assert.That((shop!.ScriptSaleZone, shop.ScriptYear, shop.ScriptYearId), Is.EqualTo((catalog.ScriptVersion.Zone, catalog.ScriptVersion.Year, catalog.ScriptVersion.YearId)));
+        Assert.That(catalog.Packages.Select(p => p.Seq), Is.Unique);
+        Assert.That(shop.Packages.Select(p => p.PackageSequence), Is.EquivalentTo(catalog.Packages.Select(p => p.Seq)));
+        foreach (var package in shop.Packages)
+        {
+            var entry = catalog.Packages.Single(p => p.Seq == package.PackageSequence);
+            var product = package.Products.Single();
+            Assert.That(package.IsForSale, Is.True, package.Name);
+            Assert.That(package.CoinType, Is.EqualTo(CashShopCoinType.WCoinC), package.Name);
+            Assert.That(package.Price, Is.EqualTo(entry.Price), package.Name);
+            Assert.That((product.ItemDefinition!.Group, product.ItemDefinition.Number, product.ItemLevel), Is.EqualTo((entry.Group, entry.Number, entry.Level)), package.Name);
+        }
+    }
+
+    /// <summary>
     /// Tests that the database is marked with the key of this initialization, so that no Season 6 updates are offered.
     /// </summary>
     [Test]

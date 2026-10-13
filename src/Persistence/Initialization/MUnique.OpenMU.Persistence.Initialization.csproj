@@ -96,6 +96,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="VersionSeasonThreeGkz\GkzCashShop.json" />
     <EmbeddedResource Include="Resources\075_Terrain1.att" />
     <EmbeddedResource Include="Resources\075_Terrain2.att" />
     <EmbeddedResource Include="Resources\075_Terrain3.att" />
