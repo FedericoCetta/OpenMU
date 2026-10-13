@@ -35,6 +35,12 @@ public sealed class MarketService : IDisposable
     private List<MarketStore>? _stores;
 
     /// <summary>
+    /// The items of listings which were loaded from the database: the loader of the market context doesn't load the
+    /// items of the storage of a listing, so they're loaded with their own context, and kept out of the market context.
+    /// </summary>
+    private Dictionary<Guid, Item> _loadedItems = [];
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="MarketService"/> class.
     /// </summary>
     /// <param name="gameContext">The game context.</param>
@@ -68,7 +74,7 @@ public sealed class MarketService : IDisposable
             var ownerId = player.Account?.GetId();
             var all = stores
                 .Where(s => s.PaidUntil > now)
-                .SelectMany(s => s.Listings.Where(l => l.ExpiresAt > now && GetItem(l) is { } item && Matches(item, filter)).Select(l => (Store: s, Listing: l)))
+                .SelectMany(s => s.Listings.Where(l => l.ExpiresAt > now && this.GetItem(l) is { } item && Matches(item, filter)).Select(l => (Store: s, Listing: l)))
                 .OrderByDescending(e => e.Listing.CreatedAt)
                 .ToList();
             pageCount = Math.Max(1, (all.Count + PageSize - 1) / PageSize);
@@ -258,7 +264,7 @@ public sealed class MarketService : IDisposable
             if (FindListing(stores, listingId) is not var (store, listing)
                 || store.PaidUntil <= now
                 || listing.ExpiresAt <= now
-                || GetItem(listing) is not { } marketItem)
+                || this.GetItem(listing) is not { } marketItem)
             {
                 return MarketResult.NotFound;
             }
@@ -345,7 +351,7 @@ public sealed class MarketService : IDisposable
             }
 
             var stores = await this.GetStoresAsync().ConfigureAwait(false);
-            if (FindListing(stores, listingId) is not var (store, listing) || store.AccountId != account.GetId() || GetItem(listing) is not { } marketItem)
+            if (FindListing(stores, listingId) is not var (store, listing) || store.AccountId != account.GetId() || this.GetItem(listing) is not { } marketItem)
             {
                 return MarketResult.NotFound;
             }
@@ -434,7 +440,10 @@ public sealed class MarketService : IDisposable
         this._lock.Dispose();
     }
 
-    private static Item? GetItem(MarketListing listing) => listing.Storage?.Items.FirstOrDefault();
+    private Item? GetItem(MarketListing listing)
+    {
+        return listing.Storage?.Items.FirstOrDefault() ?? this._loadedItems.GetValueOrDefault(listing.Id);
+    }
 
     private static bool IsJewelItem(Item item, (byte Group, short Number) jewel)
     {
@@ -526,9 +535,9 @@ public sealed class MarketService : IDisposable
         return null;
     }
 
-    private static MarketOffer ToOffer(MarketStore store, MarketListing listing, DateTime now)
+    private MarketOffer ToOffer(MarketStore store, MarketListing listing, DateTime now)
     {
-        return new MarketOffer(listing.Id, store.OwnerName, GetItem(listing)!, listing.Price, listing.Currency, listing.ExpiresAt - now);
+        return new MarketOffer(listing.Id, store.OwnerName, this.GetItem(listing)!, listing.Price, listing.Currency, listing.ExpiresAt - now);
     }
 
     private static bool Matches(Item item, MarketFilter filter)
@@ -620,7 +629,7 @@ public sealed class MarketService : IDisposable
         }
 
         var listings = store.Listings
-            .Where(l => GetItem(l) is not null)
+            .Where(l => this.GetItem(l) is not null)
             .OrderBy(l => l.ExpiresAt)
             .Select(l => ToOffer(store, l, now) with { IsOwn = true })
             .ToList();
@@ -650,6 +659,8 @@ public sealed class MarketService : IDisposable
 
     private async ValueTask RemoveListingAsync(MarketStore store, MarketListing listing)
     {
+        // A loaded item isn't in the market context: deleting its storage deletes it in the database (cascade).
+        this._loadedItems.Remove(listing.Id);
         store.Listings.Remove(listing);
         if (listing.Storage is { } storage)
         {
@@ -670,6 +681,25 @@ public sealed class MarketService : IDisposable
         {
             this._context = this._gameContext.PersistenceContextProvider.CreateNewTypedContext(typeof(MarketStore), false, this._gameContext.Configuration);
             this._stores = (await this._context.GetAsync<MarketStore>().ConfigureAwait(false)).ToList();
+            this._loadedItems = [];
+            var listings = this._stores.SelectMany(s => s.Listings).ToList();
+            foreach (var listing in listings.Where(l => l.Storage is { } storage && storage.Items.Count == 0))
+            {
+                using var storageContext = this._gameContext.PersistenceContextProvider.CreateNewTypedContext(typeof(ItemStorage), false, this._gameContext.Configuration);
+                var storage = await storageContext.GetByIdAsync<ItemStorage>(listing.Storage!.GetId()).ConfigureAwait(false);
+                if (storage?.Items.FirstOrDefault() is { } item)
+                {
+                    this._loadedItems[listing.Id] = item;
+                }
+            }
+
+            this._gameContext.LoggerFactory.CreateLogger<MarketService>().LogInformation(
+                "Market loaded: {stores} stores, {listings} listings, {storages} with storage, {items} with item, {definitions} with item definition.",
+                this._stores.Count,
+                listings.Count,
+                listings.Count(l => l.Storage is not null),
+                listings.Count(l => this.GetItem(l) is not null),
+                listings.Count(l => this.GetItem(l)?.Definition is not null));
         }
 
         return this._stores;
@@ -696,6 +726,7 @@ public sealed class MarketService : IDisposable
         this._context?.Dispose();
         this._context = null;
         this._stores = null;
+        this._loadedItems = [];
         return ValueTask.CompletedTask;
     }
 }
