@@ -31,33 +31,54 @@ public class JewelBankActions
     }
 
     /// <summary>
-    /// Moves all pieces of an item from the inventory into the bank.
+    /// Moves pieces of an item from the inventory into the bank: from the smallest stacks first, so the
+    /// full ones stay.
     /// </summary>
     /// <param name="player">The player.</param>
     /// <param name="group">The item group.</param>
     /// <param name="number">The item number.</param>
     /// <param name="level">The item level.</param>
-    public async ValueTask DepositAsync(Player player, byte group, short number, byte level)
+    /// <param name="amount">The number of pieces; 0 for all of them.</param>
+    public async ValueTask DepositAsync(Player player, byte group, short number, byte level, int amount = 0)
     {
         if (FindEntry(player, group, number, level) is not { } entry || player.Account is not { } account || player.Inventory is not { } inventory)
         {
             return;
         }
 
-        var items = inventory.Items.Where(i => IsInInventory(i) && IsPlain(i) && entry.Matches(i)).ToList();
+        var items = inventory.Items.Where(i => IsInInventory(i) && IsPlain(i) && entry.Matches(i)).OrderBy(Pieces).ToList();
         if (items.Count == 0)
         {
             return;
         }
 
+        var remaining = amount > 0 ? amount : int.MaxValue;
         var pieces = 0;
         foreach (var item in items)
         {
-            var slot = item.ItemSlot;
-            pieces += Pieces(item);
-            await inventory.RemoveItemAsync(item).ConfigureAwait(false);
-            await player.PersistenceContext.DeleteAsync(item).ConfigureAwait(false);
-            await player.InvokeViewPlugInAsync<IItemRemovedPlugIn>(p => p.RemoveItemAsync(slot)).ConfigureAwait(false);
+            var itemPieces = Pieces(item);
+            if (itemPieces <= remaining)
+            {
+                var slot = item.ItemSlot;
+                await inventory.RemoveItemAsync(item).ConfigureAwait(false);
+                await player.PersistenceContext.DeleteAsync(item).ConfigureAwait(false);
+                await player.InvokeViewPlugInAsync<IItemRemovedPlugIn>(p => p.RemoveItemAsync(slot)).ConfigureAwait(false);
+                pieces += itemPieces;
+                remaining -= itemPieces;
+            }
+            else
+            {
+                // Only a part of this stack.
+                item.Durability -= remaining;
+                pieces += remaining;
+                remaining = 0;
+                await player.InvokeViewPlugInAsync<IItemDurabilityChangedPlugIn>(p => p.ItemDurabilityChangedAsync(item, false)).ConfigureAwait(false);
+            }
+
+            if (remaining == 0)
+            {
+                break;
+            }
         }
 
         GetOrCreateBankItem(player, account, entry).Count += pieces;

@@ -43,6 +43,23 @@ public class JewelBankTest
     }
 
     /// <summary>
+    /// Tests that a deposit of some pieces takes them from the smallest stacks first, and only a part of a stack.
+    /// </summary>
+    [Test]
+    public async Task DepositSomePiecesAsync()
+    {
+        var (player, bless) = await CreatePlayerAsync().ConfigureAwait(false);
+        var big = await AddAsync(player, bless, 12, 30).ConfigureAwait(false);
+        await AddAsync(player, bless, 13, 4).ConfigureAwait(false);
+
+        await this._actions.DepositAsync(player, JewelGroup, BlessNumber, 0, 10).ConfigureAwait(false);
+
+        Assert.That(player.Inventory!.GetItem(13), Is.Null, "the small stack went first");
+        Assert.That(big.Durability, Is.EqualTo(24));
+        Assert.That(player.Account!.BankItems.Single().Count, Is.EqualTo(10));
+    }
+
+    /// <summary>
     /// Tests that a withdrawal fills the stack in the inventory first, then makes new stacks of at most 50.
     /// </summary>
     [Test]
