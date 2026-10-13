@@ -34,6 +34,15 @@ internal partial class Account : MUnique.OpenMU.DataModel.Entities.Account, IIde
     public Guid Id { get; set; }
     
     /// <summary>
+    /// Gets the raw collection of <see cref="BankItems" />.
+    /// </summary>
+    public ICollection<AccountBankItem> RawBankItems { get; } = new EntityFramework.List<AccountBankItem>();
+    
+    /// <inheritdoc/>
+    [NotMapped]
+    public override ICollection<MUnique.OpenMU.DataModel.Entities.AccountBankItem> BankItems => base.BankItems ??= new CollectionAdapter<MUnique.OpenMU.DataModel.Entities.AccountBankItem, AccountBankItem>(this.RawBankItems);
+
+    /// <summary>
     /// Gets the raw collection of <see cref="Characters" />.
     /// </summary>
     public ICollection<Character> RawCharacters { get; } = new EntityFramework.List<Character>();

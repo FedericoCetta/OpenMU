@@ -130,6 +130,42 @@
   <data name="Account_VipUntil_Description" xml:space="preserve">
     <value></value>
   </data>
+  <data name="Account_BankItems_Caption" xml:space="preserve">
+    <value>Jewel Bank</value>
+  </data>
+  <data name="Account_BankItems_Description" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="Account_AutoSaveToBank_Caption" xml:space="preserve">
+    <value>Auto Save To Jewel Bank</value>
+  </data>
+  <data name="Account_AutoSaveToBank_Description" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="AccountBankItem_ItemGroup_Caption" xml:space="preserve">
+    <value>Item Group</value>
+  </data>
+  <data name="AccountBankItem_ItemGroup_Description" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="AccountBankItem_ItemNumber_Caption" xml:space="preserve">
+    <value>Item Number</value>
+  </data>
+  <data name="AccountBankItem_ItemNumber_Description" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="AccountBankItem_ItemLevel_Caption" xml:space="preserve">
+    <value>Item Level</value>
+  </data>
+  <data name="AccountBankItem_ItemLevel_Description" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="AccountBankItem_Count_Caption" xml:space="preserve">
+    <value>Count</value>
+  </data>
+  <data name="AccountBankItem_Count_Description" xml:space="preserve">
+    <value></value>
+  </data>
   <data name="Account_IsVaultExtended_Caption" xml:space="preserve">
     <value>Is Vault Extended</value>
   </data>

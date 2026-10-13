@@ -12,13 +12,14 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForAccountCo
     public partial class AccountContextModel
     {
         private AccountContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("4d458411-4aff-4b43-bb70-6de17ccd7f72"), entityTypeCount: 45)
+            : base(skipDetectChanges: false, modelId: new Guid("85c87e18-a040-41c3-b797-9eccefcc9c40"), entityTypeCount: 46)
         {
         }
 
         partial void Initialize()
         {
             var account = AccountEntityType.Create(this);
+            var accountBankItem = AccountBankItemEntityType.Create(this);
             var accountCharacterClass = AccountCharacterClassEntityType.Create(this);
             var appearanceData = AppearanceDataEntityType.Create(this);
             var attributeRelationship = AttributeRelationshipEntityType.Create(this);
@@ -70,6 +71,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForAccountCo
             AccountEntityType.CreateForeignKey4(account, itemStorage);
             AccountEntityType.CreateForeignKey5(account, itemStorage);
             AccountEntityType.CreateForeignKey6(account, itemStorage);
+            AccountBankItemEntityType.CreateForeignKey1(accountBankItem, account);
             AccountCharacterClassEntityType.CreateForeignKey1(accountCharacterClass, account);
             AttributeRelationshipEntityType.CreateForeignKey1(attributeRelationship, powerUpDefinitionValue);
             CashShopCoinGrantEntityType.CreateForeignKey1(cashShopCoinGrant, account);
@@ -100,6 +102,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForAccountCo
             StatAttributeEntityType.CreateForeignKey2(statAttribute, character);
 
             AccountEntityType.CreateAnnotations(account);
+            AccountBankItemEntityType.CreateAnnotations(accountBankItem);
             AccountCharacterClassEntityType.CreateAnnotations(accountCharacterClass);
             AppearanceDataEntityType.CreateAnnotations(appearanceData);
             AttributeRelationshipEntityType.CreateAnnotations(attributeRelationship);

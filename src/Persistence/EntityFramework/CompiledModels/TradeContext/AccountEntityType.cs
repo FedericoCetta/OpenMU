@@ -21,8 +21,8 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForTradeCont
                 "MUnique.OpenMU.Persistence.EntityFramework.Model.Account",
                 typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account),
                 baseEntityType,
-                propertyCount: 25,
-                navigationCount: 3,
+                propertyCount: 26,
+                navigationCount: 4,
                 unnamedIndexCount: 1,
                 keyCount: 1);
 
@@ -36,6 +36,14 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForTradeCont
                 valueGeneratorFactory: new MUnique.OpenMU.Persistence.EntityFramework.GuidV7ValueGeneratorFactory().Create,
                 sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             id.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
+            var autoSaveToBank = runtimeEntityType.AddProperty(
+                "AutoSaveToBank",
+                typeof(bool),
+                propertyInfo: typeof(MUnique.OpenMU.DataModel.Entities.Account).GetProperty("AutoSaveToBank", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.DataModel.Entities.Account).GetField("<AutoSaveToBank>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: false);
+            autoSaveToBank.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
             var chatBanUntil = runtimeEntityType.AddProperty(
                 "ChatBanUntil",

@@ -12,13 +12,14 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForEntityDat
     public partial class EntityDataContextModel
     {
         private EntityDataContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("a0180445-375c-4828-9f6b-01497828a9b4"), entityTypeCount: 119)
+            : base(skipDetectChanges: false, modelId: new Guid("2ca04008-d21e-4518-802e-91977e216b59"), entityTypeCount: 120)
         {
         }
 
         partial void Initialize()
         {
             var account = AccountEntityType.Create(this);
+            var accountBankItem = AccountBankItemEntityType.Create(this);
             var accountCharacterClass = AccountCharacterClassEntityType.Create(this);
             var appearanceData = AppearanceDataEntityType.Create(this);
             var areaSkillSettings = AreaSkillSettingsEntityType.Create(this);
@@ -144,6 +145,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForEntityDat
             AccountEntityType.CreateForeignKey4(account, itemStorage);
             AccountEntityType.CreateForeignKey5(account, itemStorage);
             AccountEntityType.CreateForeignKey6(account, itemStorage);
+            AccountBankItemEntityType.CreateForeignKey1(accountBankItem, account);
             AccountCharacterClassEntityType.CreateForeignKey1(accountCharacterClass, account);
             AccountCharacterClassEntityType.CreateForeignKey2(accountCharacterClass, characterClass);
             AppearanceDataEntityType.CreateForeignKey1(appearanceData, characterClass);
@@ -382,6 +384,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForEntityDat
             WarpInfoEntityType.CreateForeignKey2(warpInfo, exitGate);
 
             AccountEntityType.CreateAnnotations(account);
+            AccountBankItemEntityType.CreateAnnotations(accountBankItem);
             AccountCharacterClassEntityType.CreateAnnotations(accountCharacterClass);
             AppearanceDataEntityType.CreateAnnotations(appearanceData);
             AreaSkillSettingsEntityType.CreateAnnotations(areaSkillSettings);

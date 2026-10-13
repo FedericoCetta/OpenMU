@@ -163,6 +163,18 @@ public class Account
     public DateTime? VipUntil { get; set; }
 
     /// <summary>
+    /// Gets or sets the items in the jewel bank of the account (MU GKZ).
+    /// </summary>
+    [MemberOfAggregate]
+    [HiddenAtCreation]
+    public virtual ICollection<AccountBankItem> BankItems { get; protected set; } = null!;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether picked up items which the jewel bank holds go straight into the bank.
+    /// </summary>
+    public bool AutoSaveToBank { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether this instance is vault extended.
     /// </summary>
     public bool IsVaultExtended { get; set; }

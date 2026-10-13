@@ -28,6 +28,9 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("AutoSaveToBank")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("ChatBanUntil")
                         .HasColumnType("timestamp with time zone");
 
@@ -134,6 +137,34 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
                         .IsUnique();
 
                     b.ToTable("Account", "data");
+                });
+
+            modelBuilder.Entity("MUnique.OpenMU.Persistence.EntityFramework.Model.AccountBankItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("integer");
+
+                    b.Property<byte>("ItemGroup")
+                        .HasColumnType("smallint");
+
+                    b.Property<byte>("ItemLevel")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("ItemNumber")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("AccountBankItem", "data");
                 });
 
             modelBuilder.Entity("MUnique.OpenMU.Persistence.EntityFramework.Model.AccountCharacterClass", b =>
@@ -4274,6 +4305,14 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
                     b.Navigation("RawVault6");
                 });
 
+            modelBuilder.Entity("MUnique.OpenMU.Persistence.EntityFramework.Model.AccountBankItem", b =>
+                {
+                    b.HasOne("MUnique.OpenMU.Persistence.EntityFramework.Model.Account", null)
+                        .WithMany("RawBankItems")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("MUnique.OpenMU.Persistence.EntityFramework.Model.AccountCharacterClass", b =>
                 {
                     b.HasOne("MUnique.OpenMU.Persistence.EntityFramework.Model.Account", "Account")
@@ -6047,6 +6086,8 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
                     b.Navigation("JoinedUnlockedCharacterClasses");
 
                     b.Navigation("RawAttributes");
+
+                    b.Navigation("RawBankItems");
 
                     b.Navigation("RawCharacters");
                 });

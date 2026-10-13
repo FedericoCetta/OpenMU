@@ -15,8 +15,10 @@ using MUnique.OpenMU.Interfaces;
 /// </summary>
 public class PickupItemAction
 {
+    private readonly JewelBank.JewelBankActions _jewelBankActions = new();
+
     /// <summary>
-    /// Pickups the item.
+    /// Picks up an item or money from the ground.
     /// </summary>
     /// <param name="player">The player.</param>
     /// <param name="dropId">The drop identifier.</param>
@@ -32,6 +34,12 @@ public class PickupItemAction
                     await player.InvokeViewPlugInAsync<IItemPickUpFailedPlugIn>(p => p.ItemPickUpFailedAsync(ItemPickFailReason.General)).ConfigureAwait(false);
                 }
 
+                break;
+            case DroppedItem droppedItem when CanPickup(player, droppedItem)
+                                              && (droppedItem.IsPlayerAnOwner(player) || !droppedItem.IsOwnerPickupPriorityActive)
+                                              && await this._jewelBankActions.TryAutoSaveAsync(player, droppedItem).ConfigureAwait(false):
+                // MU GKZ: it went into the jewel bank; like for a stacked item, nothing is added to the inventory.
+                await player.InvokeViewPlugInAsync<IItemPickUpFailedPlugIn>(p => p.ItemPickUpFailedAsync(ItemPickFailReason.ItemStacked)).ConfigureAwait(false);
                 break;
             case DroppedItem droppedItem:
                 {

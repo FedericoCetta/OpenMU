@@ -26,6 +26,7 @@ public class ExtendedTypeContext : Microsoft.EntityFrameworkCore.DbContext
     {
         modelBuilder.Ignore<MUnique.OpenMU.DataModel.Statistics.MiniGameRankingEntry>();
         modelBuilder.Ignore<MUnique.OpenMU.DataModel.Entities.Account>();
+        modelBuilder.Ignore<MUnique.OpenMU.DataModel.Entities.AccountBankItem>();
         modelBuilder.Ignore<MUnique.OpenMU.DataModel.Entities.AppearanceData>();
         modelBuilder.Ignore<MUnique.OpenMU.DataModel.Entities.CashShopCoinGrant>();
         modelBuilder.Ignore<MUnique.OpenMU.DataModel.Entities.CashShopStorageItem>();
@@ -137,6 +138,7 @@ public class ExtendedTypeContext : Microsoft.EntityFrameworkCore.DbContext
         modelBuilder.Entity<Account>().HasOne(entity => entity.RawVault4).WithOne().OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Account>().HasOne(entity => entity.RawVault5).WithOne().OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Account>().HasOne(entity => entity.RawVault6).WithOne().OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Account>().HasMany(entity => entity.RawBankItems).WithOne().OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Account>().HasMany(entity => entity.RawCharacters).WithOne().OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Account>().HasMany(entity => entity.RawAttributes).WithOne().OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<AppearanceData>().HasMany(entity => entity.RawEquippedItems).WithOne().OnDelete(DeleteBehavior.Cascade);

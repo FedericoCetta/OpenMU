@@ -47,6 +47,27 @@ public partial class Account : MUnique.OpenMU.DataModel.Entities.Account, IIdent
     }
 
     /// <summary>
+    /// Gets the raw collection of <see cref="BankItems" />.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("bankItems")]
+    public ICollection<AccountBankItem> RawBankItems { get; } = new List<AccountBankItem>();
+    
+    /// <inheritdoc/>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public override ICollection<MUnique.OpenMU.DataModel.Entities.AccountBankItem> BankItems
+    {
+        get => base.BankItems ??= new CollectionAdapter<MUnique.OpenMU.DataModel.Entities.AccountBankItem, AccountBankItem>(this.RawBankItems);
+        protected set
+        {
+            this.BankItems.Clear();
+            foreach (var item in value)
+            {
+                this.BankItems.Add(item);
+            }
+        }
+    }
+
+    /// <summary>
     /// Gets the raw collection of <see cref="Characters" />.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("characters")]

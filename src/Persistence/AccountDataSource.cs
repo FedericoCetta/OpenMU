@@ -23,6 +23,7 @@ public sealed class AccountDataSource : DataSourceBase<Account>
         { typeof(ItemStorage), a => a.Characters.Select(c => c.Inventory).Concat(Vaults(a)).Where(i => i is not null) },
         { typeof(Item), a => a.Characters.SelectMany(c => c.Inventory?.Items ?? Enumerable.Empty<Item>()).Concat(Vaults(a).SelectMany(v => v?.Items ?? Enumerable.Empty<Item>())) },
         { typeof(StatAttribute), a => a.Characters.SelectMany(c => c.Attributes) },
+        { typeof(AccountBankItem), a => a.BankItems },
         { typeof(LetterHeader), a => a.Characters.SelectMany(c => c.Letters) },
         { typeof(SkillEntry), a => a.Characters.SelectMany(c => c.LearnedSkills) },
         { typeof(CharacterQuestState), a => a.Characters.SelectMany(c => c.QuestStates) },

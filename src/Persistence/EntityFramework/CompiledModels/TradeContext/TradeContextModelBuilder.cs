@@ -12,13 +12,14 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForTradeCont
     public partial class TradeContextModel
     {
         private TradeContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("913b2adb-6d86-4f7a-b99e-8009db530011"), entityTypeCount: 44)
+            : base(skipDetectChanges: false, modelId: new Guid("4ede03ea-769a-46ca-b0c5-82b6fc54ee28"), entityTypeCount: 45)
         {
         }
 
         partial void Initialize()
         {
             var account = AccountEntityType.Create(this);
+            var accountBankItem = AccountBankItemEntityType.Create(this);
             var accountCharacterClass = AccountCharacterClassEntityType.Create(this);
             var appearanceData = AppearanceDataEntityType.Create(this);
             var attributeRelationship = AttributeRelationshipEntityType.Create(this);
@@ -63,6 +64,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForTradeCont
             var skillEntry = SkillEntryEntityType.Create(this);
             var statAttribute = StatAttributeEntityType.Create(this);
 
+            AccountBankItemEntityType.CreateForeignKey1(accountBankItem, account);
             AccountCharacterClassEntityType.CreateForeignKey1(accountCharacterClass, account);
             AttributeRelationshipEntityType.CreateForeignKey1(attributeRelationship, powerUpDefinitionValue);
             CashShopCoinGrantEntityType.CreateForeignKey1(cashShopCoinGrant, account);
@@ -91,6 +93,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForTradeCont
             StatAttributeEntityType.CreateForeignKey2(statAttribute, character);
 
             AccountEntityType.CreateAnnotations(account);
+            AccountBankItemEntityType.CreateAnnotations(accountBankItem);
             AccountCharacterClassEntityType.CreateAnnotations(accountCharacterClass);
             AppearanceDataEntityType.CreateAnnotations(appearanceData);
             AttributeRelationshipEntityType.CreateAnnotations(attributeRelationship);

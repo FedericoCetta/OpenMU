@@ -50,6 +50,7 @@ internal sealed class BasicModelConverter
             IncreasableItemOption value => this.Convert(value),
             ItemDropItemGroup value => this.Convert(value),
             Account value => this.Convert(value),
+            AccountBankItem value => this.Convert(value),
             AppearanceData value => this.Convert(value),
             AreaSkillSettings value => this.Convert(value),
             AttributeDefinition value => this.Convert(value),
@@ -185,6 +186,15 @@ internal sealed class BasicModelConverter
         target.Vault5 = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Vault5)!;
         target.Vault6 = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Vault6)!;
         target.VipUntil = source.VipUntil;
+        if (source.BankItems is { } bankItemsItems)
+        {
+            foreach (var item in bankItemsItems)
+            {
+                target.BankItems.Add((MUnique.OpenMU.DataModel.Entities.AccountBankItem)this.ConvertObject(item)!);
+            }
+        }
+
+        target.AutoSaveToBank = source.AutoSaveToBank;
         target.IsVaultExtended = source.IsVaultExtended;
         target.WCoinC = source.WCoinC;
         target.WCoinP = source.WCoinP;
@@ -208,6 +218,23 @@ internal sealed class BasicModelConverter
             }
         }
 
+        return target;
+    }
+
+    private BasicModel.AccountBankItem Convert(AccountBankItem source)
+    {
+        if (this._converted.TryGetValue(source, out var converted))
+        {
+            return (BasicModel.AccountBankItem)converted;
+        }
+
+        var target = new BasicModel.AccountBankItem();
+        this._converted.Add(source, target);
+        target.Id = source.Id;
+        target.ItemGroup = source.ItemGroup;
+        target.ItemNumber = source.ItemNumber;
+        target.ItemLevel = source.ItemLevel;
+        target.Count = source.Count;
         return target;
     }
 

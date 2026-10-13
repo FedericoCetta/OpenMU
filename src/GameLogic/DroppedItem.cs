@@ -243,6 +243,30 @@ public sealed class DroppedItem : AsyncDisposable, ILocateable
         return true;
     }
 
+    /// <summary>
+    /// Picks the item up into the jewel bank of the account (MU GKZ) instead of the inventory.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    /// <param name="addToBank">Adds the item to the bank; it's called under the pickup lock, only if the item is still available.</param>
+    /// <returns><c>true</c>, if the item was picked up; <c>false</c>, if somebody else got it first.</returns>
+    public async ValueTask<bool> TryPickUpIntoBankAsync(Player player, Action addToBank)
+    {
+        using (await this._pickupLock.LockAsync().ConfigureAwait(false))
+        {
+            if (!this._availableToPick)
+            {
+                return false;
+            }
+
+            addToBank();
+            this._availableToPick = false;
+        }
+
+        player.Logger.LogInformation("Item '{0}' got picked up by player '{1}' into the jewel bank.", this, player);
+        this.DisposeAndDelete(null);
+        return true;
+    }
+
     private async ValueTask<bool> TryStackOnItemAsync(Player player, Item stackTarget)
     {
         player.Logger.LogDebug("Player {0} tries to pick up {1}, trying to add to an existing item at slot {2}", player, this, stackTarget.ItemSlot);
