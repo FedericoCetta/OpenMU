@@ -1,6 +1,7 @@
 name: .NET Core
 
-on: [push]
+# MU GKZ: only by hand, so pushes don't use up the free Actions minutes; everything is built and tested locally.
+on: [workflow_dispatch]
 
 jobs:
   build:
