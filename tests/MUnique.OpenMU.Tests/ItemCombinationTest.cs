@@ -34,7 +34,7 @@ public class ItemCombinationTest
     {
         var definition = CreateDefinition();
         var player = await CreatePlayerAsync(isVip: true, coins: 40).ConfigureAwait(false);
-        await AddItemAsync(player, definition, TargetSlot, level: 7, excellentOptions: 1, luck: true, skill: false).ConfigureAwait(false);
+        await AddItemAsync(player, definition, TargetSlot, level: 7, excellentOptions: 1, luck: false, skill: false).ConfigureAwait(false);
         await AddItemAsync(player, definition, SourceSlot, level: 7, excellentOptions: 2, luck: false, skill: true).ConfigureAwait(false);
 
         await this._action.CheckAsync(player, SourceSlot, TargetSlot).ConfigureAwait(false);
@@ -49,7 +49,7 @@ public class ItemCombinationTest
         Assert.That(item.Definition, Is.SameAs(definition));
         Assert.That(item.Level, Is.EqualTo(7));
         Assert.That(item.HasSkill, Is.True, "skill of the dragged item");
-        Assert.That(item.ItemOptions.Any(o => o.ItemOption?.OptionType == ItemOptionTypes.Luck), Is.True, "luck of the target item");
+        Assert.That(item.ItemOptions.Any(o => o.ItemOption?.OptionType == ItemOptionTypes.Luck), Is.True, "always with luck");
         Assert.That(item.ItemOptions.Count(o => o.ItemOption?.OptionType == ItemOptionTypes.Excellent), Is.InRange(1, 3));
     }
 

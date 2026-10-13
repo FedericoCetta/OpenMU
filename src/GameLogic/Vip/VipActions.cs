@@ -41,7 +41,7 @@ public class VipActions
     }
 
     /// <summary>
-    /// Buys one VIP period with coins. Buying while VIP extends the end.
+    /// Buys one VIP period with coins. While the account is VIP, it can't buy again: the periods don't add up.
     /// </summary>
     /// <param name="player">The player.</param>
     public async ValueTask BuyAsync(Player player)
@@ -55,6 +55,11 @@ public class VipActions
         var result = await player.RunPersistenceExclusiveAsync(async () =>
         {
             await player.ApplyPendingCashShopCoinGrantsAsync().ConfigureAwait(false);
+            if (account.IsVip())
+            {
+                return VipBuyResult.AlreadyVip;
+            }
+
             var coins = account.GetCashShopCoins(configuration.CoinType);
             if (coins < configuration.Price)
             {
@@ -62,7 +67,7 @@ public class VipActions
             }
 
             var previousEnd = account.VipUntil;
-            var start = account.IsVip() ? account.VipUntil!.Value : DateTime.UtcNow;
+            var start = DateTime.UtcNow;
             account.SetCashShopCoins(configuration.CoinType, coins - configuration.Price);
             account.VipUntil = start.AddDays(configuration.DaysPerPurchase);
 

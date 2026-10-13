@@ -30,7 +30,7 @@ public class VipConfiguration
     /// <summary>
     /// Gets or sets the number of days which one purchase adds.
     /// </summary>
-    [Display(Name = "Days per purchase", Description = "The number of days which one purchase adds. Buying while VIP extends the end.")]
+    [Display(Name = "Days per purchase", Description = "The number of days of one purchase. A VIP account can buy again when its VIP ended.")]
     public int DaysPerPurchase { get; set; } = 30;
 
     /// <summary>

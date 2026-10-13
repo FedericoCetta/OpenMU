@@ -11,8 +11,8 @@ using MUnique.OpenMU.GameLogic.Views.Vip;
 
 /// <summary>
 /// The item combination of MU GKZ: two equal excellent items of the same level become one new item of that
-/// level, with 1 to 3 new random excellent options. Luck and skill are kept if one of the two had them; the
-/// additional option is random, as in a drop. It costs coins.
+/// level, with 1 to 3 new random excellent options. It always gets luck, and keeps the skill if one of the two
+/// had it; the additional option is random, as in a drop. It costs coins.
 /// </summary>
 public class ItemCombinationAction
 {
@@ -109,8 +109,8 @@ public class ItemCombinationAction
         item.Level = first.Level;
         item.HasSkill = (first.HasSkill || second.HasSkill) && item.CanHaveSkill();
 
-        if ((HasOption(first, ItemOptionTypes.Luck) || HasOption(second, ItemOptionTypes.Luck))
-            && FindOptionDefinition(definition, ItemOptionTypes.Luck) is { } luck)
+        // Always with luck: the combination should feel like an upgrade.
+        if (FindOptionDefinition(definition, ItemOptionTypes.Luck) is { } luck)
         {
             this.AddOption(item, luck.PossibleOptions.First(), 0, context);
         }
@@ -131,11 +131,6 @@ public class ItemCombinationAction
 
         item.Durability = item.GetMaximumDurabilityOfOnePiece();
         return item;
-    }
-
-    private static bool HasOption(Item item, ItemOptionType optionType)
-    {
-        return item.ItemOptions.Any(link => link.ItemOption?.OptionType == optionType);
     }
 
     private static ItemOptionDefinition? FindOptionDefinition(ItemDefinition definition, ItemOptionType optionType)

@@ -63,10 +63,10 @@ public class VipTest
     }
 
     /// <summary>
-    /// Tests that buying while VIP extends the end, instead of starting from now.
+    /// Tests that the VIP can't be bought again while it's active: the periods don't add up.
     /// </summary>
     [Test]
-    public async Task BuyWhileVipExtendsAsync()
+    public async Task BuyWhileVipIsRefusedAsync()
     {
         var player = await CreatePlayerAsync().ConfigureAwait(false);
         var end = DateTime.UtcNow.AddDays(10);
@@ -75,7 +75,24 @@ public class VipTest
 
         await this._actions.BuyAsync(player).ConfigureAwait(false);
 
-        Assert.That(player.Account.VipUntil, Is.EqualTo(end.AddDays(30)));
+        GetView(player).Verify(v => v.ShowVipBuyResultAsync(VipBuyResult.AlreadyVip), Times.Once);
+        Assert.That(player.Account.VipUntil, Is.EqualTo(end));
+        Assert.That(player.Account.WCoinC, Is.EqualTo(1000));
+    }
+
+    /// <summary>
+    /// Tests that the VIP can be bought again when it ended, from now.
+    /// </summary>
+    [Test]
+    public async Task BuyAfterVipEndedAsync()
+    {
+        var player = await CreatePlayerAsync().ConfigureAwait(false);
+        player.Account!.VipUntil = DateTime.UtcNow.AddDays(-3);
+        player.Account.WCoinC = 1000;
+
+        await this._actions.BuyAsync(player).ConfigureAwait(false);
+
+        Assert.That(player.Account.VipUntil, Is.EqualTo(DateTime.UtcNow.AddDays(30)).Within(TimeSpan.FromMinutes(1)));
         Assert.That(player.Account.WCoinC, Is.EqualTo(0));
     }
 

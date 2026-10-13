@@ -28,6 +28,11 @@ public enum VipBuyResult
     /// The purchase couldn't be saved; nothing was charged.
     /// </summary>
     Failed,
+
+    /// <summary>
+    /// The account is VIP already; it can buy again when the VIP ended.
+    /// </summary>
+    AlreadyVip,
 }
 
 /// <summary>
