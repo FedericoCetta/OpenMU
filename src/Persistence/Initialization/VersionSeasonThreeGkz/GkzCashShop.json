@@ -30,11 +30,11 @@
 
     { "seq": 31, "category": 12, "name": "Armor of Guardsman (Chaos Castle)", "price": 20, "group": 13, "number": 29, "level": 0, "description": "Entrada a Chaos Castle, en todos los niveles." },
 
-    { "seq": 41, "category": 13, "name": "Anillo de Transformación: Budge Dragon", "price": 100, "group": 13, "number": 10, "level": 0, "description": "Te transforma en Budge Dragon." },
-    { "seq": 42, "category": 13, "name": "Anillo de Transformación: Giant", "price": 100, "group": 13, "number": 10, "level": 1, "description": "Te transforma en Giant." },
-    { "seq": 43, "category": 13, "name": "Anillo de Transformación: Skeleton Warrior", "price": 100, "group": 13, "number": 10, "level": 2, "description": "Te transforma en Skeleton Warrior." },
-    { "seq": 44, "category": 13, "name": "Anillo de Transformación: Poison Bull", "price": 100, "group": 13, "number": 10, "level": 3, "description": "Te transforma en Poison Bull." },
-    { "seq": 45, "category": 13, "name": "Anillo de Transformación: Thunder Lich", "price": 100, "group": 13, "number": 10, "level": 4, "description": "Te transforma en Thunder Lich." },
-    { "seq": 46, "category": 13, "name": "Anillo de Transformación: Death Cow", "price": 100, "group": 13, "number": 10, "level": 5, "description": "Te transforma en Death Cow." }
+    { "seq": 41, "category": 13, "name": "Anillo: Budge Dragon", "price": 100, "group": 13, "number": 10, "level": 0, "description": "Anillo de transformación:#te transforma en Budge Dragon." },
+    { "seq": 42, "category": 13, "name": "Anillo: Giant", "price": 100, "group": 13, "number": 10, "level": 1, "description": "Anillo de transformación:#te transforma en Giant." },
+    { "seq": 43, "category": 13, "name": "Anillo: Skeleton Warrior", "price": 100, "group": 13, "number": 10, "level": 2, "description": "Anillo de transformación:#te transforma en Skeleton Warrior." },
+    { "seq": 44, "category": 13, "name": "Anillo: Poison Bull", "price": 100, "group": 13, "number": 10, "level": 3, "description": "Anillo de transformación:#te transforma en Poison Bull." },
+    { "seq": 45, "category": 13, "name": "Anillo: Thunder Lich", "price": 100, "group": 13, "number": 10, "level": 4, "description": "Anillo de transformación:#te transforma en Thunder Lich." },
+    { "seq": 46, "category": 13, "name": "Anillo: Death Cow", "price": 100, "group": 13, "number": 10, "level": 5, "description": "Anillo de transformación:#te transforma en Death Cow." }
   ]
 }
