@@ -26,6 +26,11 @@ public class CloseNpcDialogAction
             player.Logger.LogDebug($"Player {player.SelectedCharacter?.Name} closes NPC {player.OpenedNpc}");
             player.OpenedNpc = null;
             player.Vault = null;
+
+            // The backup of a crafting NPC is only meant for a disconnect while its dialog is open. Kept after
+            // closing, a later logout would restore the old items and zen: e.g. zen put into the vault
+            // afterwards would exist twice, and everything gained in the meantime would be lost.
+            player.BackupInventory = null;
             await player.InvokeViewPlugInAsync<INpcDialogClosedPlugIn>(p => p.DialogClosedAsync(npc.Definition)).ConfigureAwait(false);
             if (npc.Definition.Number == ChaosGoblinNumber)
             {

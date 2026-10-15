@@ -73,8 +73,16 @@ internal sealed class PlayerStorages
 
             if (this.BackupInventory is { } backupInventory)
             {
-                await this.RestoreBackupInventoryAsync(inventory, backupInventory).ConfigureAwait(false);
-                return;
+                // Only while the dialog of a crafting NPC is still open, or a trade is running, the backup is
+                // the state to go back to. Otherwise it's stale, and restoring it would duplicate zen and items.
+                if (this._player.OpenedNpc is { Definition.ItemCraftings.Count: > 0 } || this._player.TradingPartner is not null)
+                {
+                    await this.RestoreBackupInventoryAsync(inventory, backupInventory).ConfigureAwait(false);
+                    return;
+                }
+
+                this._player.Logger.LogWarning("Discarded a stale inventory backup of player {player}.", this._player.Name);
+                this.BackupInventory = null;
             }
 
             if (this.TemporaryStorage is not { ItemStorage.Items.Count: > 0 } temporaryStorage)
