@@ -25,6 +25,24 @@ public class ResetConfiguration
     public int RequiredLevel { get; set; } = 400;
 
     /// <summary>
+    /// Gets or sets the required level for a reset of a VIP account (MU GKZ); empty for the same as <see cref="RequiredLevel"/>.
+    /// </summary>
+    [Display(Name = "Required level for VIP accounts")]
+    public int? RequiredLevelVip { get; set; }
+
+    /// <summary>
+    /// Gets the level which the player needs for a reset: the one of VIP accounts, if it's VIP.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    /// <returns>The required level.</returns>
+    public int GetRequiredLevel(Player player)
+    {
+        return this.RequiredLevelVip is { } vipLevel && player.Account is { } account && Vip.AccountVaults.IsVip(account)
+            ? vipLevel
+            : this.RequiredLevel;
+    }
+
+    /// <summary>
     /// Gets or sets the character level after a reset.
     /// </summary>
     [Display(ResourceType = typeof(PlugInResources), Name = nameof(PlugInResources.ResetConfiguration_LevelAfterReset_Name))]

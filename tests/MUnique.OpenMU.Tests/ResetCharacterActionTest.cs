@@ -77,6 +77,28 @@ public class ResetCharacterActionTest
     }
 
     /// <summary>
+    /// Verifies that a VIP account resets at its own required level (MU GKZ), and a normal account doesn't.
+    /// </summary>
+    /// <param name="isVip">Whether the account is VIP.</param>
+    /// <param name="expectedResets">The resets after the attempt at level 250.</param>
+    [TestCase(true, 1)]
+    [TestCase(false, 0)]
+    public async Task VipAccountsResetAtTheirOwnLevelAsync(bool isVip, int expectedResets)
+    {
+        var player = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
+        player.Attributes![Stats.Level] = 250;
+        player.Money = 5_000_000;
+        player.Account!.VipUntil = isVip ? DateTime.UtcNow.AddDays(10) : null;
+        var configuration = new ResetConfiguration { RequiredLevel = 380, RequiredLevelVip = 250, RequiredMoney = 5_000_000, MultiplyRequiredMoneyByResetCount = false, MoveHome = false, LogOut = false };
+        player.GameContext.FeaturePlugIns.AddPlugIn(new ResetFeaturePlugIn { Configuration = configuration }, true);
+        var action = new ResetCharacterAction(player, await CreateResetNpcAsync(player).ConfigureAwait(false));
+
+        await action.ResetCharacterAsync().ConfigureAwait(false);
+
+        Assert.That((int)player.Attributes[Stats.Resets], Is.EqualTo(expectedResets));
+    }
+
+    /// <summary>
     /// Verifies cumulative point replacement across multiple resets when point tiers are configured.
     /// </summary>
     [Test]
