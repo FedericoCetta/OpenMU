@@ -25,9 +25,9 @@ public class ShowVipPlugIn : IShowVipPlugIn
     /// <summary>
     /// C1 [size] EC 01: coins u32, VIP seconds left u32, price u32, days u16, experience bonus % u16,
     /// item drop bonus in tenths of a percentage point u16, zen bonus % u16, vaults without VIP u8,
-    /// vaults with VIP u8, coin name (16 bytes, ASCII, zero padded).
+    /// vaults with VIP u8, coin name (16 bytes, ASCII, zero padded), Reset Coins u32, price in Reset Coins u32.
     /// </summary>
-    internal const int VipInfoLength = 42;
+    internal const int VipInfoLength = 50;
 
     /// <summary>
     /// C1 [size] EC 02 [result].
@@ -84,6 +84,8 @@ public class ShowVipPlugIn : IShowVipPlugIn
         name.Clear();
         var ascii = Encoding.ASCII.GetBytes(configuration.CoinName ?? string.Empty);
         ascii.AsSpan(0, Math.Min(ascii.Length, CoinNameLength - 1)).CopyTo(name);
+        BinaryPrimitives.WriteUInt32LittleEndian(span[42..], (uint)Math.Max(0, info.ResetCoins));
+        BinaryPrimitives.WriteUInt32LittleEndian(span[46..], (uint)Math.Max(0, configuration.ResetCoinsPrice));
     }
 
     /// <inheritdoc />

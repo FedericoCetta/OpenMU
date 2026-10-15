@@ -10,7 +10,7 @@ using MUnique.OpenMU.GameLogic.Vip;
 using MUnique.OpenMU.PlugIns;
 
 /// <summary>
-/// Packet handler for the VIP purchase (0xEC, 0x02).
+/// Packet handler for the VIP purchase (0xEC, 0x02). C1 05 EC 02 [currency]: 1 pays with GKZ Reset Coins; without it, or 0, with the coin of the configuration.
 /// </summary>
 [PlugIn]
 [Display(Name = "MU GKZ: VIP purchase", Description = "Packet handler for the VIP purchase (0xEC, 0x02).")]
@@ -29,6 +29,7 @@ internal class VipBuyRequestHandlerPlugIn : ISubPacketHandlerPlugIn
     /// <inheritdoc/>
     public async ValueTask HandlePacketAsync(Player player, Memory<byte> packet)
     {
-        await this._actions.BuyAsync(player).ConfigureAwait(false);
+        var withResetCoins = packet.Length >= 5 && packet.Span[4] == 1;
+        await this._actions.BuyAsync(player, withResetCoins).ConfigureAwait(false);
     }
 }

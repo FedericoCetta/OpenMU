@@ -104,8 +104,23 @@ public class MarketTest
 
         var moneyBefore = this._seller.Money;
         Assert.That(await this._market.CollectAsync(this._seller).ConfigureAwait(false), Is.EqualTo(MarketResult.Success));
-        Assert.That(this._seller.Money, Is.EqualTo(moneyBefore + 3000));
+        Assert.That(this._seller.Money, Is.EqualTo(moneyBefore + 2910), "3000 without the 3 % tax");
         Assert.That(await this._market.CollectAsync(this._seller).ConfigureAwait(false), Is.EqualTo(MarketResult.NothingToCollect));
+    }
+
+    /// <summary>
+    /// Tests the share of the seller with the sales tax of 3 %, which is rounded in favor of the seller.
+    /// </summary>
+    /// <param name="price">The price.</param>
+    /// <param name="expected">The expected share of the seller.</param>
+    [TestCase(3000L, 2910L)]
+    [TestCase(100L, 97L)]
+    [TestCase(30L, 30L)]
+    [TestCase(1L, 1L)]
+    [TestCase(2_000_000_000L, 1_940_000_000L)]
+    public void SellerShareWithoutTax(long price, long expected)
+    {
+        Assert.That(new MarketConfiguration().GetSellerShare(price), Is.EqualTo(expected));
     }
 
     /// <summary>
@@ -266,10 +281,11 @@ public class MarketTest
         await this.OpenStoreAsync().ConfigureAwait(false);
         await this.AddArmorAsync(this._seller, 12).ConfigureAwait(false);
         await this.AddArmorAsync(this._seller, 14).ConfigureAwait(false);
-        await this._market.SellAsync(this._seller, 12, Fee, MarketCurrency.Zen).ConfigureAwait(false);
+        const long price = Fee * 2; // the fee after the sales tax
+        await this._market.SellAsync(this._seller, 12, price, MarketCurrency.Zen).ConfigureAwait(false);
         await this._market.SellAsync(this._seller, 14, 1000, MarketCurrency.Zen).ConfigureAwait(false);
-        this._buyer.Money = Fee;
-        var expensive = (await this.GetPageAsync(MarketFilter.All).ConfigureAwait(false)).Single(o => o.Price == Fee);
+        this._buyer.Money = (int)price;
+        var expensive = (await this.GetPageAsync(MarketFilter.All).ConfigureAwait(false)).Single(o => o.Price == price);
         Assert.That(await this._market.BuyAsync(this._buyer, expensive.ListingId).ConfigureAwait(false), Is.EqualTo(MarketResult.Success));
 
         this._now = this._now.AddDays(4);

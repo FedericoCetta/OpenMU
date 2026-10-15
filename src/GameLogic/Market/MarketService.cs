@@ -309,17 +309,18 @@ public sealed class MarketService : IDisposable
             var item = player.PersistenceContext.CreateNew<Item>();
             item.AssignValues(marketItem);
             await this.RemoveListingAsync(store, listing).ConfigureAwait(false);
+            var sellerShare = this.Configuration.GetSellerShare(listing.Price);
             if (listing.Currency == MarketCurrency.Zen)
             {
-                store.PendingZen += listing.Price;
+                store.PendingZen += sellerShare;
             }
             else if (listing.Currency == MarketCurrency.Coins)
             {
-                store.PendingCoins += (int)listing.Price;
+                store.PendingCoins += (int)sellerShare;
             }
             else
             {
-                store.AddPendingJewels(listing.Currency, (int)listing.Price);
+                store.AddPendingJewels(listing.Currency, (int)sellerShare);
             }
 
             if (!await this.TrySaveMarketAsync().ConfigureAwait(false))

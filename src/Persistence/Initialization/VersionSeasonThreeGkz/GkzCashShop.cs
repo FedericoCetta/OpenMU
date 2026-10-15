@@ -68,10 +68,11 @@ internal static class GkzCashShop
                 configuration.Packages.Add(package);
             }
 
+            var forSale = entry.ForSale ?? true;
             package.Name = entry.Name;
             package.Price = entry.Price;
-            package.CoinType = CashShopCoinType.WCoinC;
-            package.IsGiftable = true;
+            package.CoinType = entry.Coin == "reset" ? CashShopCoinType.GoblinPoints : CashShopCoinType.WCoinC;
+            package.IsGiftable = forSale;
             package.IsBundle = false;
 
             // One product per package, with the sequence number of the package as product and price sequence.
@@ -87,9 +88,11 @@ internal static class GkzCashShop
             product.Price = entry.Price;
             product.ItemDefinition = gameConfiguration.Items.FirstOrDefault(i => i.Group == entry.Group && i.Number == entry.Number);
             product.ItemLevel = entry.Level;
-            product.Quantity = 1;
+            product.Quantity = entry.Quantity ?? 1;
             product.Duration = TimeSpan.Zero;
-            package.IsForSale = product.CanBeDelivered();
+
+            // The rewards aren't for sale; they're given into the gift storage (see GkzResetRewards).
+            package.IsForSale = forSale && product.CanBeDelivered();
         }
     }
 
@@ -104,7 +107,18 @@ internal static class GkzCashShop
     internal sealed record Version(short Zone, short Year, short YearId);
 
     /// <summary>
-    /// A package of the catalog: one item.
+    /// A package of the catalog: one item, or a stack of it (<paramref name="Quantity"/>).
     /// </summary>
-    internal sealed record Package(int Seq, int Category, string Name, int Price, byte Group, short Number, byte Level, string Description);
+    /// <param name="Seq">The sequence number of the package, product and price.</param>
+    /// <param name="Category">The category in the client.</param>
+    /// <param name="Name">The name.</param>
+    /// <param name="Price">The price.</param>
+    /// <param name="Group">The group of the item.</param>
+    /// <param name="Number">The number of the item.</param>
+    /// <param name="Level">The level of the item.</param>
+    /// <param name="Description">The description.</param>
+    /// <param name="Coin">"reset" for GKZ Reset Coins (the Goblin Points), otherwise GKZ Coins.</param>
+    /// <param name="Quantity">The quantity of the item; stackable items come in stacks.</param>
+    /// <param name="ForSale"><c>false</c> for packages which are only given away, e.g. reset rewards.</param>
+    internal sealed record Package(int Seq, int Category, string Name, int Price, byte Group, short Number, byte Level, string Description, string? Coin = null, int? Quantity = null, bool? ForSale = null);
 }

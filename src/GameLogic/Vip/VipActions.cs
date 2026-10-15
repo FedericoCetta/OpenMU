@@ -4,6 +4,7 @@
 
 namespace MUnique.OpenMU.GameLogic.Vip;
 
+using MUnique.OpenMU.DataModel.Configuration;
 using MUnique.OpenMU.GameLogic.CashShop;
 using MUnique.OpenMU.GameLogic.Views.NPC;
 using MUnique.OpenMU.GameLogic.Views.Vault;
@@ -44,9 +45,18 @@ public class VipActions
     /// Buys one VIP period with coins. While the account is VIP, it can't buy again: the periods don't add up.
     /// </summary>
     /// <param name="player">The player.</param>
-    public async ValueTask BuyAsync(Player player)
+    /// <param name="withResetCoins">If set to <c>true</c>, it's paid with GKZ Reset Coins instead of the coin of the configuration.</param>
+    public async ValueTask BuyAsync(Player player, bool withResetCoins = false)
     {
         if (player.Account is not { } account || VipPlugIn.GetConfiguration(player.GameContext) is not { } configuration)
+        {
+            await player.InvokeViewPlugInAsync<IShowVipPlugIn>(p => p.ShowVipBuyResultAsync(VipBuyResult.NotAvailable)).ConfigureAwait(false);
+            return;
+        }
+
+        var coinType = withResetCoins ? CashShopCoinType.GoblinPoints : configuration.CoinType;
+        var price = withResetCoins ? configuration.ResetCoinsPrice : configuration.Price;
+        if (price <= 0)
         {
             await player.InvokeViewPlugInAsync<IShowVipPlugIn>(p => p.ShowVipBuyResultAsync(VipBuyResult.NotAvailable)).ConfigureAwait(false);
             return;
@@ -60,15 +70,15 @@ public class VipActions
                 return VipBuyResult.AlreadyVip;
             }
 
-            var coins = account.GetCashShopCoins(configuration.CoinType);
-            if (coins < configuration.Price)
+            var coins = account.GetCashShopCoins(coinType);
+            if (coins < price)
             {
                 return VipBuyResult.NotEnoughCoins;
             }
 
             var previousEnd = account.VipUntil;
             var start = DateTime.UtcNow;
-            account.SetCashShopCoins(configuration.CoinType, coins - configuration.Price);
+            account.SetCashShopCoins(coinType, coins - price);
             account.VipUntil = start.AddDays(configuration.DaysPerPurchase);
 
             bool saved;
@@ -84,7 +94,7 @@ public class VipActions
 
             if (!saved)
             {
-                account.SetCashShopCoins(configuration.CoinType, coins);
+                account.SetCashShopCoins(coinType, coins);
                 account.VipUntil = previousEnd;
                 return VipBuyResult.Failed;
             }
@@ -94,7 +104,7 @@ public class VipActions
 
         if (result == VipBuyResult.Success)
         {
-            player.Logger.LogInformation("Player {player} bought VIP for {price} {coinType}, VIP until {vipUntil}.", player, configuration.Price, configuration.CoinType, account.VipUntil);
+            player.Logger.LogInformation("Player {player} bought VIP for {price} {coinType}, VIP until {vipUntil}.", player, price, coinType, account.VipUntil);
             VipPlugIn.UpdateBonuses(player);
         }
 
@@ -163,7 +173,11 @@ public class VipActions
 
     private async ValueTask SendInfoAsync(Player player, Account account, VipConfiguration configuration)
     {
-        var info = new VipInfo(account.GetCashShopCoins(configuration.CoinType), account.IsVip() ? account.VipUntil : null, configuration);
+        var info = new VipInfo(
+            account.GetCashShopCoins(configuration.CoinType),
+            account.IsVip() ? account.VipUntil : null,
+            configuration,
+            account.GetCashShopCoins(CashShopCoinType.GoblinPoints));
         await player.InvokeViewPlugInAsync<IShowVipPlugIn>(p => p.ShowVipInfoAsync(info)).ConfigureAwait(false);
     }
 }

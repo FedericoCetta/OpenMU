@@ -61,7 +61,6 @@ public class SkillListTest
     {
         var player = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
         var item = this.CreateItemWithSkill(QualifiedItemSkillId, player.SelectedCharacter!.CharacterClass);
-        item.Durability = 1;
         await player.Inventory!.AddItemAsync(0, item).ConfigureAwait(false);
         var skillList = new SkillList(player);
         Assert.That(await skillList.RemoveItemSkillAsync(item.Definition!.Skill!.Number.ToUnsigned()).ConfigureAwait(false), Is.True);
@@ -119,7 +118,6 @@ public class SkillListTest
         var player = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
         player.SelectedCharacter!.LearnedSkills.Add(this.CreateSkillEntry(QualifiedItemSkillId));
         var item = this.CreateItemWithSkill(QualifiedItemSkillId, player.SelectedCharacter!.CharacterClass);
-        item.Durability = 1;
         await player.Inventory!.AddItemAsync(0, item).ConfigureAwait(false);
         var skillList = new SkillList(player);
 
@@ -236,10 +234,12 @@ public class SkillListTest
         itemDefinition.Object.Width = 1;
         itemDefinition.Setup(d => d.BasePowerUpAttributes).Returns(new List<ItemBasePowerUpDefinition>());
 
+        // An equipped item with a durability of 0 is broken and doesn't grant its skill.
         var item = new Item
         {
             HasSkill = true,
             Definition = itemDefinition.Object,
+            Durability = 1,
         };
         return item;
     }

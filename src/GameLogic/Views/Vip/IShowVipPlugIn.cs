@@ -72,7 +72,8 @@ public enum ItemCombinationStatus
 /// <param name="Coins">The coins of the account.</param>
 /// <param name="VipUntil">The end of the VIP (UTC); <c>null</c> if the account isn't VIP.</param>
 /// <param name="Configuration">The configuration with the price and the bonuses.</param>
-public record VipInfo(int Coins, DateTime? VipUntil, GameLogic.Vip.VipConfiguration Configuration);
+/// <param name="ResetCoins">The GKZ Reset Coins of the account.</param>
+public record VipInfo(int Coins, DateTime? VipUntil, GameLogic.Vip.VipConfiguration Configuration, int ResetCoins = 0);
 
 /// <summary>
 /// Interface of a view whose implementation shows the VIP menu.

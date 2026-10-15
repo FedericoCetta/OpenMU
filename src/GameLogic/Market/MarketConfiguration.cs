@@ -48,4 +48,17 @@ public class MarketConfiguration
     /// Gets or sets the highest price in jewels.
     /// </summary>
     public long MaximumJewelPrice { get; set; } = 10_000;
+
+    /// <summary>
+    /// Gets or sets the tax on the sales, in percent: the seller gets the price without it, rounded in favor of the seller.
+    /// It takes zen, coins and jewels out of the economy.
+    /// </summary>
+    public int SalesTaxPercent { get; set; } = 3;
+
+    /// <summary>
+    /// Gets what the seller gets for a sale, without the <see cref="SalesTaxPercent"/>.
+    /// </summary>
+    /// <param name="price">The price.</param>
+    /// <returns>The price without the tax.</returns>
+    public long GetSellerShare(long price) => price - (price * Math.Clamp(this.SalesTaxPercent, 0, 100) / 100);
 }

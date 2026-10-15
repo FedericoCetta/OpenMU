@@ -45,6 +45,42 @@ public class VipTest
     }
 
     /// <summary>
+    /// Tests that the VIP is bought with GKZ Reset Coins (the Goblin Points), without touching the GKZ Coins.
+    /// </summary>
+    [Test]
+    public async Task BuyWithResetCoinsAsync()
+    {
+        var player = await CreatePlayerAsync().ConfigureAwait(false);
+        player.Account!.WCoinC = 1500;
+        player.Account.GoblinPoints = 1200;
+
+        await this._actions.BuyAsync(player, true).ConfigureAwait(false);
+
+        Assert.That(player.Account.GoblinPoints, Is.EqualTo(200));
+        Assert.That(player.Account.WCoinC, Is.EqualTo(1500));
+        Assert.That(player.Account.VipUntil, Is.EqualTo(DateTime.UtcNow.AddDays(30)).Within(TimeSpan.FromMinutes(1)));
+        GetView(player).Verify(v => v.ShowVipBuyResultAsync(VipBuyResult.Success), Times.Once);
+    }
+
+    /// <summary>
+    /// Tests that the VIP isn't bought without enough Reset Coins, even with enough GKZ Coins.
+    /// </summary>
+    [Test]
+    public async Task BuyWithoutEnoughResetCoinsAsync()
+    {
+        var player = await CreatePlayerAsync().ConfigureAwait(false);
+        player.Account!.WCoinC = 1500;
+        player.Account.GoblinPoints = 999;
+
+        await this._actions.BuyAsync(player, true).ConfigureAwait(false);
+
+        Assert.That(player.Account.GoblinPoints, Is.EqualTo(999));
+        Assert.That(player.Account.WCoinC, Is.EqualTo(1500));
+        Assert.That(player.Account.VipUntil, Is.Null);
+        GetView(player).Verify(v => v.ShowVipBuyResultAsync(VipBuyResult.NotEnoughCoins), Times.Once);
+    }
+
+    /// <summary>
     /// Tests that the VIP isn't bought without enough coins.
     /// </summary>
     [Test]
@@ -189,12 +225,12 @@ public class VipTest
     public void VipInfoPacketLayout()
     {
         var now = new DateTime(2026, 10, 12, 0, 0, 0, DateTimeKind.Utc);
-        var info = new VipInfo(2500, now.AddHours(1), new VipConfiguration());
+        var info = new VipInfo(2500, now.AddHours(1), new VipConfiguration(), 730);
         var packet = new byte[ShowVipPlugIn.VipInfoLength];
 
         ShowVipPlugIn.WriteVipInfo(packet, info, now);
 
-        Assert.That(packet[..4], Is.EqualTo(new byte[] { 0xC1, 42, 0xEC, 0x01 }));
+        Assert.That(packet[..4], Is.EqualTo(new byte[] { 0xC1, 50, 0xEC, 0x01 }));
         Assert.That(BitConverter.ToUInt32(packet, 4), Is.EqualTo(2500));
         Assert.That(BitConverter.ToUInt32(packet, 8), Is.EqualTo(3600));
         Assert.That(BitConverter.ToUInt32(packet, 12), Is.EqualTo(1000));
@@ -205,6 +241,8 @@ public class VipTest
         Assert.That(packet[24], Is.EqualTo(2));
         Assert.That(packet[25], Is.EqualTo(6));
         Assert.That(System.Text.Encoding.ASCII.GetString(packet, 26, 16).TrimEnd('\0'), Is.EqualTo("GKZ Coins"));
+        Assert.That(BitConverter.ToUInt32(packet, 42), Is.EqualTo(730));
+        Assert.That(BitConverter.ToUInt32(packet, 46), Is.EqualTo(1000));
     }
 
     /// <summary>
