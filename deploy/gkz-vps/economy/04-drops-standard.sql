@@ -44,7 +44,7 @@ where g.maps is null or m."Number" = any (g.maps);
 insert into config."GameMapDefinitionDropItemGroup" ("GameMapDefinitionId", "DropItemGroupId")
 select m."Id", dg."Id"
 from config."DropItemGroup" dg, config."GameMapDefinition" m
-where dg."Description" in ('Splinter of Armor', 'Bless of Guardian', 'Claw of Beast') and m."Number" in (37, 38)
+where split_part(dg."Description", '||', 1) in ('Splinter of Armor', 'Bless of Guardian', 'Claw of Beast') and m."Number" in (37, 38)
   and not exists (select 1 from config."GameMapDefinitionDropItemGroup" x where x."GameMapDefinitionId" = m."Id" and x."DropItemGroupId" = dg."Id");
 
 -- Jewel of Soul: 65 % (90 % with luck); a failure takes away one level, never back to +0.
@@ -57,7 +57,7 @@ where "TypeId" = 'a76cda49-1c56-401a-96d1-294d9a68a7b9';
 
 select split_part(g."Description", '||', 1) as grp, g."Chance", count(l.*) as maps
 from config."DropItemGroup" g left join config."GameMapDefinitionDropItemGroup" l on l."DropItemGroupId" = g."Id"
-where g."Description" like 'GKZ jewel: %' or g."Description" like 'The common drop item group%' or g."Description" in ('Splinter of Armor', 'Bless of Guardian', 'Claw of Beast')
+where g."Description" like 'GKZ jewel: %' or g."Description" like 'The common drop item group%' or split_part(g."Description", '||', 1) in ('Splinter of Armor', 'Bless of Guardian', 'Claw of Beast')
 group by 1, 2 order by 2 desc;
 select substring("CustomConfiguration" from '"SuccessRatePercentage": [0-9]+') || ', ' || substring("CustomConfiguration" from '"ResetToLevel0WhenFailMinLevel": [0-9]+')
 from config."PlugInConfiguration" where "TypeId" = 'a76cda49-1c56-401a-96d1-294d9a68a7b9';
