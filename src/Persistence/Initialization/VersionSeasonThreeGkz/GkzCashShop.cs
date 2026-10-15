@@ -5,8 +5,10 @@
 namespace MUnique.OpenMU.Persistence.Initialization.VersionSeasonThreeGkz;
 
 using System.Text.Json;
+using MUnique.OpenMU.AttributeSystem;
 using MUnique.OpenMU.DataModel.Configuration;
 using MUnique.OpenMU.GameLogic.CashShop;
+using MUnique.OpenMU.GameLogic.Resets;
 
 /// <summary>
 /// The item shop of MU GKZ (X key), from <c>GkzCashShop.json</c>. The client script is built from the same file
@@ -38,6 +40,14 @@ internal static class GkzCashShop
     internal static void Apply(IContext context, GameConfiguration gameConfiguration)
     {
         var catalog = Load();
+
+        // The claims of the reset rewards (packages of the Recompensas category) are kept in this attribute.
+        if (gameConfiguration.Attributes.All(a => a.Id != GkzResetRewardClaims.ClaimedAttribute.Id))
+        {
+            var claimed = GkzResetRewardClaims.ClaimedAttribute;
+            gameConfiguration.Attributes.Add(context.CreateNew<AttributeDefinition>(claimed.Id, claimed.Designation, claimed.Description));
+        }
+
         var configuration = gameConfiguration.CashShopConfiguration;
         if (configuration is null)
         {
@@ -72,7 +82,7 @@ internal static class GkzCashShop
             package.Name = entry.Name;
             package.Price = entry.Price;
             package.CoinType = entry.Coin == "reset" ? CashShopCoinType.GoblinPoints : CashShopCoinType.WCoinC;
-            package.IsGiftable = forSale;
+            package.IsGiftable = forSale && !GkzResetRewardClaims.IsClaimPackage(entry.Seq);
             package.IsBundle = false;
 
             // One product per package, with the sequence number of the package as product and price sequence.

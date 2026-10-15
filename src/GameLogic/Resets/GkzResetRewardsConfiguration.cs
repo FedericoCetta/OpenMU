@@ -46,11 +46,6 @@ public class GkzResetRewardsConfiguration
     public int RepeatUntil { get; set; } = 500;
 
     /// <summary>
-    /// Gets or sets the name which the gifts show as sender.
-    /// </summary>
-    public string SenderName { get; set; } = "MU GKZ";
-
-    /// <summary>
     /// Creates the milestones which were decided for the start of the server.
     /// </summary>
     /// <returns>The milestones.</returns>

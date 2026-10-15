@@ -7,18 +7,17 @@ namespace MUnique.OpenMU.GameLogic.Resets;
 using System.Runtime.InteropServices;
 using MUnique.OpenMU.GameLogic.CashShop;
 using MUnique.OpenMU.GameLogic.PlugIns;
-using MUnique.OpenMU.Persistence;
 using MUnique.OpenMU.PlugIns;
 
 /// <summary>
 /// The reset rewards of MU GKZ: GKZ Reset Coins for every reset (the Goblin Points of the account, which pay in
-/// the item shop and for the VIP), and on milestones items into the gift storage of the item shop, from where the
-/// player takes them when there's space in the inventory.
+/// the item shop and for the VIP), and on milestones items which the player claims in the "Recompensas" category
+/// of the item shop, see <see cref="GkzResetRewardClaims"/>.
 /// </summary>
 [PlugIn]
-[Display(Name = "MU GKZ: reset rewards", Description = "GKZ Reset Coins for every reset, and items into the gift storage of the item shop on milestones.")]
+[Display(Name = "MU GKZ: reset rewards", Description = "GKZ Reset Coins for every reset, and items on milestones, which are claimed in the item shop.")]
 [Guid("D41A7C29-8E3B-4F65-B2D0-6A9E1C5F7B38")]
-public class GkzResetRewardsPlugIn : IPlayerResetPlugIn, ISupportCustomConfiguration<GkzResetRewardsConfiguration>, ISupportDefaultCustomConfiguration
+public class GkzResetRewardsPlugIn : IFeaturePlugIn, IPlayerResetPlugIn, ISupportCustomConfiguration<GkzResetRewardsConfiguration>, ISupportDefaultCustomConfiguration
 {
     /// <inheritdoc />
     public GkzResetRewardsConfiguration? Configuration { get; set; }
@@ -73,7 +72,7 @@ public class GkzResetRewardsPlugIn : IPlayerResetPlugIn, ISupportCustomConfigura
     /// <inheritdoc />
     public async ValueTask PlayerResetAsync(Player player, int resetCount)
     {
-        if (player.Account is not { } account || player.SelectedCharacter?.CharacterClass is not { } characterClass)
+        if (player.Account is not { } account)
         {
             return;
         }
@@ -87,33 +86,11 @@ public class GkzResetRewardsPlugIn : IPlayerResetPlugIn, ISupportCustomConfigura
 
         account.SetCashShopCoins(DataModel.Configuration.CashShopCoinType.GoblinPoints, account.GoblinPoints + coins);
 
-        var packages = GetMilestonePackages(configuration, resetCount, GetClassIndex(characterClass.Number));
-        var shop = player.GameContext.Configuration.CashShopConfiguration;
-        var given = 0;
-        foreach (var sequence in packages)
-        {
-            if (shop?.Packages.FirstOrDefault(p => p.PackageSequence == sequence)?.Products.FirstOrDefault() is not { } product)
-            {
-                player.Logger.LogWarning("Reset reward package {sequence} for {resets} resets isn't in the item shop.", sequence, resetCount);
-                continue;
-            }
-
-            var gift = player.PersistenceContext.CreateNew<CashShopStorageItem>();
-            gift.AccountId = account.GetId();
-            gift.ProductSequence = product.ProductSequence;
-            gift.PriceSequence = product.PriceSequence;
-            gift.IsGift = true;
-            gift.GiftSenderName = configuration.SenderName;
-            gift.GiftMessage = $"Premio por {resetCount} resets";
-            gift.AddedAt = DateTime.UtcNow;
-            given++;
-        }
-
-        player.Logger.LogInformation("Player {player} did reset {resets}: {coins} Reset Coins, {gifts} reward(s).", player, resetCount, coins, given);
+        player.Logger.LogInformation("Player {player} did reset {resets}: {coins} Reset Coins.", player, resetCount, coins);
         await player.ShowBlueMessageAsync($"Reset {resetCount}: +{coins} Reset Coins (total {account.GoblinPoints}).").ConfigureAwait(false);
-        if (given > 0)
+        if (GetMilestonePackages(configuration, resetCount, 0).Count > 0)
         {
-            await player.ShowBlueMessageAsync("¡Premio por resets! Retiralo del depósito de regalos de la tienda (tecla X).").ConfigureAwait(false);
+            await player.ShowBlueMessageAsync($"¡Llegaste a {resetCount} resets! Canjeá tu premio en la tienda (tecla X), en Recompensas.").ConfigureAwait(false);
         }
     }
 }

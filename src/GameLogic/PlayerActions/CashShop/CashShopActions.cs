@@ -1,4 +1,4 @@
-﻿// <copyright file="CashShopActions.cs" company="MUnique">
+// <copyright file="CashShopActions.cs" company="MUnique">
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 // </copyright>
 
@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using MUnique.OpenMU.GameLogic.CashShop;
 using MUnique.OpenMU.GameLogic.PlugIns;
+using MUnique.OpenMU.GameLogic.Resets;
 using MUnique.OpenMU.GameLogic.Views.CashShop;
 using MUnique.OpenMU.Persistence;
 
@@ -96,6 +97,14 @@ public class CashShopActions
             || player.Account is not { } account
             || player.GameContext.Configuration.CashShopConfiguration is not { } configuration)
         {
+            return;
+        }
+
+        if (GkzResetRewardClaims.IsClaimPackage(packageSequence))
+        {
+            // MU GKZ: the reset rewards are claimed, not bought.
+            var claimResult = await GkzResetRewardClaims.ClaimAsync(player, configuration, packageSequence).ConfigureAwait(false);
+            await player.InvokeViewPlugInAsync<ICashShopViewPlugIn>(p => p.ShowBuyResultAsync(claimResult)).ConfigureAwait(false);
             return;
         }
 

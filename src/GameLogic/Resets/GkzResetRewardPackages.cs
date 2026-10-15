@@ -38,4 +38,13 @@ public static class GkzResetRewardPackages
 
     /// <summary>The third wings, by class (DW, DK, Elf, MG, DL).</summary>
     public const int ThirdWings = 121;
+
+    /// <summary>
+    /// The package of the first milestone in the "Recompensas" category of the shop, where the rewards are claimed;
+    /// the milestones follow in the order of <see cref="GkzResetRewardsConfiguration.Milestones"/>.
+    /// </summary>
+    public const int FirstClaim = 201;
+
+    /// <summary>The last package which can be the claim of a milestone.</summary>
+    public const int LastClaim = 249;
 }

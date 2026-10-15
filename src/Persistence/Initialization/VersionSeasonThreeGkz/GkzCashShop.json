@@ -1,9 +1,9 @@
 {
-  "comment": "The item shop of MU GKZ (X key). The server and the client script (tools/gkz_shop_script.py) are built from this file, so names, prices and sequence numbers always match. After a change: raise scriptYearId, rebuild the server, run the tool and publish the client. Packages may have \"coin\": \"reset\" (paid with GKZ Reset Coins, the Goblin Points), \"quantity\" (of the item) and \"forSale\": false (only given away, e.g. as reset rewards; their category isn't shown in the client).",
+  "comment": "The item shop of MU GKZ (X key). The server and the client script (tools/gkz_shop_script.py) are built from this file, so names, prices and sequence numbers always match. After a change: raise scriptYearId, rebuild the server, run the tool and publish the client. Packages may have \"coin\": \"reset\" (paid with GKZ Reset Coins, the Goblin Points), \"quantity\" (of the item) and \"forSale\": false (only given away, e.g. as reset rewards; their category isn't shown in the client). Packages 201 to 249 (category Recompensas) are the claims of the reset rewards, see GkzResetRewardClaims.",
   "scriptVersion": {
     "zone": 512,
     "year": 2026,
-    "yearId": 2
+    "yearId": 3
   },
   "bannerVersion": {
     "zone": 583,
@@ -27,6 +27,10 @@
     {
       "id": 14,
       "name": "Reset Coins"
+    },
+    {
+      "id": 15,
+      "name": "Recompensas"
     }
   ],
   "packages": [
@@ -641,6 +645,105 @@
       "level": 0,
       "description": "Premio por 100 resets.",
       "forSale": false
+    },
+    {
+      "seq": 201,
+      "category": 15,
+      "name": "Premio 10 resets",
+      "price": 0,
+      "group": 14,
+      "number": 14,
+      "level": 0,
+      "description": "10 Jewel of Soul + 10 Jewel of Bless.#Se canjea una vez, al llegar a 10 resets.",
+      "coin": "reset"
+    },
+    {
+      "seq": 202,
+      "category": 15,
+      "name": "Premio 25 resets",
+      "price": 0,
+      "group": 12,
+      "number": 4,
+      "level": 0,
+      "description": "Alas de 2da de tu clase.#Se canjea una vez, al llegar a 25 resets.",
+      "coin": "reset"
+    },
+    {
+      "seq": 203,
+      "category": 15,
+      "name": "Premio 50 resets",
+      "price": 0,
+      "group": 14,
+      "number": 11,
+      "level": 12,
+      "description": "20 Box of Kundun +5.#Se canjea una vez, al llegar a 50 resets.",
+      "coin": "reset"
+    },
+    {
+      "seq": 204,
+      "category": 15,
+      "name": "Premio 75 resets",
+      "price": 0,
+      "group": 12,
+      "number": 15,
+      "level": 0,
+      "description": "20 Soul + 20 Bless + 20 Life + 20 Chaos.#Se canjea una vez, al llegar a 75 resets.",
+      "coin": "reset"
+    },
+    {
+      "seq": 205,
+      "category": 15,
+      "name": "Premio 100 resets",
+      "price": 0,
+      "group": 12,
+      "number": 37,
+      "level": 0,
+      "description": "Alas de 3ra de tu clase.#Se canjea una vez, al llegar a 100 resets.",
+      "coin": "reset"
+    },
+    {
+      "seq": 206,
+      "category": 15,
+      "name": "Premio 125 resets",
+      "price": 0,
+      "group": 14,
+      "number": 11,
+      "level": 12,
+      "description": "20 Box of Kundun +5.#Se repite a los 225, 325 y 425 resets.",
+      "coin": "reset"
+    },
+    {
+      "seq": 207,
+      "category": 15,
+      "name": "Premio 150 resets",
+      "price": 0,
+      "group": 14,
+      "number": 11,
+      "level": 12,
+      "description": "15 Box of Kundun +5 + 10 Soul + 10 Bless.#Se repite a los 250, 350 y 450 resets.",
+      "coin": "reset"
+    },
+    {
+      "seq": 208,
+      "category": 15,
+      "name": "Premio 175 resets",
+      "price": 0,
+      "group": 14,
+      "number": 14,
+      "level": 0,
+      "description": "20 Jewel of Soul + 20 Jewel of Bless.#Se repite a los 275, 375 y 475 resets.",
+      "coin": "reset"
+    },
+    {
+      "seq": 209,
+      "category": 15,
+      "name": "Premio 200 resets",
+      "price": 0,
+      "group": 14,
+      "number": 11,
+      "level": 12,
+      "description": "30 Box of Kundun +5.#Se repite a los 300, 400 y 500 resets.",
+      "coin": "reset"
     }
   ]
 }
