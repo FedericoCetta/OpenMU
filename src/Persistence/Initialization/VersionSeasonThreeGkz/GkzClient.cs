@@ -28,10 +28,21 @@ internal static class GkzClient
     internal const string Description = "MU GKZ Client (open source Season 6 Episode 3)";
 
     /// <summary>
-    /// The serial of the MU GKZ client. It has to match <c>Serial</c> in
+    /// The environment variable with the serial of the MU GKZ client (16 characters).
+    /// </summary>
+    internal const string SerialVariable = "GKZ_CLIENT_SERIAL";
+
+    /// <summary>
+    /// Gets the serial of the MU GKZ client. It has to match <c>Serial</c> in
     /// MuMain src/source/Network/Server/WSclient.cpp; the server rejects logins with another serial.
     /// </summary>
-    internal static ReadOnlySpan<byte> Serial => "YVUa7B2ypOxlGoKe"u8;
+    /// <remarks>
+    /// This repository is public, so the real serial comes from the environment variable <see cref="SerialVariable"/>.
+    /// The fallback is the former serial, which is public and therefore not accepted by the current client.
+    /// </remarks>
+    internal static ReadOnlySpan<byte> Serial => Environment.GetEnvironmentVariable(SerialVariable) is { Length: 16 } serial
+        ? System.Text.Encoding.ASCII.GetBytes(serial)
+        : "YVUa7B2ypOxlGoKe"u8;
 
     /// <summary>
     /// The version of the client.

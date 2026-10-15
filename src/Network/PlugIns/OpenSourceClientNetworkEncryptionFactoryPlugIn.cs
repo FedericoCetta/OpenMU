@@ -26,6 +26,12 @@ public class OpenSourceClientNetworkEncryptionFactoryPlugIn : INetworkEncryption
     /// <inheritdoc />
     public IPipelinedEncryptor CreateEncryptor(PipeWriter target, DataDirection direction)
     {
+        // MU GKZ: the own keys of the server, if configured.
+        if (GkzNetworkKeys.Current is { } gkzKeys)
+        {
+            return gkzKeys.CreateEncryptor(target, direction);
+        }
+
         if (direction == DataDirection.ServerToClient)
         {
             return new PipelinedEncryptor(target);
@@ -37,6 +43,11 @@ public class OpenSourceClientNetworkEncryptionFactoryPlugIn : INetworkEncryption
     /// <inheritdoc />
     public IPipelinedDecryptor CreateDecryptor(PipeReader source, DataDirection direction)
     {
+        if (GkzNetworkKeys.Current is { } gkzKeys)
+        {
+            return gkzKeys.CreateDecryptor(source, direction);
+        }
+
         if (direction == DataDirection.ClientToServer)
         {
             return new PipelinedDecryptor(source);
