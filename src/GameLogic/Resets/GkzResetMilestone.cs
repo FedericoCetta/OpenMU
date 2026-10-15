@@ -23,4 +23,9 @@ public class GkzResetMilestone
     /// Gets or sets the wings of the class which are given: 2 for the second, 3 for the third wings; 0 for none.
     /// </summary>
     public int ClassWings { get; set; }
+
+    /// <summary>
+    /// Gets or sets the days of VIP which are given; they're added to a running VIP.
+    /// </summary>
+    public int VipDays { get; set; }
 }

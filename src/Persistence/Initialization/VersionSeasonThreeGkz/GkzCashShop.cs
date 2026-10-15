@@ -41,7 +41,7 @@ internal static class GkzCashShop
     {
         var catalog = Load();
 
-        // The claims of the reset rewards (packages of the Recompensas category) are kept in this attribute.
+        // The claims of the reset rewards (packages of the Reset category) are kept in this attribute.
         if (gameConfiguration.Attributes.All(a => a.Id != GkzResetRewardClaims.ClaimedAttribute.Id))
         {
             var claimed = GkzResetRewardClaims.ClaimedAttribute;
@@ -101,7 +101,7 @@ internal static class GkzCashShop
             product.Quantity = entry.Quantity ?? 1;
             product.Duration = TimeSpan.Zero;
 
-            // The rewards aren't for sale; they're given into the gift storage (see GkzResetRewards).
+            // The rewards aren't for sale; they're what the claims of the Reset category give (see GkzResetRewardClaims).
             package.IsForSale = forSale && product.CanBeDelivered();
         }
     }

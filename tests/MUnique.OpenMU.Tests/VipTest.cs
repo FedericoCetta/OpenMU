@@ -45,39 +45,19 @@ public class VipTest
     }
 
     /// <summary>
-    /// Tests that the VIP is bought with GKZ Reset Coins (the Goblin Points), without touching the GKZ Coins.
+    /// Tests that the VIP can't be bought with Goblin Points by default: MU GKZ gives it as reward for resets instead.
     /// </summary>
     [Test]
-    public async Task BuyWithResetCoinsAsync()
+    public async Task BuyWithGoblinPointsIsNotAvailableByDefaultAsync()
     {
         var player = await CreatePlayerAsync().ConfigureAwait(false);
-        player.Account!.WCoinC = 1500;
-        player.Account.GoblinPoints = 1200;
+        player.Account!.GoblinPoints = 5000;
 
         await this._actions.BuyAsync(player, true).ConfigureAwait(false);
 
-        Assert.That(player.Account.GoblinPoints, Is.EqualTo(200));
-        Assert.That(player.Account.WCoinC, Is.EqualTo(1500));
-        Assert.That(player.Account.VipUntil, Is.EqualTo(DateTime.UtcNow.AddDays(30)).Within(TimeSpan.FromMinutes(1)));
-        GetView(player).Verify(v => v.ShowVipBuyResultAsync(VipBuyResult.Success), Times.Once);
-    }
-
-    /// <summary>
-    /// Tests that the VIP isn't bought without enough Reset Coins, even with enough GKZ Coins.
-    /// </summary>
-    [Test]
-    public async Task BuyWithoutEnoughResetCoinsAsync()
-    {
-        var player = await CreatePlayerAsync().ConfigureAwait(false);
-        player.Account!.WCoinC = 1500;
-        player.Account.GoblinPoints = 999;
-
-        await this._actions.BuyAsync(player, true).ConfigureAwait(false);
-
-        Assert.That(player.Account.GoblinPoints, Is.EqualTo(999));
-        Assert.That(player.Account.WCoinC, Is.EqualTo(1500));
+        Assert.That(player.Account.GoblinPoints, Is.EqualTo(5000));
         Assert.That(player.Account.VipUntil, Is.Null);
-        GetView(player).Verify(v => v.ShowVipBuyResultAsync(VipBuyResult.NotEnoughCoins), Times.Once);
+        GetView(player).Verify(v => v.ShowVipBuyResultAsync(VipBuyResult.NotAvailable), Times.Once);
     }
 
     /// <summary>
@@ -225,7 +205,7 @@ public class VipTest
     public void VipInfoPacketLayout()
     {
         var now = new DateTime(2026, 10, 12, 0, 0, 0, DateTimeKind.Utc);
-        var info = new VipInfo(2500, now.AddHours(1), new VipConfiguration(), 730);
+        var info = new VipInfo(2500, now.AddHours(1), new VipConfiguration { ResetCoinsPrice = 1000 }, 730);
         var packet = new byte[ShowVipPlugIn.VipInfoLength];
 
         ShowVipPlugIn.WriteVipInfo(packet, info, now);

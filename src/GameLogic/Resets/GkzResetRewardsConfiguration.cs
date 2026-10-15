@@ -10,21 +10,6 @@ namespace MUnique.OpenMU.GameLogic.Resets;
 public class GkzResetRewardsConfiguration
 {
     /// <summary>
-    /// Gets or sets the GKZ Reset Coins (the Goblin Points of the account) for every reset.
-    /// </summary>
-    public int CoinsPerReset { get; set; } = 10;
-
-    /// <summary>
-    /// Gets or sets every how many resets the bonus coins are given.
-    /// </summary>
-    public int BonusEveryResets { get; set; } = 10;
-
-    /// <summary>
-    /// Gets or sets the bonus coins every <see cref="BonusEveryResets"/> resets.
-    /// </summary>
-    public int BonusCoins { get; set; } = 50;
-
-    /// <summary>
     /// Gets or sets the milestones: the packages of the item shop which are given into its gift storage.
     /// </summary>
     public List<GkzResetMilestone> Milestones { get; set; } = CreateDefaultMilestones();
@@ -54,7 +39,7 @@ public class GkzResetRewardsConfiguration
         new() { Resets = 10, Packages = [GkzResetRewardPackages.Soul10, GkzResetRewardPackages.Bless10] },
         new() { Resets = 25, ClassWings = 2 },
         new() { Resets = 50, Packages = [GkzResetRewardPackages.Boxes10, GkzResetRewardPackages.Boxes10] },
-        new() { Resets = 75, Packages = [GkzResetRewardPackages.Soul20, GkzResetRewardPackages.Bless20, GkzResetRewardPackages.Life20, GkzResetRewardPackages.Chaos20] },
+        new() { Resets = 75, Packages = [GkzResetRewardPackages.Soul20, GkzResetRewardPackages.Bless20, GkzResetRewardPackages.Life20, GkzResetRewardPackages.Chaos20], VipDays = 30 },
         new() { Resets = 100, ClassWings = 3 },
         new() { Resets = 125, Packages = [GkzResetRewardPackages.Boxes10, GkzResetRewardPackages.Boxes10] },
         new() { Resets = 150, Packages = [GkzResetRewardPackages.Boxes10, GkzResetRewardPackages.Boxes5, GkzResetRewardPackages.Soul10, GkzResetRewardPackages.Bless10] },

@@ -28,11 +28,11 @@ public class VipConfiguration
     public string CoinName { get; set; } = "GKZ Coins";
 
     /// <summary>
-    /// Gets or sets the price of the VIP in GKZ Reset Coins (the Goblin Points of the account, which are earned with resets).
-    /// 0 means that the VIP can't be bought with them.
+    /// Gets or sets the price of the VIP in Goblin Points. 0 (the default of MU GKZ, which gives the VIP as reward
+    /// for resets instead) means that it can't be bought with them.
     /// </summary>
-    [Display(Name = "Price in Reset Coins", Description = "The price of one VIP period in GKZ Reset Coins (the Goblin Points, earned with resets). 0 means that it can't be bought with them.")]
-    public int ResetCoinsPrice { get; set; } = 1000;
+    [Display(Name = "Price in Goblin Points", Description = "The price of one VIP period in Goblin Points. 0 means that it can't be bought with them.")]
+    public int ResetCoinsPrice { get; set; }
 
     /// <summary>
     /// Gets or sets the number of days which one purchase adds.

@@ -9,12 +9,13 @@ using MUnique.OpenMU.DataModel.Configuration;
 using MUnique.OpenMU.GameLogic.Attributes;
 using MUnique.OpenMU.GameLogic.CashShop;
 using MUnique.OpenMU.GameLogic.Views.CashShop;
+using MUnique.OpenMU.GameLogic.Vip;
 using MUnique.OpenMU.Persistence;
 
 /// <summary>
-/// The claims of the reset rewards of MU GKZ: the player claims the reward of a milestone in the "Recompensas"
-/// category of the item shop, once per milestone which the character reached, and gets its items into the storage
-/// of the shop. The claimed milestones are a bit mask in a stat attribute of the character.
+/// The claims of the reset rewards of MU GKZ, like a battle pass: the player claims the reward of a milestone in
+/// the category "Reset" of the item shop, once per milestone which the character reached, and gets its items into
+/// the storage of the shop. The claimed milestones are a bit mask in a stat attribute of the character.
 /// </summary>
 public static class GkzResetRewardClaims
 {
@@ -156,6 +157,14 @@ public static class GkzResetRewardClaims
             }
 
             attribute.Value = claimed | (1 << allOccurrences.IndexOf(claimable));
+            var previousVipUntil = account.VipUntil;
+            if (milestone.VipDays > 0)
+            {
+                // The days are added to a running VIP.
+                var now = DateTime.UtcNow;
+                account.VipUntil = (account.VipUntil > now ? account.VipUntil.Value : now).AddDays(milestone.VipDays);
+            }
+
             bool saved;
             try
             {
@@ -170,6 +179,7 @@ public static class GkzResetRewardClaims
             if (!saved)
             {
                 attribute.Value = claimed;
+                account.VipUntil = previousVipUntil;
                 foreach (var storageItem in storageItems)
                 {
                     await player.PersistenceContext.DeleteAsync(storageItem).ConfigureAwait(false);
@@ -178,10 +188,17 @@ public static class GkzResetRewardClaims
                 return CashShopBuyResult.SaveFailed;
             }
 
-            player.Logger.LogInformation("Player {player} claimed the reward of {resets} resets: products {products}.", player, claimable, string.Join(", ", products.Select(p => p.ProductSequence)));
-            message = $"¡Canjeaste el premio de {claimable} resets! Retiralo del depósito de la tienda.";
+            player.Logger.LogInformation("Player {player} claimed the reward of {resets} resets: products {products}, {vipDays} VIP days.", player, claimable, string.Join(", ", products.Select(p => p.ProductSequence)), milestone.VipDays);
+            message = milestone.VipDays > 0
+                ? $"¡Canjeaste el premio de {claimable} resets! Tenés {milestone.VipDays} días más de VIP; los ítems están en el depósito de la tienda."
+                : $"¡Canjeaste el premio de {claimable} resets! Retiralo del depósito de la tienda.";
             return CashShopBuyResult.Success;
         }).ConfigureAwait(false);
+
+        if (result == CashShopBuyResult.Success && milestone.VipDays > 0)
+        {
+            VipPlugIn.UpdateBonuses(player);
+        }
 
         if (message is not null)
         {

@@ -1,9 +1,9 @@
 {
-  "comment": "The item shop of MU GKZ (X key). The server and the client script (tools/gkz_shop_script.py) are built from this file, so names, prices and sequence numbers always match. After a change: raise scriptYearId, rebuild the server, run the tool and publish the client. Packages may have \"coin\": \"reset\" (paid with GKZ Reset Coins, the Goblin Points), \"quantity\" (of the item) and \"forSale\": false (only given away, e.g. as reset rewards; their category isn't shown in the client). Packages 201 to 249 (category Recompensas) are the claims of the reset rewards, see GkzResetRewardClaims.",
+  "comment": "The item shop of MU GKZ (X key). The server and the client script (tools/gkz_shop_script.py) are built from this file, so names, prices and sequence numbers always match. After a change: raise scriptYearId, rebuild the server, run the tool and publish the client. Packages may have \"coin\": \"reset\" (paid with GKZ Reset Coins, the Goblin Points), \"quantity\" (of the item) and \"forSale\": false (only given away, e.g. as reset rewards; their category isn't shown in the client). Packages 201 to 249 (category Reset) are the claims of the reset rewards, like a battle pass, see GkzResetRewardClaims; their price is the number of resets and \"unit\" its name in the client.",
   "scriptVersion": {
     "zone": 512,
     "year": 2026,
-    "yearId": 3
+    "yearId": 4
   },
   "bannerVersion": {
     "zone": 583,
@@ -25,12 +25,8 @@
       "name": "Anillos"
     },
     {
-      "id": 14,
-      "name": "Reset Coins"
-    },
-    {
       "id": 15,
-      "name": "Recompensas"
+      "name": "Reset"
     }
   ],
   "packages": [
@@ -265,182 +261,6 @@
       "description": "Anillo de transformación:#te transforma en Death Cow."
     },
     {
-      "seq": 51,
-      "category": 14,
-      "name": "Invitación Blood Castle 1",
-      "price": 30,
-      "group": 13,
-      "number": 18,
-      "level": 1,
-      "description": "Entrada a Blood Castle 1.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 52,
-      "category": 14,
-      "name": "Invitación Blood Castle 2",
-      "price": 30,
-      "group": 13,
-      "number": 18,
-      "level": 2,
-      "description": "Entrada a Blood Castle 2.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 53,
-      "category": 14,
-      "name": "Invitación Blood Castle 3",
-      "price": 30,
-      "group": 13,
-      "number": 18,
-      "level": 3,
-      "description": "Entrada a Blood Castle 3.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 54,
-      "category": 14,
-      "name": "Invitación Blood Castle 4",
-      "price": 30,
-      "group": 13,
-      "number": 18,
-      "level": 4,
-      "description": "Entrada a Blood Castle 4.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 55,
-      "category": 14,
-      "name": "Invitación Blood Castle 5",
-      "price": 30,
-      "group": 13,
-      "number": 18,
-      "level": 5,
-      "description": "Entrada a Blood Castle 5.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 56,
-      "category": 14,
-      "name": "Invitación Blood Castle 6",
-      "price": 30,
-      "group": 13,
-      "number": 18,
-      "level": 6,
-      "description": "Entrada a Blood Castle 6.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 57,
-      "category": 14,
-      "name": "Invitación Blood Castle 7",
-      "price": 30,
-      "group": 13,
-      "number": 18,
-      "level": 7,
-      "description": "Entrada a Blood Castle 7.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 58,
-      "category": 14,
-      "name": "Invitación Blood Castle 8",
-      "price": 30,
-      "group": 13,
-      "number": 18,
-      "level": 8,
-      "description": "Entrada a Blood Castle 8.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 61,
-      "category": 14,
-      "name": "Invitación Devil Square 1",
-      "price": 30,
-      "group": 14,
-      "number": 19,
-      "level": 1,
-      "description": "Entrada a Devil Square 1.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 62,
-      "category": 14,
-      "name": "Invitación Devil Square 2",
-      "price": 30,
-      "group": 14,
-      "number": 19,
-      "level": 2,
-      "description": "Entrada a Devil Square 2.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 63,
-      "category": 14,
-      "name": "Invitación Devil Square 3",
-      "price": 30,
-      "group": 14,
-      "number": 19,
-      "level": 3,
-      "description": "Entrada a Devil Square 3.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 64,
-      "category": 14,
-      "name": "Invitación Devil Square 4",
-      "price": 30,
-      "group": 14,
-      "number": 19,
-      "level": 4,
-      "description": "Entrada a Devil Square 4.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 65,
-      "category": 14,
-      "name": "Invitación Devil Square 5",
-      "price": 30,
-      "group": 14,
-      "number": 19,
-      "level": 5,
-      "description": "Entrada a Devil Square 5.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 66,
-      "category": 14,
-      "name": "Invitación Devil Square 6",
-      "price": 30,
-      "group": 14,
-      "number": 19,
-      "level": 6,
-      "description": "Entrada a Devil Square 6.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 67,
-      "category": 14,
-      "name": "Invitación Devil Square 7",
-      "price": 30,
-      "group": 14,
-      "number": 19,
-      "level": 7,
-      "description": "Entrada a Devil Square 7.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
-      "seq": 71,
-      "category": 14,
-      "name": "Armor of Guardsman (Chaos Castle)",
-      "price": 30,
-      "group": 13,
-      "number": 29,
-      "level": 0,
-      "description": "Entrada a Chaos Castle, en todos los niveles.#Se paga con Reset Coins.",
-      "coin": "reset"
-    },
-    {
       "seq": 101,
       "category": 90,
       "name": "10 Jewel of Soul",
@@ -650,100 +470,100 @@
       "seq": 201,
       "category": 15,
       "name": "Premio 10 resets",
-      "price": 0,
+      "price": 10,
       "group": 14,
       "number": 14,
       "level": 0,
       "description": "10 Jewel of Soul + 10 Jewel of Bless.#Se canjea una vez, al llegar a 10 resets.",
-      "coin": "reset"
+      "unit": "Reset"
     },
     {
       "seq": 202,
       "category": 15,
       "name": "Premio 25 resets",
-      "price": 0,
+      "price": 25,
       "group": 12,
       "number": 4,
       "level": 0,
       "description": "Alas de 2da de tu clase.#Se canjea una vez, al llegar a 25 resets.",
-      "coin": "reset"
+      "unit": "Reset"
     },
     {
       "seq": 203,
       "category": 15,
       "name": "Premio 50 resets",
-      "price": 0,
+      "price": 50,
       "group": 14,
       "number": 11,
       "level": 12,
       "description": "20 Box of Kundun +5.#Se canjea una vez, al llegar a 50 resets.",
-      "coin": "reset"
+      "unit": "Reset"
     },
     {
       "seq": 204,
       "category": 15,
       "name": "Premio 75 resets",
-      "price": 0,
+      "price": 75,
       "group": 12,
       "number": 15,
       "level": 0,
-      "description": "20 Soul + 20 Bless + 20 Life + 20 Chaos.#Se canjea una vez, al llegar a 75 resets.",
-      "coin": "reset"
+      "description": "20 Soul + 20 Bless + 20 Life + 20 Chaos + 30 días de VIP.#Se canjea una vez, al llegar a 75 resets.",
+      "unit": "Reset"
     },
     {
       "seq": 205,
       "category": 15,
       "name": "Premio 100 resets",
-      "price": 0,
+      "price": 100,
       "group": 12,
       "number": 37,
       "level": 0,
       "description": "Alas de 3ra de tu clase.#Se canjea una vez, al llegar a 100 resets.",
-      "coin": "reset"
+      "unit": "Reset"
     },
     {
       "seq": 206,
       "category": 15,
       "name": "Premio 125 resets",
-      "price": 0,
+      "price": 125,
       "group": 14,
       "number": 11,
       "level": 12,
       "description": "20 Box of Kundun +5.#Se repite a los 225, 325 y 425 resets.",
-      "coin": "reset"
+      "unit": "Reset"
     },
     {
       "seq": 207,
       "category": 15,
       "name": "Premio 150 resets",
-      "price": 0,
+      "price": 150,
       "group": 14,
       "number": 11,
       "level": 12,
       "description": "15 Box of Kundun +5 + 10 Soul + 10 Bless.#Se repite a los 250, 350 y 450 resets.",
-      "coin": "reset"
+      "unit": "Reset"
     },
     {
       "seq": 208,
       "category": 15,
       "name": "Premio 175 resets",
-      "price": 0,
+      "price": 175,
       "group": 14,
       "number": 14,
       "level": 0,
       "description": "20 Jewel of Soul + 20 Jewel of Bless.#Se repite a los 275, 375 y 475 resets.",
-      "coin": "reset"
+      "unit": "Reset"
     },
     {
       "seq": 209,
       "category": 15,
       "name": "Premio 200 resets",
-      "price": 0,
+      "price": 200,
       "group": 14,
       "number": 11,
       "level": 12,
       "description": "30 Box of Kundun +5.#Se repite a los 300, 400 y 500 resets.",
-      "coin": "reset"
+      "unit": "Reset"
     }
   ]
 }

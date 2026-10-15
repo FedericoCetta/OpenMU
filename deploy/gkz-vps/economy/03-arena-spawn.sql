@@ -1,10 +1,11 @@
--- MU GKZ: the arrival point of the Arena is the entrance of the ring (the safezone south of it), like in the
--- original game, instead of a corner of the lower part of the map; dying there brings you back to it as well.
+-- MU GKZ: the arrival point of the Arena is in front of the entrance of the ring, instead of a corner of the lower
+-- part of the map; dying there brings you back to it as well. Not inside the ring area: its safezone has no walkable
+-- way to the rest of the map, so the players were stuck there (v1 had 61,133-64,136).
 \set ON_ERROR_STOP on
 begin;
 
 -- The gate of the warp "Arena".
-update config."ExitGate" g set "X1" = 61, "Y1" = 133, "X2" = 64, "Y2" = 136
+update config."ExitGate" g set "X1" = 61, "Y1" = 118, "X2" = 65, "Y2" = 120
 from config."WarpInfo" w
 where w."GateId" = g."Id" and w."Index" = 1;
 

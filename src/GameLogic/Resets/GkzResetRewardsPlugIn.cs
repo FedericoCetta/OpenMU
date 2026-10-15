@@ -5,17 +5,15 @@
 namespace MUnique.OpenMU.GameLogic.Resets;
 
 using System.Runtime.InteropServices;
-using MUnique.OpenMU.GameLogic.CashShop;
 using MUnique.OpenMU.GameLogic.PlugIns;
 using MUnique.OpenMU.PlugIns;
 
 /// <summary>
-/// The reset rewards of MU GKZ: GKZ Reset Coins for every reset (the Goblin Points of the account, which pay in
-/// the item shop and for the VIP), and on milestones items which the player claims in the "Recompensas" category
-/// of the item shop, see <see cref="GkzResetRewardClaims"/>.
+/// The reset rewards of MU GKZ, like a battle pass: on milestones of resets, items (and VIP days) which the player
+/// claims in the "Reset" category of the item shop, see <see cref="GkzResetRewardClaims"/>.
 /// </summary>
 [PlugIn]
-[Display(Name = "MU GKZ: reset rewards", Description = "GKZ Reset Coins for every reset, and items on milestones, which are claimed in the item shop.")]
+[Display(Name = "MU GKZ: reset rewards", Description = "Rewards on milestones of resets, which are claimed in the Reset category of the item shop.")]
 [Guid("D41A7C29-8E3B-4F65-B2D0-6A9E1C5F7B38")]
 public class GkzResetRewardsPlugIn : IFeaturePlugIn, IPlayerResetPlugIn, ISupportCustomConfiguration<GkzResetRewardsConfiguration>, ISupportDefaultCustomConfiguration
 {
@@ -72,25 +70,10 @@ public class GkzResetRewardsPlugIn : IFeaturePlugIn, IPlayerResetPlugIn, ISuppor
     /// <inheritdoc />
     public async ValueTask PlayerResetAsync(Player player, int resetCount)
     {
-        if (player.Account is not { } account)
-        {
-            return;
-        }
-
         var configuration = this.Configuration ??= new GkzResetRewardsConfiguration();
-        var coins = configuration.CoinsPerReset;
-        if (configuration.BonusEveryResets > 0 && resetCount % configuration.BonusEveryResets == 0)
+        if (GkzResetRewardClaims.GetAllOccurrences(configuration).Contains(resetCount))
         {
-            coins += configuration.BonusCoins;
-        }
-
-        account.SetCashShopCoins(DataModel.Configuration.CashShopCoinType.GoblinPoints, account.GoblinPoints + coins);
-
-        player.Logger.LogInformation("Player {player} did reset {resets}: {coins} Reset Coins.", player, resetCount, coins);
-        await player.ShowBlueMessageAsync($"Reset {resetCount}: +{coins} Reset Coins (total {account.GoblinPoints}).").ConfigureAwait(false);
-        if (GetMilestonePackages(configuration, resetCount, 0).Count > 0)
-        {
-            await player.ShowBlueMessageAsync($"¡Llegaste a {resetCount} resets! Canjeá tu premio en la tienda (tecla X), en Recompensas.").ConfigureAwait(false);
+            await player.ShowBlueMessageAsync($"¡Llegaste a {resetCount} resets! Canjeá tu premio en la tienda (tecla X), en la sección Reset.").ConfigureAwait(false);
         }
     }
 }

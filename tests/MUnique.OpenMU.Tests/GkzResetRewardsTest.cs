@@ -72,23 +72,6 @@ public class GkzResetRewardsTest
     }
 
     /// <summary>
-    /// Tests that a reset gives the Reset Coins, with the bonus every 10 resets.
-    /// </summary>
-    [Test]
-    public async Task ResetGivesResetCoinsAsync()
-    {
-        var player = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
-        player.Account!.GoblinPoints = 0;
-        var plugIn = new GkzResetRewardsPlugIn { Configuration = this._configuration };
-
-        await plugIn.PlayerResetAsync(player, 9).ConfigureAwait(false);
-        Assert.That(player.Account.GoblinPoints, Is.EqualTo(10));
-
-        await plugIn.PlayerResetAsync(player, 10).ConfigureAwait(false);
-        Assert.That(player.Account.GoblinPoints, Is.EqualTo(10 + 10 + 50));
-    }
-
-    /// <summary>
     /// Tests which occurrence of a milestone can be claimed: the first one which was reached and not claimed yet.
     /// </summary>
     [Test]
@@ -147,6 +130,24 @@ public class GkzResetRewardsTest
         var stored = await player.PersistenceContext.GetCashShopStorageItemsAsync(player.Account!.GetId()).ConfigureAwait(false);
         var classIndex = GkzResetRewardsPlugIn.GetClassIndex(player.SelectedCharacter!.CharacterClass!.Number);
         Assert.That(stored.Single().ProductSequence, Is.EqualTo(GkzResetRewardPackages.SecondWings + classIndex));
+    }
+
+    /// <summary>
+    /// Tests that the reward of 75 resets adds 30 days of VIP, also to a running VIP.
+    /// </summary>
+    [Test]
+    public async Task ClaimGivesVipDaysAsync()
+    {
+        var player = await this.CreateClaimPlayerAsync().ConfigureAwait(false);
+        var shop = player.GameContext.Configuration.CashShopConfiguration!;
+        var vipUntil = DateTime.UtcNow.AddDays(5);
+        player.Account!.VipUntil = vipUntil;
+        player.Attributes![Stats.Resets] = 80;
+        var seventyFive = GkzResetRewardPackages.FirstClaim + this._configuration.Milestones.FindIndex(m => m.Resets == 75);
+
+        Assert.That(await GkzResetRewardClaims.ClaimAsync(player, shop, seventyFive).ConfigureAwait(false), Is.EqualTo(CashShopBuyResult.Success));
+        Assert.That(player.Account.VipUntil, Is.EqualTo(vipUntil.AddDays(30)).Within(TimeSpan.FromSeconds(1)));
+        Assert.That(await player.PersistenceContext.GetCashShopStorageItemsAsync(player.Account.GetId()).ConfigureAwait(false), Has.Count.EqualTo(4));
     }
 
     private async ValueTask<Player> CreateClaimPlayerAsync()
