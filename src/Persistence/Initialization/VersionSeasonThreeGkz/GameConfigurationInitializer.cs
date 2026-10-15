@@ -33,5 +33,6 @@ internal class GameConfigurationInitializer : VersionSeasonSix.GameConfiguration
         GkzStackableJewels.Apply(this.GameConfiguration);
         GkzChaosAssemblyTalisman.Apply(this.Context, this.GameConfiguration);
         GkzCashShop.Apply(this.Context, this.GameConfiguration);
+        GkzCrywolfWarp.Apply(this.Context, this.GameConfiguration);
     }
 }
