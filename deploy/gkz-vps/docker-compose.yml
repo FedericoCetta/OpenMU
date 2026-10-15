@@ -1,0 +1,67 @@
+# MU GKZ production stack (VPS). Lives in /opt/mugkz on the server; secrets are in .env there (not in git).
+# Public: the connect server, the game servers, the chat server and nginx (launcher files, status, register).
+# Not public: the admin panel (127.0.0.1:8081, reach it with an SSH tunnel) and the database.
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # nginx.conf is a copy of nginx.http.conf (before the certificate exists) or nginx.https.conf.
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/gkz-public.conf:/etc/nginx/gkz-public.conf:ro
+      - ./nginx/gkz-secrets.conf:/etc/nginx/gkz-secrets.conf:ro
+      - ./launcher:/usr/share/nginx/gkz-launcher:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - openmu-startup
+
+  openmu-startup:
+    image: mu-server/openmu:local
+    container_name: openmu-startup
+    restart: unless-stopped
+    # Only used when the database doesn't exist yet: initialize it with the MU GKZ Season 3 data.
+    command: ["-version:season3-gkz", "-resolveIP:${PUBLIC_IP}"]
+    ports:
+      - "127.0.0.1:8081:8080"
+      - "44405:44405"
+      - "44406:44406"
+      - "45901:45901"
+      - "45902:45902"
+      - "45903:45903"
+      - "45904:45904"
+      - "45905:45905"
+      - "45906:45906"
+      - "45980:45980"
+    environment:
+      DB_HOST: database
+      DB_ADMIN_USER: postgres
+      DB_ADMIN_PW: ${DB_ADMIN_PW}
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Production
+      OPENMU_ADMIN_USER: ${OPENMU_ADMIN_USER}
+      OPENMU_ADMIN_PASSWORD: ${OPENMU_ADMIN_PASSWORD}
+    volumes:
+      - adminpanel-keys:/app/data-protection-keys
+      - ./logs:/app/logs
+    depends_on:
+      - database
+
+  database:
+    image: postgres:17
+    container_name: database
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${DB_ADMIN_PW}
+      POSTGRES_DB: openmu
+      POSTGRES_USER: postgres
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+volumes:
+  adminpanel-keys:
+  dbdata:
