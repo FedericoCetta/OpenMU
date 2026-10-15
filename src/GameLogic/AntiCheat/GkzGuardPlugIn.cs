@@ -46,6 +46,8 @@ public class GkzGuardPlugIn : IFeaturePlugIn, IPeriodicTaskPlugIn, IPlayerStateC
 
     private readonly Func<DateTime> _now;
 
+    private GkzGuardConfiguration? _configuration;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="GkzGuardPlugIn"/> class.
     /// </summary>
@@ -64,7 +66,15 @@ public class GkzGuardPlugIn : IFeaturePlugIn, IPeriodicTaskPlugIn, IPlayerStateC
     }
 
     /// <inheritdoc />
-    public GkzGuardConfiguration? Configuration { get; set; }
+    public GkzGuardConfiguration? Configuration
+    {
+        get => this._configuration;
+        set
+        {
+            this._configuration = value;
+            GkzSecurityIncidents.DiscordWebhookUrl = value?.DiscordWebhookUrl;
+        }
+    }
 
     /// <inheritdoc />
     public object CreateDefaultConfig() => new GkzGuardConfiguration();
@@ -225,6 +235,8 @@ public class GkzGuardPlugIn : IFeaturePlugIn, IPeriodicTaskPlugIn, IPlayerStateC
         }
 
         player.Logger.LogWarning("Anti-cheat: player {player} (account {account}) was caught with {violation}.", player, player.Account?.LoginName, violation);
+        var willBan = ban && configuration.BanOnDetection && configuration.DisconnectOnDetection;
+        GkzSecurityIncidents.Report(player, "Anti-cheat", violation, willBan ? "banned" : configuration.DisconnectOnDetection ? "disconnected" : "logged");
         if (!configuration.DisconnectOnDetection)
         {
             return;

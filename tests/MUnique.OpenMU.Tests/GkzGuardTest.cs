@@ -28,6 +28,8 @@ public class GkzGuardTest
     public async Task SetUpAsync()
     {
         this._now = new DateTime(2026, 10, 15, 12, 0, 0, DateTimeKind.Utc);
+        GkzSecurityIncidents.FilePath = null;
+        GkzSecurityIncidents.ClearForTests();
         this._sequence = 0;
         this._guard = new GkzGuardPlugIn(() => this._now) { Configuration = new GkzGuardConfiguration() };
         this._player = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
@@ -64,6 +66,7 @@ public class GkzGuardTest
         await this._guard.HandleHeartbeatAsync(this._player, 1, 10_000, 0, 0, 12345).ConfigureAwait(false);
 
         Assert.That(this.IsDisconnected, Is.True);
+        Assert.That(GkzSecurityIncidents.GetRecent(), Has.Some.Matches<SecurityIncident>(i => i.Kind == "Anti-cheat" && i.Account == this._player.Account!.LoginName));
     }
 
     /// <summary>

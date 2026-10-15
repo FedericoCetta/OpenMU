@@ -82,6 +82,7 @@ internal sealed class PlayerStorages
                 }
 
                 this._player.Logger.LogWarning("Discarded a stale inventory backup of player {player}.", this._player.Name);
+                AntiCheat.GkzSecurityIncidents.Report(this._player, "Backup", "logout with a stale inventory backup (possible dupe attempt)", "ignored");
                 this.BackupInventory = null;
             }
 

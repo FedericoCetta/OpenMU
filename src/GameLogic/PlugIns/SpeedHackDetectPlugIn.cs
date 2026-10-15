@@ -119,7 +119,7 @@ public class SpeedHackDetectPlugIn : IFeaturePlugIn, ISupportCustomConfiguration
         if (shouldRecordViolation)
         {
             eventArgs.IsCheatDetected = true;
-            await this.RecordViolationAsync(player, state, config).ConfigureAwait(false);
+            await this.RecordViolationAsync(player, state, config, "walk").ConfigureAwait(false);
         }
     }
 
@@ -171,7 +171,7 @@ public class SpeedHackDetectPlugIn : IFeaturePlugIn, ISupportCustomConfiguration
         if (shouldRecordViolation)
         {
             eventArgs.IsCheatDetected = true;
-            await this.RecordViolationAsync(player, state, config).ConfigureAwait(false);
+            await this.RecordViolationAsync(player, state, config, "attack").ConfigureAwait(false);
         }
     }
 
@@ -235,7 +235,7 @@ public class SpeedHackDetectPlugIn : IFeaturePlugIn, ISupportCustomConfiguration
         return this._playerStates.GetValue(player, p => new SpeedHackState(this.Configuration?.MaxAttackTokens ?? 5.0));
     }
 
-    private async ValueTask RecordViolationAsync(Player player, SpeedHackState state, SpeedHackDetectConfiguration config)
+    private async ValueTask RecordViolationAsync(Player player, SpeedHackState state, SpeedHackDetectConfiguration config, string check)
     {
         var now = DateTime.UtcNow;
         bool shouldBan = false;
@@ -285,6 +285,12 @@ public class SpeedHackDetectPlugIn : IFeaturePlugIn, ISupportCustomConfiguration
             {
                 shouldWarn = true;
             }
+        }
+
+        if (shouldBan || shouldDisconnect || shouldWarn)
+        {
+            var action = shouldBan ? "banned" : shouldDisconnect ? "disconnected" : "warned";
+            AntiCheat.GkzSecurityIncidents.Report(player, "Speedhack", $"{check} too fast", action);
         }
 
         if (shouldBan)

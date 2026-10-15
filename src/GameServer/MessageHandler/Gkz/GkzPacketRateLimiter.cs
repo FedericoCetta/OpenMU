@@ -7,6 +7,7 @@ namespace MUnique.OpenMU.GameServer.MessageHandler.Gkz;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using MUnique.OpenMU.GameLogic;
+using MUnique.OpenMU.GameLogic.AntiCheat;
 
 /// <summary>
 /// Limits how many packets of the MU GKZ client (0xEC) a player may send, so a forged client can't load the
@@ -80,6 +81,7 @@ internal sealed class GkzPacketRateLimiter
         if (log)
         {
             player.Logger.LogWarning("Player {player} sends too many MU GKZ packets (sub code 0x{subCode:X2}); dropping some.", player, subCode);
+            GkzSecurityIncidents.Report(player, "Flood", $"too many requests (0x{subCode:X2})", "dropped");
         }
 
         return allowed;

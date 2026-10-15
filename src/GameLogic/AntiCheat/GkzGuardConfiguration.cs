@@ -32,4 +32,10 @@ public class GkzGuardConfiguration
     /// them open by mistake.
     /// </summary>
     public bool BanOnDetection { get; set; }
+
+    /// <summary>
+    /// Gets or sets the URL of a Discord webhook (channel settings, integrations, webhooks), to which the
+    /// security incidents are sent; empty for none. Only discord.com addresses are used.
+    /// </summary>
+    public string? DiscordWebhookUrl { get; set; }
 }

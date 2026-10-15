@@ -1,0 +1,107 @@
+@page "/security"
+@attribute [Authorize(Policy = AdminPolicies.Operator)]
+
+@using MUnique.OpenMU.GameLogic.AntiCheat
+
+<PageTitle>OpenMU: Anti-cheat</PageTitle>
+<Breadcrumb IsFirstFromRoot="true" Caption="Anti-cheat"/>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="m-0">Anti-cheat</h3>
+    <div class="d-flex gap-2">
+        <input class="form-control form-control-sm" style="width: 220px" placeholder="Buscar cuenta o personaje" @bind="this._filter" @bind:event="oninput" />
+        <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="this.Refresh">Actualizar</button>
+    </div>
+</div>
+
+<p class="text-muted small">
+    Lo que detectaron el anti-cheat del cliente, el detector de speedhack, el límite de pedidos y la protección contra dupes.
+    Para banear una cuenta: <a href="accounts">Accounts</a>, editar la cuenta y poner el estado en "Banned".
+    Las alertas a Discord se configuran en Game configuration, Plugins, "MU GKZ: anti-cheat".
+</p>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header py-2 px-3"><strong>Cuentas con más incidentes (últimos 7 días)</strong></div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-striped mb-0">
+                    <thead><tr><th>Cuenta</th><th class="text-end">Incidentes</th><th>Último</th></tr></thead>
+                    <tbody>
+                    @foreach (var group in this.TopAccounts)
+                    {
+                        <tr>
+                            <td><a href="" @onclick="() => this._filter = group.Key" @onclick:preventDefault="true">@group.Key</a></td>
+                            <td class="text-end">@group.Count()</td>
+                            <td>@group.Max(i => i.Time).ToLocalTime().ToString("g")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header py-2 px-3"><strong>Incidentes recientes</strong></div>
+            <div class="card-body p-0" style="max-height: 650px; overflow-y: auto;">
+                <table class="table table-sm table-striped table-hover mb-0">
+                    <thead><tr><th>Fecha</th><th>Cuenta</th><th>Personaje</th><th>Tipo</th><th>Detalle</th><th>Acción</th></tr></thead>
+                    <tbody>
+                    @foreach (var incident in this.Filtered)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@incident.Time.ToLocalTime().ToString("g")</td>
+                            <td>@incident.Account</td>
+                            <td>@incident.Character</td>
+                            <td><span class="badge @BadgeClass(incident.Kind)">@incident.Kind</span></td>
+                            <td>@incident.Detail</td>
+                            <td>@incident.Action</td>
+                        </tr>
+                    }
+                    @if (!this.Filtered.Any())
+                    {
+                        <tr><td colspan="6" class="text-muted">Sin incidentes.</td></tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IReadOnlyList<SecurityIncident> _incidents = [];
+
+    private string _filter = string.Empty;
+
+    private IEnumerable<SecurityIncident> Filtered => string.IsNullOrWhiteSpace(this._filter)
+        ? this._incidents
+        : this._incidents.Where(i => i.Account.Contains(this._filter, StringComparison.OrdinalIgnoreCase)
+                                     || i.Character.Contains(this._filter, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<IGrouping<string, SecurityIncident>> TopAccounts => this._incidents
+        .Where(i => i.Time > DateTime.UtcNow.AddDays(-7) && !string.IsNullOrEmpty(i.Account))
+        .GroupBy(i => i.Account)
+        .OrderByDescending(g => g.Count())
+        .Take(15);
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        this.Refresh();
+    }
+
+    private static string BadgeClass(string kind) => kind switch
+    {
+        "Anti-cheat" => "bg-danger",
+        "Speedhack" => "bg-warning text-dark",
+        "Backup" => "bg-dark",
+        _ => "bg-secondary",
+    };
+
+    private void Refresh()
+    {
+        this._incidents = GkzSecurityIncidents.GetRecent();
+    }
+}
