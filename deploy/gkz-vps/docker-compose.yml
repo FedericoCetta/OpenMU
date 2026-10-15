@@ -45,9 +45,14 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       OPENMU_ADMIN_USER: ${OPENMU_ADMIN_USER}
       OPENMU_ADMIN_PASSWORD: ${OPENMU_ADMIN_PASSWORD}
+      # The own network keys, client serial and anti-cheat secret (secrets/ and .env, not in git).
+      GKZ_NETWORK_KEYS_FILE: /app/secrets/gkz-network-keys.json
+      GKZ_CLIENT_SERIAL: ${GKZ_CLIENT_SERIAL}
+      GKZ_GUARD_SECRET: ${GKZ_GUARD_SECRET}
     volumes:
       - adminpanel-keys:/app/data-protection-keys
       - ./logs:/app/logs
+      - ./secrets/gkz-network-keys.json:/app/secrets/gkz-network-keys.json:ro
     depends_on:
       - database
 

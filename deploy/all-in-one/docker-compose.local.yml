@@ -21,6 +21,14 @@ services:
     # Only used when the database doesn't exist yet: initialize it with the MU GKZ Season 3 data.
     # To re-initialize an existing database, run once with -reinit added.
     command: ["-version:season3-gkz", "-resolveIP:loopback"]
+    # The own network keys, client serial and anti-cheat secret (see .env, not committed). Only the key file
+    # is mounted, not the folder with the signing key of the updates.
+    environment:
+      GKZ_NETWORK_KEYS_FILE: /app/secrets/gkz-network-keys.json
+      GKZ_CLIENT_SERIAL: ${GKZ_CLIENT_SERIAL:-}
+      GKZ_GUARD_SECRET: ${GKZ_GUARD_SECRET:-}
+    volumes:
+      - ${GKZ_NETWORK_KEYS_HOST_FILE}:/app/secrets/gkz-network-keys.json:ro
 
   database:
     restart: unless-stopped
