@@ -4,8 +4,9 @@
 
 namespace MUnique.OpenMU.GameLogic.ItemPost;
 
-using System.Runtime.CompilerServices;
+using System.Collections.Concurrent;
 using MUnique.OpenMU.GameLogic.Views.ItemPost;
+using MUnique.OpenMU.Persistence;
 
 /// <summary>
 /// MU GKZ: posts an item of the inventory to the chat of every player of the server (Ctrl + right click),
@@ -18,15 +19,21 @@ public class ItemPostAction
     /// </summary>
     public static readonly TimeSpan Cooldown = TimeSpan.FromSeconds(30);
 
-    private static readonly ConditionalWeakTable<Player, StrongBox<DateTime>> LastPosts = new();
+    /// <summary>
+    /// The time of the last post of each character of the server. It's kept by character, not by
+    /// connection, so a reconnect doesn't reset the cooldown.
+    /// </summary>
+    private static readonly ConcurrentDictionary<Guid, DateTime> ServerLastPosts = new();
 
     private readonly Func<DateTime> _now;
+
+    private readonly ConcurrentDictionary<Guid, DateTime> _lastPosts;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ItemPostAction"/> class.
     /// </summary>
     public ItemPostAction()
-        : this(() => DateTime.UtcNow)
+        : this(() => DateTime.UtcNow, ServerLastPosts)
     {
     }
 
@@ -34,9 +41,11 @@ public class ItemPostAction
     /// Initializes a new instance of the <see cref="ItemPostAction"/> class.
     /// </summary>
     /// <param name="now">Gets the current time.</param>
-    public ItemPostAction(Func<DateTime> now)
+    /// <param name="lastPosts">The time of the last post of each character; by default an own one (tests).</param>
+    public ItemPostAction(Func<DateTime> now, ConcurrentDictionary<Guid, DateTime>? lastPosts = null)
     {
         this._now = now;
+        this._lastPosts = lastPosts ?? new ConcurrentDictionary<Guid, DateTime>();
     }
 
     /// <summary>
@@ -52,15 +61,21 @@ public class ItemPostAction
         }
 
         var now = this._now();
-        var lastPost = LastPosts.GetOrCreateValue(player);
-        var wait = lastPost.Value + Cooldown - now;
+        if (player.Account?.ChatBanUntil is { } chatBanUntil && chatBanUntil > now)
+        {
+            await player.ShowBlueMessageAsync("No podés publicar items mientras tenés el chat bloqueado.").ConfigureAwait(false);
+            return;
+        }
+
+        var characterId = player.SelectedCharacter.GetId();
+        var wait = this._lastPosts.GetValueOrDefault(characterId) + Cooldown - now;
         if (wait > TimeSpan.Zero)
         {
             await player.ShowBlueMessageAsync($"Podés publicar otro item en {Math.Ceiling(wait.TotalSeconds)} segundos.").ConfigureAwait(false);
             return;
         }
 
-        lastPost.Value = now;
+        this._lastPosts[characterId] = now;
         var sender = player.Name;
         player.Logger.LogInformation("Player {player} posted the item {item}.", player, item);
         await player.GameContext.ForEachPlayerAsync(p => p.InvokeViewPlugInAsync<IShowItemPostPlugIn>(v => v.ShowItemPostAsync(sender, item)).AsTask()).ConfigureAwait(false);

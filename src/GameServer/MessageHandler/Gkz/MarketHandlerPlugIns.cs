@@ -55,7 +55,8 @@ internal static class MarketPackets
             return;
         }
 
-        await action(market).ConfigureAwait(false);
+        // Under the persistence lock of the player, so a periodic save never sees a half done market action.
+        await player.RunPersistenceExclusiveAsync(() => action(market)).ConfigureAwait(false);
     }
 
     /// <summary>

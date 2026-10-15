@@ -35,6 +35,7 @@ internal class JewelBankAutoSaveHandlerPlugIn : ISubPacketHandlerPlugIn
             return;
         }
 
-        await this._actions.SetAutoSaveAsync(player, packet.Span[4] != 0).ConfigureAwait(false);
+        var enabled = packet.Span[4] != 0;
+        await player.RunPersistenceExclusiveAsync(() => this._actions.SetAutoSaveAsync(player, enabled)).ConfigureAwait(false);
     }
 }

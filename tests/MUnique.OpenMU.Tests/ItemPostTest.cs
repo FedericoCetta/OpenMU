@@ -75,6 +75,44 @@ public class ItemPostTest
         Mock.Get(poster.ViewPlugIns.GetPlugIn<IShowItemPostPlugIn>()!).Verify(v => v.ShowItemPostAsync(It.IsAny<string>(), item), Times.Once);
     }
 
+    /// <summary>
+    /// Tests that a reconnect (a new player object of the same character) doesn't reset the waiting time,
+    /// so the post can't be used to spam all players.
+    /// </summary>
+    [Test]
+    public async Task ReconnectDoesntResetTheWaitingTimeAsync()
+    {
+        var (poster, item) = await this.CreatePlayerWithItemAsync().ConfigureAwait(false);
+        // The same character in a new player object, like after a reconnect; the item is still at slot 12.
+        var reconnected = await PlayerTestHelper.CreatePlayerAsync(poster.GameContext).ConfigureAwait(false);
+        await reconnected.SetSelectedCharacterAsync(poster.SelectedCharacter).ConfigureAwait(false);
+        await ((GameContext)poster.GameContext).AddPlayerAsync(poster).ConfigureAwait(false);
+        await ((GameContext)reconnected.GameContext).AddPlayerAsync(reconnected).ConfigureAwait(false);
+        var action = this.CreateAction();
+
+        await action.PostAsync(poster, 12).ConfigureAwait(false);
+        this._now += TimeSpan.FromSeconds(5);
+        await action.PostAsync(reconnected, 12).ConfigureAwait(false);
+
+        // Everybody saw only the first post.
+        Mock.Get(poster.ViewPlugIns.GetPlugIn<IShowItemPostPlugIn>()!).Verify(v => v.ShowItemPostAsync(It.IsAny<string>(), item), Times.Once);
+    }
+
+    /// <summary>
+    /// Tests that a player whose chat is banned can't post.
+    /// </summary>
+    [Test]
+    public async Task ChatBannedPlayerCantPostAsync()
+    {
+        var (poster, item) = await this.CreatePlayerWithItemAsync().ConfigureAwait(false);
+        await ((GameContext)poster.GameContext).AddPlayerAsync(poster).ConfigureAwait(false);
+        poster.Account!.ChatBanUntil = this._now.AddMinutes(10);
+
+        await this.CreateAction().PostAsync(poster, 12).ConfigureAwait(false);
+
+        Mock.Get(poster.ViewPlugIns.GetPlugIn<IShowItemPostPlugIn>()!).Verify(v => v.ShowItemPostAsync(It.IsAny<string>(), item), Times.Never);
+    }
+
     private ItemPostAction CreateAction() => new(() => this._now);
 
     private async ValueTask<(Player Player, Item Item)> CreatePlayerWithItemAsync()

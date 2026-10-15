@@ -292,6 +292,19 @@ public sealed class MarketService : IDisposable
                 return MarketResult.InventoryFull;
             }
 
+            // Zen and coins are taken first, so the seller is never credited for an unpaid item; they're
+            // given back if the market can't be saved. The jewels were counted above, and the player can't
+            // lose any meanwhile, because its packets are handled one after another under its persistence lock.
+            if (listing.Currency == MarketCurrency.Zen && !player.TryRemoveMoney((int)listing.Price))
+            {
+                return MarketResult.NotEnoughZen;
+            }
+
+            if (listing.Currency == MarketCurrency.Coins)
+            {
+                account.WCoinC -= (int)listing.Price;
+            }
+
             // The market gives the item away first: it's saved before the buyer gets the item.
             var item = player.PersistenceContext.CreateNew<Item>();
             item.AssignValues(marketItem);
@@ -313,21 +326,25 @@ public sealed class MarketService : IDisposable
             {
                 await player.PersistenceContext.DeleteAsync(item).ConfigureAwait(false);
                 await this.ReloadAsync().ConfigureAwait(false);
+                if (listing.Currency == MarketCurrency.Zen)
+                {
+                    player.TryAddMoney((int)listing.Price);
+                }
+                else if (listing.Currency == MarketCurrency.Coins)
+                {
+                    account.WCoinC += (int)listing.Price;
+                }
+
                 return MarketResult.Failed;
             }
 
             if (listing.Currency == MarketCurrency.Zen)
             {
-                player.TryRemoveMoney((int)listing.Price);
                 await player.InvokeViewPlugInAsync<IUpdateMoneyPlugIn>(p => p.UpdateMoneyAsync()).ConfigureAwait(false);
             }
-            else if (listing.Currency == MarketCurrency.Coins)
+            else if (listing.Currency.IsJewel() && !await TakeJewelsAsync(player, listing.Currency, (int)listing.Price).ConfigureAwait(false))
             {
-                account.WCoinC -= (int)listing.Price;
-            }
-            else
-            {
-                await TakeJewelsAsync(player, listing.Currency, (int)listing.Price).ConfigureAwait(false);
+                player.Logger.LogError("Player {player} couldn't pay all {price} {currency} for {item}, which the seller {seller} got paid for.", player, listing.Price, listing.Currency, item, store.OwnerName);
             }
 
             await inventory.AddItemAsync(item).ConfigureAwait(false);
@@ -470,7 +487,8 @@ public sealed class MarketService : IDisposable
     /// <summary>
     /// Takes jewels from the player: from the inventory first, the smallest stacks first, then from the jewel bank.
     /// </summary>
-    private static async ValueTask TakeJewelsAsync(Player player, MarketCurrency currency, int count)
+    /// <returns><c>true</c>, if all jewels were taken.</returns>
+    private static async ValueTask<bool> TakeJewelsAsync(Player player, MarketCurrency currency, int count)
     {
         var jewel = MarketJewels.Items[currency];
         var remaining = count;
@@ -494,7 +512,7 @@ public sealed class MarketService : IDisposable
 
             if (remaining == 0)
             {
-                return;
+                return true;
             }
         }
 
@@ -505,9 +523,11 @@ public sealed class MarketService : IDisposable
             remaining -= taken;
             if (remaining == 0)
             {
-                return;
+                return true;
             }
         }
+
+        return remaining == 0;
     }
 
     private static void AddToJewelBank(Player player, Account account, MarketCurrency currency, int count)

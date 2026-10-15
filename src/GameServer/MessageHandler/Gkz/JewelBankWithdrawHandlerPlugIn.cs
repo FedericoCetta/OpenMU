@@ -36,6 +36,7 @@ internal class JewelBankWithdrawHandlerPlugIn : ISubPacketHandlerPlugIn
         }
 
         var span = packet.Span;
-        await this._actions.WithdrawAsync(player, span[4], BinaryPrimitives.ReadInt16LittleEndian(span[5..]), span[7], BinaryPrimitives.ReadUInt16LittleEndian(span[8..])).ConfigureAwait(false);
+        var (group, number, level, amount) = (span[4], BinaryPrimitives.ReadInt16LittleEndian(span[5..]), span[7], BinaryPrimitives.ReadUInt16LittleEndian(span[8..]));
+        await player.RunPersistenceExclusiveAsync(() => this._actions.WithdrawAsync(player, group, number, level, amount)).ConfigureAwait(false);
     }
 }

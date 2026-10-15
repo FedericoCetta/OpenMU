@@ -34,6 +34,7 @@ internal class SplitStackHandlerPlugIn : ISubPacketHandlerPlugIn
             return;
         }
 
-        await this._action.SplitAsync(player, packet.Span[4]).ConfigureAwait(false);
+        var slot = packet.Span[4];
+        await player.RunPersistenceExclusiveAsync(() => this._action.SplitAsync(player, slot)).ConfigureAwait(false);
     }
 }

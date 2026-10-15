@@ -37,6 +37,7 @@ internal class JewelBankDepositHandlerPlugIn : ISubPacketHandlerPlugIn
 
         var span = packet.Span;
         var amount = packet.Length >= 10 ? BinaryPrimitives.ReadUInt16LittleEndian(span[8..]) : 0;
-        await this._actions.DepositAsync(player, span[4], BinaryPrimitives.ReadInt16LittleEndian(span[5..]), span[7], amount).ConfigureAwait(false);
+        var (group, number, level) = (span[4], BinaryPrimitives.ReadInt16LittleEndian(span[5..]), span[7]);
+        await player.RunPersistenceExclusiveAsync(() => this._actions.DepositAsync(player, group, number, level, amount)).ConfigureAwait(false);
     }
 }

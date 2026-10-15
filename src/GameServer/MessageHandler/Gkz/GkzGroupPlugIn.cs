@@ -6,6 +6,7 @@ namespace MUnique.OpenMU.GameServer.MessageHandler.Gkz;
 
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using MUnique.OpenMU.GameLogic;
 using MUnique.OpenMU.PlugIns;
 
 /// <summary>
@@ -41,4 +42,21 @@ internal class GkzGroupPlugIn : GroupPacketHandlerPlugIn
 
     /// <inheritdoc/>
     public override byte Key => GroupKey;
+
+    /// <summary>
+    /// Gets the rate limiter of the packets; shared by all players of this game server.
+    /// </summary>
+    internal GkzPacketRateLimiter RateLimiter { get; } = new();
+
+    /// <inheritdoc />
+    public override async ValueTask HandlePacketAsync(Player player, Memory<byte> packet)
+    {
+        var subTypeIndex = packet.Span[0] % 2 == 1 ? 3 : 4;
+        if (packet.Length <= subTypeIndex || !this.RateLimiter.TryAcquire(player, packet.Span[subTypeIndex]))
+        {
+            return;
+        }
+
+        await base.HandlePacketAsync(player, packet).ConfigureAwait(false);
+    }
 }
