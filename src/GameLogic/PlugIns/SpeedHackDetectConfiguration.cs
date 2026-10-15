@@ -58,10 +58,14 @@ public class SpeedHackDetectConfiguration
     /// It's also the maximum walking time which is credited while no walk packets arrive, so it defines
     /// how many tiles may arrive in a burst (e.g. after a network stall) without being flagged.
     /// The value is scaled by the step delay of the player, relative to the normal step delay of 300 ms.
+    /// Over the internet, stalls of several seconds happen (wifi, TCP retransmissions, a busy client),
+    /// after which 20 to 30 steps arrive at once; so the default covers 8 seconds. A real speedhack
+    /// walks faster all the time and drains this within a few dozen tiles, and the server keeps the
+    /// position anyway (see <see cref="MaxAllowedWalkStartOffset"/>).
     /// </summary>
-    [DefaultValue(2000)]
+    [DefaultValue(8000)]
     [System.ComponentModel.DataAnnotations.Display(Name = nameof(MUnique.OpenMU.GameLogic.Properties.PlugInResources.SpeedHackDetectConfiguration_WalkSpeedToleranceMs_Caption), ResourceType = typeof(MUnique.OpenMU.GameLogic.Properties.PlugInResources))]
-    public int WalkSpeedToleranceMs { get; set; } = 2000;
+    public int WalkSpeedToleranceMs { get; set; } = 8000;
 
     /// <summary>
     /// Gets or sets the maximum distance offset between client walk start position and server position

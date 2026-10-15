@@ -359,6 +359,66 @@ public class SpeedHackAntiCheatTests
     }
 
     /// <summary>
+    /// Tests that a long stall over the internet, after which 25 walk packets arrive at once, isn't
+    /// flagged. This is what real players produced on the MU GKZ server with the old tolerance of 2 seconds.
+    /// </summary>
+    [Test]
+    public async Task TestLongStallBurstDoesNotTriggerFalsePositivesAsync()
+    {
+        var player = await CreatePlayerWithSpeedAttributesAsync().ConfigureAwait(false);
+        var plugin = player.GameContext.FeaturePlugIns.GetPlugIn<SpeedHackDetectPlugIn>()!;
+        var stepDelay = player.StepDelay;
+        const int BurstSteps = 25;
+
+        for (int i = 0; i < BurstSteps + 3; i++)
+        {
+            var nextFrom = new Point((byte)(StartPoint.X + i), StartPoint.Y);
+            var nextTo = new Point((byte)(StartPoint.X + i + 1), StartPoint.Y);
+            player.Position = nextFrom;
+            plugin.SetLastAlertTime(player, DateTime.MinValue);
+
+            if (i < 3)
+            {
+                await Task.Delay(stepDelay).ConfigureAwait(false);
+            }
+            else if (i == 3)
+            {
+                // The connection stalls for the time of the burst, then all following walk packets arrive at once.
+                await Task.Delay(stepDelay * BurstSteps).ConfigureAwait(false);
+            }
+
+            WalkingStep[] steps = [new() { From = nextFrom, To = nextTo, Direction = Direction.East }];
+            await player.WalkToAsync(nextTo, steps).ConfigureAwait(false);
+        }
+
+        Assert.That(plugin.GetWarningCount(player), Is.EqualTo(0));
+    }
+
+    /// <summary>
+    /// Tests that walking at twice the allowed speed for a while is still detected with the larger tolerance.
+    /// </summary>
+    [Test]
+    public async Task TestSustainedDoubleSpeedIsDetectedAsync()
+    {
+        var player = await CreatePlayerWithSpeedAttributesAsync().ConfigureAwait(false);
+        var plugin = player.GameContext.FeaturePlugIns.GetPlugIn<SpeedHackDetectPlugIn>()!;
+        var halfStepDelay = player.StepDelay / 2;
+
+        for (int i = 0; i < 120 && plugin.GetWarningCount(player) == 0; i++)
+        {
+            var nextFrom = new Point((byte)(StartPoint.X + (i % 100)), StartPoint.Y);
+            var nextTo = new Point((byte)(nextFrom.X + 1), StartPoint.Y);
+            player.Position = nextFrom;
+            await Task.Delay(halfStepDelay).ConfigureAwait(false);
+
+            WalkingStep[] steps = [new() { From = nextFrom, To = nextTo, Direction = Direction.East }];
+            await player.WalkToAsync(nextTo, steps).ConfigureAwait(false);
+        }
+
+        Assert.That(plugin.GetWarningCount(player), Is.GreaterThan(0));
+    }
+
+    /// <summary>
     /// Tests that the speed check is bypassed when the plugin is disabled.
     /// </summary>
     [Test]

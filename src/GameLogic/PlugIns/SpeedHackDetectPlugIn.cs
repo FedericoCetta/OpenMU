@@ -25,6 +25,13 @@ using MUnique.OpenMU.PlugIns;
 public class SpeedHackDetectPlugIn : IFeaturePlugIn, ISupportCustomConfiguration<SpeedHackDetectConfiguration>, ISupportDefaultCustomConfiguration, ISpeedHackCheatCheckPlugIn
 {
     private const int NormalStepDelayMs = 300;
+
+    /// <summary>
+    /// The walking time which is credited for the first walk, e.g. after entering the game, a warp or leaving the safezone.
+    /// More credit than this is only earned by the time which passes between walks, up to the tolerance of the configuration,
+    /// so a burst of walks right at the start can't use the whole tolerance which is meant for network stalls.
+    /// </summary>
+    private const int InitialWalkCreditMs = 2000;
     private readonly ConditionalWeakTable<Player, SpeedHackState> _playerStates = new();
 
     /// <inheritdoc/>
@@ -72,7 +79,7 @@ public class SpeedHackDetectPlugIn : IFeaturePlugIn, ISupportCustomConfiguration
                 // A speed hack, however, consumes more than it earns and drains the credit over time.
                 var elapsed = now - (state.LastWalkTime ?? now);
                 state.WalkCreditMs = state.LastWalkTime is null
-                    ? maxCreditMs
+                    ? Math.Min(maxCreditMs, InitialWalkCreditMs * scalingFactor)
                     : Math.Min(maxCreditMs, state.WalkCreditMs + elapsed.TotalMilliseconds);
 
                 if (state.LastWalkStartPoint is { } lastStartPoint)
