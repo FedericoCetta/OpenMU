@@ -58,7 +58,7 @@ public class WarpGateAction
             return false;
         }
 
-        var requirement = player.SelectedCharacter?.GetEffectiveMoveLevelRequirement(enterGate.LevelRequirement);
+        var requirement = player.SelectedCharacter?.GetGateLevelRequirement(enterGate);
         if (requirement > player.Attributes![Stats.Level])
         {
             await player.ShowLocalizedBlueMessageAsync(nameof(PlayerMessage.LevelTooLowToEnterMap)).ConfigureAwait(false);
