@@ -5,6 +5,7 @@
 namespace MUnique.OpenMU.Persistence.Initialization.VersionSeasonThreeGkz;
 
 using MUnique.OpenMU.DataModel.Configuration;
+using MUnique.OpenMU.Interfaces;
 
 /// <summary>
 /// The warp to Crywolf Fortress of the move list (index 24, like the original game), which the Season 6 data lacks.
@@ -41,7 +42,7 @@ internal static class GkzCrywolfWarp
 
         var warp = context.CreateNew<WarpInfo>();
         warp.Index = WarpIndex;
-        warp.Name = "Crywolf";
+        warp.Name = LocalizedString.FromResource(() => WarpNames.Crywolf);
         warp.Costs = 15000;
         warp.LevelRequirement = 10;
         warp.Gate = gate;

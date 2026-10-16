@@ -4878,5 +4878,12 @@ namespace MUnique.OpenMU.Persistence.Initialization.Properties {
                 return ResourceManager.GetString("MirrorOfDimensions", resourceCulture);
             }
         }
+
+        /// <summary>Gets TalismanOfChaosAssembly from the configuration name resources.</summary>
+        public static string TalismanOfChaosAssembly {
+            get {
+                return ResourceManager.GetString("TalismanOfChaosAssembly", resourceCulture);
+            }
+        }
     }
 }

@@ -7,6 +7,7 @@ namespace MUnique.OpenMU.Persistence.Initialization.VersionSeasonThreeGkz;
 using MUnique.OpenMU.DataModel.Configuration.ItemCrafting;
 using MUnique.OpenMU.DataModel.Configuration.Items;
 using MUnique.OpenMU.GameLogic.PlayerActions.Craftings;
+using MUnique.OpenMU.Interfaces;
 
 /// <summary>
 /// The Talisman of Chaos Assembly of MU GKZ: put into the chaos machine with an upgrade to +11, +12 or +13,
@@ -77,7 +78,7 @@ internal static class GkzChaosAssemblyTalisman
     private static ItemDefinition CreateTalisman(IContext context, GameConfiguration gameConfiguration)
     {
         var talisman = context.CreateNew<ItemDefinition>();
-        talisman.Name = "Talisman of Chaos Assembly";
+        talisman.Name = LocalizedString.FromResource(() => ItemNames.TalismanOfChaosAssembly);
         talisman.Group = GkzItemUpgradeCrafting.TalismanGroup;
         talisman.Number = GkzItemUpgradeCrafting.TalismanNumber;
         talisman.DropsFromMonsters = false;

@@ -55,6 +55,7 @@ internal class ItemNameResourcesTests
     [TestCase("075")]
     [TestCase("095d")]
     [TestCase("Season6")]
+    [TestCase("season3-gkz")]
     public async Task ItemNamesUseCaptionWorkflowAsync(string version)
     {
         var provider = new InMemoryPersistenceContextProvider();
@@ -62,6 +63,7 @@ internal class ItemNameResourcesTests
         {
             "075" => new Version075.DataInitialization(provider, NullLoggerFactory.Instance),
             "095d" => new Version095d.DataInitialization(provider, NullLoggerFactory.Instance),
+            "season3-gkz" => new VersionSeasonThreeGkz.DataInitialization(provider, NullLoggerFactory.Instance),
             _ => new VersionSeasonSix.DataInitialization(provider, NullLoggerFactory.Instance),
         };
         await initializer.CreateInitialDataAsync(1, false).ConfigureAwait(false);
@@ -102,11 +104,18 @@ internal class ItemNameResourcesTests
         Assert.That(ConfigurationCaptions.FindLinkableCaptions(existing, reference), Is.Empty);
         Assert.That(ConfigurationCaptions.LinkSourceKeys(existing, configuration).Linked, Is.Zero);
 
+        // MU GKZ adds items which Season 6 lacks; they have their own keys.
+        var gkzOnlyKeys = new[] { $"ItemNames/{nameof(ItemNames.TalismanOfChaosAssembly)}" };
         if (version == "Season6")
         {
             var keys = ItemNames.ResourceManager.GetResourceSet(CultureInfo.InvariantCulture, true, false)!
-                .Cast<DictionaryEntry>().Select(entry => $"ItemNames/{entry.Key}").ToArray();
+                .Cast<DictionaryEntry>().Select(entry => $"ItemNames/{entry.Key}")
+                .Except(gkzOnlyKeys).ToArray();
             Assert.That(referenceNames.Select(name => name.SourceKey).Distinct(), Is.EquivalentTo(keys));
+        }
+        else if (version == "season3-gkz")
+        {
+            Assert.That(referenceNames.Select(name => name.SourceKey), Is.SupersetOf(gkzOnlyKeys));
         }
     }
     /// <summary>

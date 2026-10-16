@@ -2082,4 +2082,7 @@
   <data name="MirrorOfDimensions" xml:space="preserve">
     <value>次元魔镜</value>
   </data>
+  <data name="TalismanOfChaosAssembly" xml:space="preserve">
+    <value>混沌合成护符</value>
+  </data>
 </root>
