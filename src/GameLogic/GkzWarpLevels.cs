@@ -5,8 +5,9 @@
 namespace MUnique.OpenMU.GameLogic;
 
 /// <summary>
-/// The level which Magic Gladiators and Dark Lords need for some warps and gates of MU GKZ, instead of the usual
-/// 2/3 of the level requirement. The client (NewUIMoveCommandWindow.cpp of MuMain) shows the same levels.
+/// The level which Magic Gladiators and Dark Lords need for warps and gates of MU GKZ: 80 % of the level requirement
+/// (instead of the usual 2/3), and an own level on some of them. The client (NewUIMoveCommandWindow.cpp of MuMain)
+/// shows the same levels.
 /// </summary>
 public static class GkzWarpLevels
 {
@@ -29,7 +30,7 @@ public static class GkzWarpLevels
     public static int GetWarpLevelRequirement(this Character character, WarpInfo warpInfo)
         => character.IsSpecialCharacter() && WarpLevels.TryGetValue(warpInfo.Index, out var level)
             ? level
-            : character.GetEffectiveMoveLevelRequirement(warpInfo.LevelRequirement);
+            : GetLevel(character, warpInfo.LevelRequirement);
 
     /// <summary>
     /// Gets the level which the character needs for the gate.
@@ -40,5 +41,14 @@ public static class GkzWarpLevels
     public static int GetGateLevelRequirement(this Character character, EnterGate enterGate)
         => character.IsSpecialCharacter() && GateLevels.TryGetValue(enterGate.Number, out var level)
             ? level
-            : character.GetEffectiveMoveLevelRequirement(enterGate.LevelRequirement);
+            : GetLevel(character, enterGate.LevelRequirement);
+
+    /// <summary>
+    /// Gets the level for a level requirement: 80 % of it for Magic Gladiators and Dark Lords, except 400.
+    /// </summary>
+    /// <param name="character">The character.</param>
+    /// <param name="levelRequirement">The level requirement.</param>
+    /// <returns>The level.</returns>
+    private static int GetLevel(Character character, int levelRequirement)
+        => character.IsSpecialCharacter() && levelRequirement != 400 ? levelRequirement * 80 / 100 : levelRequirement;
 }
