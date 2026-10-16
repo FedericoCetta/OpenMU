@@ -1,4 +1,4 @@
-// <copyright file="SeasonThreeGkzDataTest.cs" company="MUnique">
+﻿// <copyright file="SeasonThreeGkzDataTest.cs" company="MUnique">
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 // </copyright>
 
@@ -172,6 +172,39 @@ internal class SeasonThreeGkzDataTest
 
         Assert.That(jewel.Durability, Is.EqualTo(50));
         Assert.That(jewel.ItemSlot, Is.Null);
+    }
+
+    /// <summary>
+    /// Tests that the potions stack up to 255 pieces, and that the siege potion keeps its own stack.
+    /// </summary>
+    /// <param name="number">The item number in group 14.</param>
+    [TestCase(0)]
+    [TestCase(1)]
+    [TestCase(3)]
+    [TestCase(4)]
+    [TestCase(6)]
+    [TestCase(8)]
+    [TestCase(35)]
+    [TestCase(40)]
+    public void PotionsStackUpTo255(short number)
+    {
+        var potion = this._configuration.Items.Single(i => i.Group == 14 && i.Number == number);
+        var siegePotion = this._configuration.Items.Single(i => i.Group == 14 && i.Number == 7);
+
+        Assert.That(potion.Durability, Is.EqualTo(255));
+        Assert.That(potion.ItemSlot, Is.Null);
+        Assert.That(siegePotion.Durability, Is.Not.EqualTo(255));
+    }
+
+    /// <summary>
+    /// Tests that the equipped items lose their durability three times slower than in the original game.
+    /// </summary>
+    [Test]
+    public void ItemsLastThreeTimesLonger()
+    {
+        Assert.That(this._configuration.DamagePerOneItemDurability, Is.EqualTo(69 * 3));
+        Assert.That(this._configuration.DamagePerOnePetDurability, Is.EqualTo(100 * 3));
+        Assert.That(this._configuration.HitsPerOneItemDurability, Is.EqualTo(564 * 3));
     }
 
     /// <summary>

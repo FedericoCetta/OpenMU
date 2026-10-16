@@ -31,6 +31,8 @@ internal class GameConfigurationInitializer : VersionSeasonSix.GameConfiguration
         new SeasonThreeContentPruner(this.Context, this.GameConfiguration).Initialize();
         LorenciaBattleCenter.Apply(this.GameConfiguration);
         GkzStackableJewels.Apply(this.GameConfiguration);
+        GkzStackablePotions.Apply(this.GameConfiguration);
+        GkzItemDurability.Apply(this.GameConfiguration);
         GkzChaosAssemblyTalisman.Apply(this.Context, this.GameConfiguration);
         GkzCashShop.Apply(this.Context, this.GameConfiguration);
         GkzCrywolfWarp.Apply(this.Context, this.GameConfiguration);
