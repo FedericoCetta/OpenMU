@@ -1,4 +1,4 @@
-# Genera el SQL de las tiendas de clase v2: sets +6 con suerte y las skills base de cada clase.
+# Genera el SQL de las tiendas de clase: sets +6 con suerte y todas las skills de cada clase menos las de 3ª clase.
 import uuid, sys
 
 S = sys.argv[1]
@@ -51,22 +51,27 @@ ORBES_DK = [(12, 7), (12, 13)]
 SCROLLS_DW = [(15, 3), (15, 10), (15, 2), (15, 1), (15, 5), (15, 6), (15, 0), (15, 4), (15, 7)]
 SCROLLS_MG = [(15, 3), (15, 10), (15, 2), (15, 1), (15, 6), (15, 0), (15, 4), (15, 7)]
 
+SCROLLS_SM_ALTOS = [(15, 8), (15, 9), (15, 11), (15, 12), (15, 13), (15, 14), (15, 15), (15, 16), (15, 17)]
+SCROLLS_MG_ALTOS = [(15, 8), (15, 9), (15, 11), (15, 12), (15, 13)]
+
+# Se venden todas las skills de cada clase menos las de 3ª clase (esas caen de los monstruos).
 plan = {
-    # Hanzo (DK): Leather, Bronze, Scale y Plate +6; las armas que dejaste; Twisting Slash e Impale.
-    251: sets([5, 0, 6, 9]) + existentes(251, lambda i: i['g'] < 7) + skills(ORBES_DK),
-    # Pasi (DW): Pad, Bone, Sphinx y Legendary +6; báculos (sin el Thunder Staff, que no entra); pergaminos base (suma Flame y Twister).
-    254: existentes(254, lambda i: i['g'] == 15) + skills([(15, 4), (15, 7)])
-         + sets([2, 4, 7, 3]) + existentes(254, lambda i: i['g'] == 5 and i['n'] != 3),
-    # Lala (Elfa): pociones, orbes y flechas; Vine, Silk, Wind y Spirit +6.
-    242: existentes(242, lambda i: consumible(i) or i['g'] == 12) + sets([10, 11, 12, 13]),
-    # Izabel (MG, Devias): pociones; sets de DK sin casco +6; báculos; pergaminos y orbes que usa el MG.
-    245: existentes(245, consumible) + sets([5, 0, 6, 9], con_casco=False) + existentes(245, lambda i: i['g'] == 5)
-         + skills(SCROLLS_MG + ORBES_DK),
-    # Harold (DL, Lorencia 183,137): cetros y escudo; Light Plate, Adamantine y Dark Steel +6.
-    250: sets([25, 26, 27]) + existentes(250, lambda i: i['g'] < 7),
+    # Hanzo (DK): Leather, Bronze, Scale y Plate +6; las armas que dejaste; Twisting Slash, Impale, Greater Fortitude, Rageful Blow y Death Stab.
+    251: sets([5, 0, 6, 9]) + existentes(251, lambda i: i['g'] < 7) + skills(ORBES_DK + [(12, 14), (12, 12), (12, 19)]),
+    # Pasi (DW): todos los pergaminos menos los de 3ª clase; Bone, Sphinx y Legendary +6 (sin Pad ni báculos, para que entre todo).
+    254: skills(SCROLLS_DW + SCROLLS_SM_ALTOS) + sets([4, 7, 3]),
+    # Lala (Elfa): pociones, flechas y los orbes de Elfa (suma Penetration e Ice Arrow); Vine, Silk, Wind y Spirit +6.
+    242: existentes(242, lambda i: consumible(i) or i['g'] == 12) + skills([(12, 17), (12, 18)]) + sets([10, 11, 12, 13]),
+    # Izabel (MG, Devias): pociones; Bronze, Scale y Plate sin casco +6 (sin Leather, para que entre todo); báculos;
+    # los pergaminos que usa el MG, Twisting Slash, Impale y Fire Slash.
+    245: existentes(245, consumible) + sets([0, 6, 9], con_casco=False) + existentes(245, lambda i: i['g'] == 5)
+         + skills(SCROLLS_MG + SCROLLS_MG_ALTOS + ORBES_DK + [(12, 16)]),
+    # Harold (DL, Lorencia 183,137): cetros y escudo; Light Plate, Adamantine y Dark Steel +6;
+    # Fire Burst, Summon, Critical Damage, Electric Spark y Fire Scream.
+    250: sets([25, 26, 27]) + existentes(250, lambda i: i['g'] < 7) + skills([(12, 21), (12, 22), (12, 23), (12, 24), (12, 35)]),
 }
 
-sql = ['-- MU GKZ: tiendas de clase v2. Sets +6 con suerte y las skills base de cada clase.', 'begin;']
+sql = ['-- MU GKZ: tiendas de clase v3. Sets +6 con suerte y todas las skills de cada clase menos las de 3ª clase.', 'begin;']
 for npc, items in plan.items():
     store = f'(select "MerchantStoreId" from config."MonsterDefinition" where "Number" = {npc})'
     quedan = [i['id'] for i in items if i['tipo'] in ('mantener', 'mover')]
