@@ -306,6 +306,12 @@ public static class AttackableExtensions
             }
         }
 
+        if (isPvp && defender is Player defenderPlayer)
+        {
+            // MU GKZ: the PvP balance, edited in the admin panel.
+            dmg = PvP.GkzPvpBalancePlugIn.Apply(dmg, attackerPlayer!, defenderPlayer);
+        }
+
         return defender.GetHitInfo((uint)dmg, attributes, attacker, (uint)manaToll, skill);
     }
 
