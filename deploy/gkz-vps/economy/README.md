@@ -10,6 +10,7 @@ The balance of the server, applied to the database of the VPS in this order (eac
 | `03-arena-spawn.sql` | Arrival and respawn point of the Arena at the entrance of the ring (61-64, 133-136) |
 | `04-drops-standard.sql` | Jewels as currency (Bless 0.22 %, Soul and Chaos 0.18 %, Life 0.06 %, Creation 0.03 %, Guardian 0.04 % only in Aida/Kanturu/Crywolf), excellent 0.03 %, random items 12 %, Fenrir materials in Crywolf and Kanturu, Jewel of Soul 65 % (90 % with luck) and failing takes one level |
 | `09-fenrir-rates.sql` | Materiales de Fenrir más lentos: Splinter of Armor 4 %, Bless of Guardian 1,5 %, Claw of Beast 0,5 % |
+| `terrainsync.py` | Copia el terreno del cliente al server (caminable y zona segura). Aplicado el 16/10 en Lorencia, Devias, Lost Tower, Atlans, Tarkan e Icarus; no se tocan los mapas de eventos (Crywolf, Kanturu III, Valley of Loren, Blood y Chaos Castle). `terrainanalisis.py` muestra las diferencias por zona |
 | `10-tiendas-v1.sql` | Tiendas v1: ninguna entrada a eventos se vende (todas caen; la Armor of Guardsman ahora cae al 1 %) y Harold (Lorencia 183,137) es la tienda del Dark Lord |
 
 `resetcalc.py` estimates the time and the zen of a reset with the spawns of the server
