@@ -18,6 +18,7 @@ public class InvasionGameServerState : PeriodicTaskGameServerState
     private readonly Dictionary<ushort, ushort> _selectedMaps = [];
     private readonly List<ushort> _announcedMapIds = [];
     private readonly ConcurrentDictionary<Monster, byte> _monsters = new();
+    private readonly ConcurrentDictionary<ushort, int> _spawnedCounts = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InvasionGameServerState"/> class.
@@ -87,6 +88,7 @@ public class InvasionGameServerState : PeriodicTaskGameServerState
     /// </summary>
     internal void Reset()
     {
+        this._spawnedCounts.Clear();
         this.MapId = null;
         this._mapIds.Clear();
         this._selectedMaps.Clear();
@@ -102,7 +104,23 @@ public class InvasionGameServerState : PeriodicTaskGameServerState
         if (this._monsters.TryAdd(monster, 0))
         {
             monster.Died += this.OnMonsterDied;
+            this._spawnedCounts.AddOrUpdate((ushort)monster.Definition.Number, 1, (_, count) => count + 1);
         }
+    }
+
+    /// <summary>
+    /// Gets the monsters of this run: how many of each kind were spawned and how many are still alive.
+    /// </summary>
+    /// <returns>The monster number, the alive and the spawned count.</returns>
+    internal IReadOnlyList<(ushort MonsterNumber, int Alive, int Spawned)> GetMonsterCounts()
+    {
+        var alive = this._monsters.Keys
+            .Where(m => m.IsAlive)
+            .GroupBy(m => (ushort)m.Definition.Number)
+            .ToDictionary(g => g.Key, g => g.Count());
+        return this._spawnedCounts
+            .Select(e => (e.Key, alive.GetValueOrDefault(e.Key), e.Value))
+            .ToList();
     }
 
     /// <summary>

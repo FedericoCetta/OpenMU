@@ -36,5 +36,14 @@ internal class GameConfigurationInitializer : VersionSeasonSix.GameConfiguration
         GkzChaosAssemblyTalisman.Apply(this.Context, this.GameConfiguration);
         GkzCashShop.Apply(this.Context, this.GameConfiguration);
         GkzCrywolfWarp.Apply(this.Context, this.GameConfiguration);
+
+        // The settings of the automatic stat distribution of the stat panel are kept in these attributes.
+        foreach (var attribute in GameLogic.StatPanel.GkzStatPanel.SettingAttributes)
+        {
+            if (this.GameConfiguration.Attributes.All(a => a.Id != attribute.Id))
+            {
+                this.GameConfiguration.Attributes.Add(this.Context.CreateNew<AttributeSystem.AttributeDefinition>(attribute.Id, attribute.Designation, attribute.Description));
+            }
+        }
     }
 }

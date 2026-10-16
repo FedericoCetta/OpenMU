@@ -4,6 +4,7 @@
 
 namespace MUnique.OpenMU.GameLogic.PlugIns.InvasionEvents;
 
+using System.Reflection;
 using Microsoft.Extensions.Logging;
 using MUnique.OpenMU.GameLogic.NPC;
 using MUnique.OpenMU.GameLogic.PlugIns.PeriodicTasks;
@@ -17,7 +18,7 @@ using MUnique.OpenMU.PlugIns;
 /// Base class for invasion plugins.
 /// </summary>
 /// <typeparam name="TConfiguration">The concrete configuration type.</typeparam>
-public abstract class BaseInvasionPlugIn<TConfiguration> : PeriodicTaskBasePlugIn<TConfiguration, InvasionGameServerState>, IPeriodicTaskPlugIn, IObjectAddedToMapPlugIn, ISupportCustomConfiguration<TConfiguration>
+public abstract class BaseInvasionPlugIn<TConfiguration> : PeriodicTaskBasePlugIn<TConfiguration, InvasionGameServerState>, IPeriodicTaskPlugIn, IObjectAddedToMapPlugIn, ISupportCustomConfiguration<TConfiguration>, IGkzInvasionInfoProvider
     where TConfiguration : PeriodicInvasionConfiguration
 {
     /// <summary>
@@ -45,6 +46,32 @@ public abstract class BaseInvasionPlugIn<TConfiguration> : PeriodicTaskBasePlugI
     /// <see cref="EventDisplayMapIds"/>.
     /// </summary>
     protected virtual ushort? AnnouncedMonsterId => null;
+
+    /// <inheritdoc />
+    public GkzInvasionInfo? GetRunningInvasion(IGameContext gameContext)
+    {
+        var state = this.GetStateByGameContext(gameContext);
+        if (state.State != PeriodicTaskState.Started)
+        {
+            return null;
+        }
+
+        var bosses = this.Configuration?.Mobs.Where(m => m.AnnounceDeath).Select(m => m.MonsterId).ToHashSet() ?? [];
+        if (this.AnnouncedMonsterId is { } announced)
+        {
+            bosses.Add(announced);
+        }
+
+        var monsters = state.GetMonsterCounts()
+            .Select(m => new GkzInvasionMonsterInfo(m.MonsterNumber, m.Alive, m.Spawned, bosses.Contains(m.MonsterNumber)))
+            .OrderByDescending(m => m.IsBoss)
+            .ThenBy(m => m.MonsterNumber)
+            .ToList();
+        var name = this.GetType().GetCustomAttribute<DisplayAttribute>()?.GetName() ?? this.GetType().Name;
+        var secondsLeft = (int)Math.Max(0, (state.NextRunUtc - DateTime.UtcNow).TotalSeconds);
+        var mapNumber = state.MapId ?? state.MapIds.FirstOrDefault();
+        return new GkzInvasionInfo(name, mapNumber, secondsLeft, monsters);
+    }
 
     /// <inheritdoc />
     public virtual async ValueTask ObjectAddedToMapAsync(GameMap map, ILocateable addedObject)
