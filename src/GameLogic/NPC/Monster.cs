@@ -271,12 +271,8 @@ public sealed class Monster : AttackableNpcBase, IAttackable, IAttacker, ISuppor
         var moveByX = Rand.NextInt(-this.Definition.MoveRange, this.Definition.MoveRange + 1);
         var moveByY = Rand.NextInt(-this.Definition.MoveRange, this.Definition.MoveRange + 1);
 
-        var newX = this.Position.X + moveByX;
-        var newY = this.Position.Y + moveByY;
-        byte randx = (byte)Math.Min(0xFF, Math.Max(0, newX));
-        byte randy = (byte)Math.Min(0xFF, Math.Max(0, newY));
-
-        var target = new Point(randx, randy);
+        // MU GKZ: the monsters stay near their spot, see MonsterLeash.
+        var target = MonsterLeash.GetRandomStepTarget(this.Position, moveByX, moveByY, this.SpawnArea, this.Definition.MoveRange);
         if (this._intelligence.CanWalkOn(target))
         {
             await this.WalkToAsync(target).ConfigureAwait(false);
