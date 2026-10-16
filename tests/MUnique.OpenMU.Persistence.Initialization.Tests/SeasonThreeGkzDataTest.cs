@@ -249,8 +249,8 @@ internal class SeasonThreeGkzDataTest
         {
             var entry = catalog.Packages.Single(p => p.Seq == package.PackageSequence);
             var product = package.Products.Single();
-            Assert.That(package.IsForSale, Is.True, package.Name);
-            Assert.That(package.CoinType, Is.EqualTo(CashShopCoinType.WCoinC), package.Name);
+            Assert.That(package.IsForSale, Is.EqualTo(entry.ForSale ?? true), package.Name);
+            Assert.That(package.CoinType, Is.EqualTo(entry.Coin == "reset" ? CashShopCoinType.GoblinPoints : CashShopCoinType.WCoinC), package.Name);
             Assert.That(package.Price, Is.EqualTo(entry.Price), package.Name);
             Assert.That((product.ItemDefinition!.Group, product.ItemDefinition.Number, product.ItemLevel), Is.EqualTo((entry.Group, entry.Number, entry.Level)), package.Name);
         }
