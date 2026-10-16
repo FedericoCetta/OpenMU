@@ -196,7 +196,23 @@ internal sealed class MiniGameRewardService
 
             var droppedItem = new DroppedItem(item, player.RandomPosition, this._map, player, player.GetAsEnumerable());
 
-            var shouldDrop = drop || !(player.Inventory is not null && await player.Inventory.AddItemAsync(item).ConfigureAwait(false));
+            // MU GKZ: the generated item is temporary; the inventory only makes it persistent when it's added at a slot,
+            // and the client has to be told about the new item.
+            var shouldDrop = drop;
+            if (!shouldDrop)
+            {
+                var slot = player.Inventory?.CheckInvSpace(item);
+                if (slot is { } freeSlot && await player.Inventory!.AddItemAsync(freeSlot, item).ConfigureAwait(false)
+                    && player.Inventory.GetItem(freeSlot) is { } addedItem)
+                {
+                    await player.InvokeViewPlugInAsync<Views.Inventory.IItemAppearPlugIn>(p => p.ItemAppearAsync(addedItem)).ConfigureAwait(false);
+                }
+                else
+                {
+                    shouldDrop = true;
+                }
+            }
+
             if (shouldDrop)
             {
                 this._logger.LogDebug("{context}: Reward {item} for {player} has been dropped by players coordinates {position}.", this._owner, item, player, player.Position);
