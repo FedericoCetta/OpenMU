@@ -181,6 +181,11 @@ public partial class Merchants : ComponentBase, IAsyncDisposable
             if (this._persistenceContext is { } context)
             {
                 var success = await context.SaveChangesAsync().ConfigureAwait(true);
+                if (success)
+                {
+                    await this.ApplyToRunningGameAsync().ConfigureAwait(true);
+                }
+
                 var text = success ? Resources.SavedChanges : Resources.NoChangesToSave;
                 this.ToastService.ShowSuccess(text);
             }
@@ -192,6 +197,53 @@ public partial class Merchants : ComponentBase, IAsyncDisposable
         catch (Exception ex)
         {
             this.Logger.LogError(ex, $"An unexpected error occurred on save: {ex.Message}");
+            this.ToastService.ShowError(string.Format(Resources.UnexpectedErrorOccurred, ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// MU GKZ: applies the saved stores to the configuration which the running game uses, so that a change
+    /// is visible without restarting the server. The items of a store are in the data schema, so the
+    /// usual change notifications of the configuration don't reach them.
+    /// The store is replaced as a whole, so that players who open or buy at it meanwhile see either
+    /// the old or the new items, never a half filled store.
+    /// </summary>
+    private async Task ApplyToRunningGameAsync()
+    {
+        if (this._viewModels is null)
+        {
+            return;
+        }
+
+        try
+        {
+            using var configContext = this.ContextProvider.CreateNewConfigurationContext();
+            var gameConfiguration = (await configContext.GetAsync<GameConfiguration>().ConfigureAwait(true)).FirstOrDefault();
+            if (gameConfiguration is null)
+            {
+                return;
+            }
+
+            var applied = 0;
+            foreach (var viewModel in this._viewModels)
+            {
+                if (viewModel.Merchant.MerchantStore is not { } savedStore
+                    || gameConfiguration.Monsters.FirstOrDefault(m => m.GetId() == viewModel.Id) is not { MerchantStore: { } cachedStore } cachedMerchant
+                    || ReferenceEquals(cachedStore, savedStore))
+                {
+                    continue;
+                }
+
+                // The clone has copies of the items, which reference the definitions of the game's configuration.
+                cachedMerchant.MerchantStore = savedStore.Clone(gameConfiguration);
+                applied++;
+            }
+
+            this.Logger.LogInformation("Applied {count} merchant stores to the running game.", applied);
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Couldn't apply the merchant stores to the running game.");
             this.ToastService.ShowError(string.Format(Resources.UnexpectedErrorOccurred, ex.Message));
         }
     }
