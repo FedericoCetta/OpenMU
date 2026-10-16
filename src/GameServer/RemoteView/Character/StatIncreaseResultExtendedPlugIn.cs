@@ -45,5 +45,8 @@ public class StatIncreaseResultExtendedPlugIn : IStatIncreaseResultPlugIn
             (uint)this._player.Attributes![Stats.MaximumMana],
             (uint)this._player.Attributes![Stats.MaximumShield],
             (uint)this._player.Attributes![Stats.MaximumAbility]).ConfigureAwait(false);
+
+        // MU GKZ: the free points in 32 bits, see GkzLevelUpPoints.
+        await Gkz.GkzLevelUpPoints.SendAsync(this._player).ConfigureAwait(false);
     }
 }

@@ -52,6 +52,9 @@ public class StatIncreaseResultPlugIn : IStatIncreaseResultPlugIn
                         : default,
                 this._player.Attributes![Stats.MaximumShield].ToUInt16Clamped(),
                 this._player.Attributes[Stats.MaximumAbility].ToUInt16Clamped()).ConfigureAwait(false);
+
+            // MU GKZ: the free points in 32 bits, see GkzLevelUpPoints.
+            await Gkz.GkzLevelUpPoints.SendAsync(this._player).ConfigureAwait(false);
 #pragma warning restore SA1118 // Parameter should not span multiple lines
             return;
         }

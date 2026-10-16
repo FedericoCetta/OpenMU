@@ -44,7 +44,7 @@ public class UpdateLevelExtendedPlugIn : IUpdateLevelPlugIn
 
         await connection.SendCharacterLevelUpdateExtendedAsync(
             (ushort)charStats[Stats.Level],
-            (ushort)Math.Max(selectedCharacter.LevelUpPoints, 0),
+            Gkz.GkzLevelUpPoints.Clamp(selectedCharacter.LevelUpPoints),
             (uint)charStats[Stats.MaximumHealth],
             (uint)charStats[Stats.MaximumMana],
             (uint)charStats[Stats.MaximumShield],
@@ -53,6 +53,9 @@ public class UpdateLevelExtendedPlugIn : IUpdateLevelPlugIn
             selectedCharacter.GetMaximumFruitPoints(),
             (ushort)selectedCharacter.UsedNegFruitPoints,
             selectedCharacter.GetMaximumFruitPoints()).ConfigureAwait(false);
+
+        // MU GKZ: the free points in 32 bits, see GkzLevelUpPoints.
+        await Gkz.GkzLevelUpPoints.SendAsync(this._player).ConfigureAwait(false);
 
         await this._player.ShowLocalizedBlueMessageAsync(nameof(PlayerMessage.LevelUpCongrats), charStats[Stats.Level]).ConfigureAwait(false);
     }

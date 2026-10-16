@@ -44,7 +44,7 @@ public class UpdateCharacterStatsPlugIn : IUpdateCharacterStatsPlugIn
             this._player.SelectedCharacter!.CurrentMap!.Number.ToUnsigned(),
             (ulong)this._player.SelectedCharacter.Experience,
             (ulong)this._player.GameServerContext.ExperienceTable[(int)this._player.Attributes![Stats.Level] + 1],
-            (ushort)Math.Max(0, this._player.SelectedCharacter.LevelUpPoints),
+            Gkz.GkzLevelUpPoints.Clamp(this._player.SelectedCharacter.LevelUpPoints),
             (ushort)this._player.Attributes[Stats.BaseStrength],
             (ushort)this._player.Attributes[Stats.BaseAgility],
             (ushort)this._player.Attributes[Stats.BaseVitality],
@@ -67,6 +67,9 @@ public class UpdateCharacterStatsPlugIn : IUpdateCharacterStatsPlugIn
             this._player.SelectedCharacter.GetMaximumFruitPoints(),
             (byte)this._player.SelectedCharacter.InventoryExtensions)
             .ConfigureAwait(false);
+
+        // MU GKZ: the free points in 32 bits, see GkzLevelUpPoints.
+        await Gkz.GkzLevelUpPoints.SendAsync(this._player).ConfigureAwait(false);
 
         if (this._player.SelectedCharacter.CharacterClass!.IsMasterClass)
         {
