@@ -57,7 +57,14 @@ public class DropItemAction
             {
                 // If we're here, that means that a plugin has handled the drop request.
                 // Now, we have to decide if we should remove the item from the inventory or not.
-                if (dropArguments.Success)
+                if (dropArguments.Success && item.Durability > 1 && item.IsStackable())
+                {
+                    // MU GKZ: a stack (e.g. of boxes) loses one piece; the rest stays in the inventory.
+                    item.Durability -= 1;
+                    await player.InvokeViewPlugInAsync<IItemDropResultPlugIn>(p => p.ItemDropResultAsync(slot, false)).ConfigureAwait(false);
+                    await player.InvokeViewPlugInAsync<Views.Inventory.IItemDurabilityChangedPlugIn>(p => p.ItemDurabilityChangedAsync(item, false)).ConfigureAwait(false);
+                }
+                else if (dropArguments.Success)
                 {
                     await this.RemoveItemFromInventoryAsync(player, item).ConfigureAwait(false);
                     await player.PersistenceContext.DeleteAsync(item).ConfigureAwait(false);

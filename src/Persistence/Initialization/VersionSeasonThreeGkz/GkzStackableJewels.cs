@@ -22,6 +22,11 @@ internal static class GkzStackableJewels
     internal const byte MaximumStack = 50;
 
     /// <summary>
+    /// The most boxes (Box of Luck, Box of Kundun) in one stack.
+    /// </summary>
+    internal const byte MaximumBoxStack = 64;
+
+    /// <summary>
     /// Gets the jewels, by group and number.
     /// </summary>
     internal static IReadOnlyList<(byte Group, short Number)> Jewels { get; } =
@@ -36,6 +41,7 @@ internal static class GkzStackableJewels
         (14, 42), // Jewel of Harmony
         (14, 43), // Lower Refine Stone
         (14, 44), // Higher Refine Stone
+        (14, 11), // Box of Luck, also the Box of Kundun +1 to +5 (they stack only with the same level)
     ];
 
     /// <summary>
@@ -48,9 +54,10 @@ internal static class GkzStackableJewels
         var changed = 0;
         foreach (var definition in gameConfiguration.Items.Where(IsJewel))
         {
-            if (definition.Durability != MaximumStack)
+            var maximum = definition is { Group: 14, Number: 11 } ? MaximumBoxStack : MaximumStack;
+            if (definition.Durability != maximum)
             {
-                definition.Durability = MaximumStack;
+                definition.Durability = maximum;
                 changed++;
             }
         }
