@@ -124,7 +124,7 @@
   }
 
   function pintarEventos() {
-    const lista = document.getElementById("eventos");
+    const lista = document.getElementById("lista-eventos");
     if (!lista) return;
     const ahora = Date.now() + desfase;
     eventos.forEach(function (ev) {
@@ -135,7 +135,7 @@
   }
 
   async function cargarEventos() {
-    const lista = document.getElementById("eventos");
+    const lista = document.getElementById("lista-eventos");
     if (!lista) return;
     try {
       const d = await pedir(API + "/events");
