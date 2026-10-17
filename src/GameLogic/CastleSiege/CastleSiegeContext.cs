@@ -173,6 +173,38 @@ public class CastleSiegeContext : IEventStateProvider
     internal CastleSiegeSchedule Schedule { get; }
 
     /// <summary>
+    /// Gets when the next siege starts, for the public website of MU GKZ.
+    /// </summary>
+    /// <returns>The start of the running siege, or of the next one; <c>null</c> without a schedule.</returns>
+    public DateTime? GetNextSiegeStartUtc()
+    {
+        if (this.Schedule.Count == 0)
+        {
+            return null;
+        }
+
+        if (this.IsEventRunning)
+        {
+            return this.StateStartTimeUtc;
+        }
+
+        var state = this.CurrentState;
+        var startUtc = this.StateEndTimeUtc;
+        for (var i = 0; i <= this.Schedule.Count; i++)
+        {
+            state = this.Schedule.GetNextState(state);
+            if (state == CastleSiegeState.Start)
+            {
+                return startUtc;
+            }
+
+            startUtc += this.Schedule.GetDuration(state);
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// Gets the lock which prevents overlapping timer executions for this context.
     /// </summary>
     internal SemaphoreSlim ExecutionLock { get; } = new(1, 1);

@@ -339,6 +339,7 @@ internal sealed class Program : IDisposable
                     s.GetService<IConfigurationChangePublisher>() ?? throw new InvalidOperationException($"{nameof(IConfigurationChangePublisher)} not registered."))
                     .WaitAndUnwrapException())
             .AddSingleton<IPersistenceContextProvider>(s => s.GetService<IMigratableDatabaseContextProvider>()!)
+            .AddSingleton<IGkzPublicWebQueries, MUnique.OpenMU.Persistence.EntityFramework.GkzPublicWebQueries>()
             .AddSingleton<Lazy<IPersistenceContextProvider>>(s => new(() => s.GetService<IMigratableDatabaseContextProvider>()!))
             .AddSingleton<ILoginServer, LoginServer>()
             .AddSingleton<IGuildServer, GuildServer>()

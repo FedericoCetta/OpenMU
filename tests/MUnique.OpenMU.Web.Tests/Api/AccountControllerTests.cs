@@ -111,6 +111,8 @@ public class AccountControllerTests
     [TestCase("abcdefghijk", "secret1", null, nameof(AccountRegistration.LoginName))]
     [TestCase("new bie", "secret1", null, nameof(AccountRegistration.LoginName))]
     [TestCase("björn", "secret1", null, nameof(AccountRegistration.LoginName))]
+    [TestCase("<script>", "secret1", null, nameof(AccountRegistration.LoginName))]
+    [TestCase("a'or'1", "secret1", null, nameof(AccountRegistration.LoginName))]
     [TestCase("newbie", "", null, nameof(AccountRegistration.Password))]
     [TestCase("newbie", "ab", null, nameof(AccountRegistration.Password))]
     [TestCase("newbie", "123456789012345678901", null, nameof(AccountRegistration.Password))]

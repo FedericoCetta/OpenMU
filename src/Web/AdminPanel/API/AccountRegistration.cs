@@ -33,12 +33,12 @@ public class AccountRegistration
     internal const int PasswordMaximumLength = 20;
 
     /// <summary>
-    /// Gets or sets the login name. It may contain printable ASCII characters except the space.
+    /// Gets or sets the login name. MU GKZ only allows letters and digits, because the public website registers accounts too.
     /// </summary>
     [Required]
     [MinLength(MinimumLength)]
     [MaxLength(LoginNameMaximumLength)]
-    [RegularExpression(@"^[\x21-\x7E]+$")]
+    [RegularExpression("^[A-Za-z0-9]+$")]
     public string LoginName { get; set; } = string.Empty;
 
     /// <summary>
@@ -54,5 +54,6 @@ public class AccountRegistration
     /// Gets or sets the optional e-mail address.
     /// </summary>
     [EmailAddress]
+    [MaxLength(254)]
     public string? EMail { get; set; }
 }

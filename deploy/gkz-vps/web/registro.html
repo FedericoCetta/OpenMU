@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro · MU GKZ</title>
+  <meta name="description" content="MU GKZ: servidor de MU Online Season 3 con resets, Castle Siege, invasiones y eventos.">
+  <link rel="icon" href="img/icono.png">
+  <link rel="stylesheet" href="css/gkz.css?v=1">
+  <script src="js/gkz.js?v=1" defer></script>
+</head>
+<body data-pagina="registro">
+  <nav class="barra">
+    <div class="contenedor">
+      <a class="marca" href="./"><img src="img/icono.png" alt="MU GKZ"></a>
+      <div class="menu">
+        <a href="./" data-pagina="inicio">Inicio</a>
+        <a href="registro.html" data-pagina="registro">Registro</a>
+        <a href="rankings.html" data-pagina="rankings">Rankings</a>
+        <a href="info.html" data-pagina="info">Información</a>
+      </div>
+      <div class="jugador" title="Muy pronto">
+        <span class="avatar"></span>
+        <span>Área del jugador<b>Próximamente</b></span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="contenedor">
+    <div class="titulo-pagina"><h1>Registro</h1><p>Creá tu cuenta gratis y empezá a jugar.</p></div>
+    <section class="panel">
+      <div class="cuerpo">
+        <form class="formulario" id="registro" autocomplete="off" novalidate>
+          <label>Usuario
+            <input name="usuario" maxlength="10" required autocomplete="username" spellcheck="false">
+            <span class="ayuda">De 4 a 10 letras o números. Es el que vas a usar para entrar al juego.</span>
+          </label>
+          <label>Contraseña
+            <input name="clave" type="password" maxlength="20" required autocomplete="new-password">
+            <span class="ayuda">De 6 a 20 caracteres. No uses la misma que en otros sitios.</span>
+          </label>
+          <label>Repetí la contraseña
+            <input name="clave2" type="password" maxlength="20" required autocomplete="new-password">
+          </label>
+          <label>E-mail (opcional)
+            <input name="email" type="email" maxlength="254" autocomplete="email" spellcheck="false">
+            <span class="ayuda">Sirve para recuperar la cuenta más adelante.</span>
+          </label>
+          <div class="mensaje" id="registro-mensaje" role="status"></div>
+          <button class="boton" type="submit">Crear cuenta</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie-pagina">
+    <div class="contenedor">
+      <div><h5>MU GKZ</h5><a href="./">Inicio</a><a href="registro.html">Registro</a><a href="rankings.html">Rankings</a></div>
+      <div><h5>Información</h5><a href="info.html">Guía</a><a href="info.html#vip">VIP</a><a href="info.html#eventos">Eventos</a></div>
+      <div class="copy">© <span id="anio">2026</span> MU GKZ. MU Online es una marca de Webzen; este es un servidor no oficial.</div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -14,7 +14,7 @@ using MUnique.OpenMU.PlugIns;
 /// </summary>
 /// <typeparam name="TConfiguration">Configuration type.</typeparam>
 /// <typeparam name="TState">State type.</typeparam>
-public abstract class PeriodicTaskBasePlugIn<TConfiguration, TState> : IPeriodicTaskPlugIn, ISupportCustomConfiguration<TConfiguration>
+public abstract class PeriodicTaskBasePlugIn<TConfiguration, TState> : IPeriodicTaskPlugIn, ISupportCustomConfiguration<TConfiguration>, IGkzScheduledEvent
     where TConfiguration : PeriodicTaskConfiguration
     where TState : PeriodicTaskGameServerState
 {
@@ -26,6 +26,18 @@ public abstract class PeriodicTaskBasePlugIn<TConfiguration, TState> : IPeriodic
     /// Gets or sets configuration for periodic invasion.
     /// </summary>
     public TConfiguration? Configuration { get; set; }
+
+    /// <inheritdoc />
+    public GkzEventSchedule? GetGkzSchedule(IGameContext gameContext)
+    {
+        if (this.Configuration is not { } configuration)
+        {
+            return null;
+        }
+
+        var isRunning = this.GetStateByGameContext(gameContext).State == PeriodicTaskState.Started;
+        return new GkzEventSchedule(GkzTimetable.GetNextStartUtc(configuration.Timetable, gameContext.ServerTimeZone, DateTime.UtcNow), isRunning);
+    }
 
     /// <summary>
     /// Forces to start the task on the next start check.

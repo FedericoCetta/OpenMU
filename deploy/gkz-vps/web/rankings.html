@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rankings · MU GKZ</title>
+  <meta name="description" content="MU GKZ: servidor de MU Online Season 3 con resets, Castle Siege, invasiones y eventos.">
+  <link rel="icon" href="img/icono.png">
+  <link rel="stylesheet" href="css/gkz.css?v=1">
+  <script src="js/gkz.js?v=1" defer></script>
+</head>
+<body data-pagina="rankings">
+  <nav class="barra">
+    <div class="contenedor">
+      <a class="marca" href="./"><img src="img/icono.png" alt="MU GKZ"></a>
+      <div class="menu">
+        <a href="./" data-pagina="inicio">Inicio</a>
+        <a href="registro.html" data-pagina="registro">Registro</a>
+        <a href="rankings.html" data-pagina="rankings">Rankings</a>
+        <a href="info.html" data-pagina="info">Información</a>
+      </div>
+      <div class="jugador" title="Muy pronto">
+        <span class="avatar"></span>
+        <span>Área del jugador<b>Próximamente</b></span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="contenedor">
+    <div class="titulo-pagina"><h1>Rankings</h1><p>Los mejores jugadores y guilds de MU GKZ. Se actualiza cada minuto.</p></div>
+    <section class="panel">
+      <div class="cuerpo">
+        <div class="pestanas" id="pestanas" data-historial="si">
+          <button type="button" data-tipo="resets">Resets</button>
+          <button type="button" data-tipo="level">Nivel</button>
+          <button type="button" data-tipo="killers">Killers</button>
+          <button type="button" data-tipo="guilds">Guilds</button>
+        </div>
+        <div id="ranking" data-cantidad="50"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie-pagina">
+    <div class="contenedor">
+      <div><h5>MU GKZ</h5><a href="./">Inicio</a><a href="registro.html">Registro</a><a href="rankings.html">Rankings</a></div>
+      <div><h5>Información</h5><a href="info.html">Guía</a><a href="info.html#vip">VIP</a><a href="info.html#eventos">Eventos</a></div>
+      <div class="copy">© <span id="anio">2026</span> MU GKZ. MU Online es una marca de Webzen; este es un servidor no oficial.</div>
+    </div>
+  </footer>
+</body>
+</html>

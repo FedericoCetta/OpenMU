@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MU GKZ · Season 3</title>
+  <meta name="description" content="MU GKZ: servidor de MU Online Season 3 con resets, Castle Siege, invasiones y eventos.">
+  <link rel="icon" href="img/icono.png">
+  <link rel="stylesheet" href="css/gkz.css?v=1">
+  <script src="js/gkz.js?v=1" defer></script>
+</head>
+<body data-pagina="inicio">
+  <nav class="barra">
+    <div class="contenedor">
+      <a class="marca" href="./"><img src="img/icono.png" alt="MU GKZ"></a>
+      <div class="menu">
+        <a href="./" data-pagina="inicio">Inicio</a>
+        <a href="registro.html" data-pagina="registro">Registro</a>
+        <a href="rankings.html" data-pagina="rankings">Rankings</a>
+        <a href="info.html" data-pagina="info">Información</a>
+      </div>
+      <div class="jugador" title="Muy pronto">
+        <span class="avatar"></span>
+        <span>Área del jugador<b>Próximamente</b></span>
+      </div>
+    </div>
+  </nav>
+
+  <header class="portada">
+    <img class="logo" src="img/logo.webp" alt="MU GKZ Season 3">
+  </header>
+
+  <main class="contenedor">
+    <section class="accesos">
+      <a class="acceso" href="registro.html"><span class="ico">✚</span><span><small>Empezá tu aventura</small><b>Registro</b></span><span class="flecha">›</span></a>
+      <a class="acceso" href="rankings.html"><span class="ico">♛</span><span><small>Salón de la fama</small><b>Rankings</b></span><span class="flecha">›</span></a>
+      <a class="acceso" href="info.html#vip"><span class="ico">◆</span><span><small>Ventajas exclusivas</small><b>Conocé el VIP</b></span><span class="flecha">›</span></a>
+      <a class="acceso" href="info.html#eventos"><span class="ico">⚔</span><span><small>Invasiones y más</small><b>Eventos</b></span><span class="flecha">›</span></a>
+    </section>
+
+    <div class="grilla">
+      <div class="columna">
+        <section class="panel">
+          <header>
+            <div><small>Comunicados y actualizaciones</small><h2>Últimas noticias</h2></div>
+          </header>
+          <div class="cuerpo"><div class="noticias" id="noticias"><div class="vacio">Cargando…</div></div></div>
+        </section>
+
+        <section class="tarjetas">
+          <article class="tarjeta">
+            <small>Castle Siege</small>
+            <h3>Trono de Valley of Loren</h3>
+            <div class="guild" id="castillo-guild"><span>Cargando…</span></div>
+            <div class="pie"><span>Próxima batalla</span><b id="castillo-proxima">-</b></div>
+          </article>
+          <article class="tarjeta">
+            <small>Ranking de guilds</small>
+            <h3>La guild más fuerte</h3>
+            <div class="guild" id="top-guild"><span>Cargando…</span></div>
+            <div class="pie"><span>Puntos</span><b id="top-guild-puntos">-</b></div>
+          </article>
+          <article class="tarjeta destacada">
+            <small>Ranking PvP</small>
+            <h3>Top killer</h3>
+            <div class="guild" id="top-killer"><span>Cargando…</span></div>
+            <div class="pie"><span>Total de kills</span><span class="numero" id="top-killer-kills">-</span></div>
+          </article>
+        </section>
+
+        <section class="panel">
+          <header>
+            <div><small>Salón de la fama</small><h2>Los mejores de MU GKZ</h2></div>
+            <a class="boton-borde" href="rankings.html">Ver rankings</a>
+          </header>
+          <div class="cuerpo">
+            <div class="pestanas" id="pestanas">
+              <button type="button" data-tipo="resets">Resets</button>
+              <button type="button" data-tipo="level">Nivel</button>
+              <button type="button" data-tipo="killers">Killers</button>
+              <button type="button" data-tipo="guilds">Guilds</button>
+            </div>
+            <div id="ranking" data-cantidad="5"></div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="columna">
+        <section class="panel">
+          <header><div><h3>Central del servidor</h3></div></header>
+          <div class="cuerpo">
+            <div class="estado" id="estado"><span><span class="punto"></span>Servidor</span><span class="valor">…</span></div>
+            <ul class="datos-lista">
+              <li>Versión <b>Season 3</b></li>
+              <li>Experiencia <b>x300 · VIP x500</b></li>
+              <li>Reset <b>Nivel 380</b></li>
+              <li>Stats máximas <b>32.767</b></li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="panel">
+          <header><div><small>Cuenta regresiva</small><h3>Próximos eventos</h3></div></header>
+          <div class="cuerpo"><ul class="eventos" id="eventos"><li><span class="nombre">Cargando…</span></li></ul></div>
+        </section>
+
+        <section class="panel">
+          <header><div><h3>Links rápidos</h3></div></header>
+          <div class="cuerpo">
+            <ul class="datos-lista">
+              <li><a href="info.html">Guía del servidor</a><b>›</b></li>
+              <li><a href="info.html#reset">Sistema de reset</a><b>›</b></li>
+              <li><a href="info.html#comandos">Comandos</a><b>›</b></li>
+              <li><a href="rankings.html">Rankings</a><b>›</b></li>
+            </ul>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="pie-pagina">
+    <div class="contenedor">
+      <div><h5>MU GKZ</h5><a href="./">Inicio</a><a href="registro.html">Registro</a><a href="rankings.html">Rankings</a></div>
+      <div><h5>Información</h5><a href="info.html">Guía</a><a href="info.html#vip">VIP</a><a href="info.html#eventos">Eventos</a></div>
+      <div class="copy">© <span id="anio">2026</span> MU GKZ. MU Online es una marca de Webzen; este es un servidor no oficial.</div>
+    </div>
+  </footer>
+</body>
+</html>
