@@ -52,8 +52,8 @@ public enum GkzPvpPlace
 
 /// <summary>
 /// The configuration of the PvP balance of MU GKZ. All values are percentages of the calculated damage.
-/// The damage of a PvP hit is multiplied by the general percentage, the one of the place and the one of the
-/// pair of attacker and victim class.
+/// The damage of a PvP hit is multiplied by the general percentage, the one of the place, the one of the attacker's
+/// class and the one of the victim's class.
 /// </summary>
 public class GkzPvpBalanceConfiguration
 {
@@ -130,19 +130,64 @@ public class GkzPvpBalanceConfiguration
     public int MaxExcellentChancePercent { get; set; } = 70;
 
     /// <summary>
-    /// Gets or sets the percentages by attacker and victim class.
+    /// Gets or sets the percentage of the damage which the DarkWizard does to any player.
     /// </summary>
-    [Display(Name = "Por clase: atacante contra víctima (%)", Description = "Ejemplo: Caballero contra Mago 80 = el DK le hace 80 % de daño al mago.")]
-    public List<GkzPvpClassPair> ClassPairs { get; set; } = CreateDefaultClassPairs();
+    [Display(Name = "Mago ataca (%)", Description = "El daño que hace esta clase a cualquier jugador. 100 = sin cambios.")]
+    public int DarkWizardAttackPercent { get; set; } = 100;
 
     /// <summary>
-    /// Creates a pair for every combination of attacker and victim class, all at 100 %.
+    /// Gets or sets the percentage of the damage which the DarkKnight does to any player.
     /// </summary>
-    /// <returns>The pairs.</returns>
-    public static List<GkzPvpClassPair> CreateDefaultClassPairs() =>
-        Enum.GetValues<GkzPvpClass>()
-            .SelectMany(attacker => Enum.GetValues<GkzPvpClass>().Select(victim => new GkzPvpClassPair { Attacker = attacker, Victim = victim }))
-            .ToList();
+    [Display(Name = "Caballero ataca (%)", Description = "El daño que hace esta clase a cualquier jugador. 100 = sin cambios.")]
+    public int DarkKnightAttackPercent { get; set; } = 100;
+
+    /// <summary>
+    /// Gets or sets the percentage of the damage which the Elf does to any player.
+    /// </summary>
+    [Display(Name = "Elfa ataca (%)", Description = "El daño que hace esta clase a cualquier jugador. 100 = sin cambios.")]
+    public int ElfAttackPercent { get; set; } = 100;
+
+    /// <summary>
+    /// Gets or sets the percentage of the damage which the MagicGladiator does to any player.
+    /// </summary>
+    [Display(Name = "MG ataca (%)", Description = "El daño que hace esta clase a cualquier jugador. 100 = sin cambios.")]
+    public int MagicGladiatorAttackPercent { get; set; } = 100;
+
+    /// <summary>
+    /// Gets or sets the percentage of the damage which the DarkLord does to any player.
+    /// </summary>
+    [Display(Name = "DL ataca (%)", Description = "El daño que hace esta clase a cualquier jugador. 100 = sin cambios.")]
+    public int DarkLordAttackPercent { get; set; } = 100;
+
+    /// <summary>
+    /// Gets or sets the percentage of the damage which the DarkWizard receives from any player.
+    /// </summary>
+    [Display(Name = "Mago recibe (%)", Description = "El daño que recibe esta clase de cualquier jugador. 100 = sin cambios.")]
+    public int DarkWizardReceivePercent { get; set; } = 100;
+
+    /// <summary>
+    /// Gets or sets the percentage of the damage which the DarkKnight receives from any player.
+    /// </summary>
+    [Display(Name = "Caballero recibe (%)", Description = "El daño que recibe esta clase de cualquier jugador. 100 = sin cambios.")]
+    public int DarkKnightReceivePercent { get; set; } = 100;
+
+    /// <summary>
+    /// Gets or sets the percentage of the damage which the Elf receives from any player.
+    /// </summary>
+    [Display(Name = "Elfa recibe (%)", Description = "El daño que recibe esta clase de cualquier jugador. 100 = sin cambios.")]
+    public int ElfReceivePercent { get; set; } = 100;
+
+    /// <summary>
+    /// Gets or sets the percentage of the damage which the MagicGladiator receives from any player.
+    /// </summary>
+    [Display(Name = "MG recibe (%)", Description = "El daño que recibe esta clase de cualquier jugador. 100 = sin cambios.")]
+    public int MagicGladiatorReceivePercent { get; set; } = 100;
+
+    /// <summary>
+    /// Gets or sets the percentage of the damage which the DarkLord receives from any player.
+    /// </summary>
+    [Display(Name = "DL recibe (%)", Description = "El daño que recibe esta clase de cualquier jugador. 100 = sin cambios.")]
+    public int DarkLordReceivePercent { get; set; } = 100;
 
     /// <summary>
     /// Gets the factor by which the damage of a PvP hit is multiplied.
@@ -161,34 +206,35 @@ public class GkzPvpBalanceConfiguration
             _ => this.NormalPercent,
         };
 
-        var pairPercent = this.ClassPairs.FirstOrDefault(p => p.Attacker == attacker && p.Victim == victim)?.Percent ?? 100;
-        return Math.Max(0, this.GeneralPercent) / 100.0 * Math.Max(0, placePercent) / 100.0 * Math.Max(0, pairPercent) / 100.0;
+        return Math.Max(0, this.GeneralPercent) / 100.0 * Math.Max(0, placePercent) / 100.0
+            * Math.Max(0, this.GetAttackPercent(attacker)) / 100.0 * Math.Max(0, this.GetReceivePercent(victim)) / 100.0;
     }
-}
-
-/// <summary>
-/// The percentage of the damage of an attacker class to a victim class.
-/// </summary>
-public class GkzPvpClassPair
-{
-    /// <summary>
-    /// Gets or sets the class which attacks.
-    /// </summary>
-    [Display(Name = "Atacante")]
-    public GkzPvpClass Attacker { get; set; }
 
     /// <summary>
-    /// Gets or sets the class which gets hit.
+    /// Gets the percentage of the damage which the class does.
     /// </summary>
-    [Display(Name = "Víctima")]
-    public GkzPvpClass Victim { get; set; }
+    /// <param name="attacker">The class of the attacker.</param>
+    /// <returns>The percentage.</returns>
+    public int GetAttackPercent(GkzPvpClass attacker) => attacker switch
+    {
+        GkzPvpClass.DarkWizard => this.DarkWizardAttackPercent,
+        GkzPvpClass.DarkKnight => this.DarkKnightAttackPercent,
+        GkzPvpClass.Elf => this.ElfAttackPercent,
+        GkzPvpClass.MagicGladiator => this.MagicGladiatorAttackPercent,
+        _ => this.DarkLordAttackPercent,
+    };
 
     /// <summary>
-    /// Gets or sets the percentage of the damage.
+    /// Gets the percentage of the damage which the class receives.
     /// </summary>
-    [Display(Name = "Daño (%)")]
-    public int Percent { get; set; } = 100;
-
-    /// <inheritdoc />
-    public override string ToString() => $"{this.Attacker} → {this.Victim}: {this.Percent} %";
+    /// <param name="victim">The class of the victim.</param>
+    /// <returns>The percentage.</returns>
+    public int GetReceivePercent(GkzPvpClass victim) => victim switch
+    {
+        GkzPvpClass.DarkWizard => this.DarkWizardReceivePercent,
+        GkzPvpClass.DarkKnight => this.DarkKnightReceivePercent,
+        GkzPvpClass.Elf => this.ElfReceivePercent,
+        GkzPvpClass.MagicGladiator => this.MagicGladiatorReceivePercent,
+        _ => this.DarkLordReceivePercent,
+    };
 }

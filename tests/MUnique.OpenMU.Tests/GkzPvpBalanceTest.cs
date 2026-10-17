@@ -13,16 +13,14 @@ using MUnique.OpenMU.GameLogic.PvP;
 public class GkzPvpBalanceTest
 {
     /// <summary>
-    /// Tests that the default configuration has every pair of classes once, at 100 %, and 70 % in general.
+    /// Tests that the default configuration has all classes at 100 %, and 70 % in general.
     /// </summary>
     [Test]
-    public void DefaultHasAllPairsAndSeventyPercent()
+    public void DefaultHasAllClassesAtHundredAndSeventyPercent()
     {
         var configuration = new GkzPvpBalanceConfiguration();
 
-        Assert.That(configuration.ClassPairs, Has.Count.EqualTo(25));
-        Assert.That(configuration.ClassPairs.Select(p => (p.Attacker, p.Victim)), Is.Unique);
-        Assert.That(configuration.ClassPairs.All(p => p.Percent == 100), Is.True);
+        Assert.That(Enum.GetValues<GkzPvpClass>().All(c => configuration.GetAttackPercent(c) == 100 && configuration.GetReceivePercent(c) == 100), Is.True);
         Assert.That(configuration.GetFactor(GkzPvpClass.DarkKnight, GkzPvpClass.DarkWizard, GkzPvpPlace.Normal), Is.EqualTo(0.7).Within(0.0001));
         Assert.That(
             (configuration.MaxDamageReductionPercent, configuration.MaxSoulBarrierPercent, configuration.MaxGreaterDamageBonus, configuration.MaxGreaterDefenseBonus,
@@ -31,26 +29,29 @@ public class GkzPvpBalanceTest
     }
 
     /// <summary>
-    /// Tests that the general, place and pair percentages are multiplied.
+    /// Tests that the general, place, attacker and victim percentages are multiplied.
     /// </summary>
     [Test]
-    public void FactorMultipliesGeneralPlaceAndPair()
+    public void FactorMultipliesGeneralPlaceAttackerAndVictim()
     {
         var configuration = new GkzPvpBalanceConfiguration { GeneralPercent = 80, DuelPercent = 50 };
-        configuration.ClassPairs.Single(p => p.Attacker == GkzPvpClass.DarkKnight && p.Victim == GkzPvpClass.Elf).Percent = 75;
+        configuration.DarkKnightAttackPercent = 75;
 
         Assert.That(configuration.GetFactor(GkzPvpClass.DarkKnight, GkzPvpClass.Elf, GkzPvpPlace.Duel), Is.EqualTo(0.8 * 0.5 * 0.75).Within(0.0001));
         Assert.That(configuration.GetFactor(GkzPvpClass.Elf, GkzPvpClass.DarkKnight, GkzPvpPlace.Duel), Is.EqualTo(0.4).Within(0.0001));
         Assert.That(configuration.GetFactor(GkzPvpClass.DarkKnight, GkzPvpClass.Elf, GkzPvpPlace.Normal), Is.EqualTo(0.6).Within(0.0001));
+
+        configuration.ElfReceivePercent = 50;
+        Assert.That(configuration.GetFactor(GkzPvpClass.DarkKnight, GkzPvpClass.Elf, GkzPvpPlace.Normal), Is.EqualTo(0.3).Within(0.0001));
     }
 
     /// <summary>
-    /// Tests that a missing pair counts as 100 % and negative percentages as 0.
+    /// Tests that negative percentages count as 0.
     /// </summary>
     [Test]
-    public void MissingPairIsHundredAndNegativeIsZero()
+    public void NegativeIsZero()
     {
-        var configuration = new GkzPvpBalanceConfiguration { GeneralPercent = 100, ClassPairs = [] };
+        var configuration = new GkzPvpBalanceConfiguration { GeneralPercent = 100 };
         Assert.That(configuration.GetFactor(GkzPvpClass.DarkLord, GkzPvpClass.MagicGladiator, GkzPvpPlace.CastleSiege), Is.EqualTo(1.0).Within(0.0001));
 
         configuration.CastleSiegePercent = -10;
