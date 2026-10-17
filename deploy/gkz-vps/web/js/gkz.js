@@ -188,7 +188,9 @@
     try {
       const d = await pedir(API + "/castle");
       llenarGuild(nodo, d.owner, "El castillo no tiene dueño todavía.");
-      document.getElementById("castillo-proxima").textContent = fecha(d.nextSiege);
+      const inicio = Date.parse(d.nextSiege);
+      document.getElementById("castillo-proxima").textContent =
+        Number.isFinite(inicio) && inicio <= Date.now() + desfase ? "¡En curso!" : fecha(d.nextSiege);
     } catch (e) {
       llenarGuild(nodo, null, "Sin datos.");
     }
