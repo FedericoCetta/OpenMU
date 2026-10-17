@@ -1,0 +1,119 @@
+@page "/gkz-news"
+@attribute [Authorize(Policy = AdminPolicies.Administrator)]
+@using MUnique.OpenMU.GameLogic.Web
+
+<PageTitle>OpenMU: Noticias</PageTitle>
+<Breadcrumb IsFirstFromRoot="true" Caption="Noticias" />
+<h1>Noticias de la web y del launcher</h1>
+
+<p>
+    Las noticias publicadas se ven en <a href="https://mugkz.com" target="_blank" rel="noopener">mugkz.com</a> y en el launcher
+    apenas guardás. El orden de la lista es el orden en que aparecen: la primera es la más destacada.
+</p>
+
+@if (this._error is { } error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+@if (this._message is { } message)
+{
+    <div class="alert alert-success" role="status">@message</div>
+}
+
+@if (this._items is null)
+{
+    <p>Cargando…</p>
+    return;
+}
+
+@if (this._editing is { } editing)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4 class="card-title">@(this._editingIndex < 0 ? "Nueva noticia" : "Editar noticia")</h4>
+            <div class="mb-3">
+                <label class="form-label">Título</label>
+                <input class="form-control" maxlength="@GkzNewsLimits.TitleLength" @bind="editing.Title" />
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Fecha</label>
+                    <input class="form-control" type="date" @bind="editing.Date" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Etiqueta</label>
+                    <select class="form-select" @bind="editing.Tag">
+                        @foreach (var tag in GkzNewsLimits.Tags)
+                        {
+                            <option value="@tag">@tag</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="published" @bind="editing.IsPublished" />
+                        <label class="form-check-label" for="published">Publicada</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Texto</label>
+                <textarea class="form-control" rows="5" maxlength="@GkzNewsLimits.TextLength" @bind="editing.Text"></textarea>
+                <div class="form-text">Solo texto. Los saltos de línea se respetan en el launcher.</div>
+            </div>
+            <button type="button" class="btn btn-primary" disabled="@this._isBusy" @onclick="this.OnSaveEditingAsync">
+                <span class="oi oi-check" aria-hidden="true"></span> Guardar
+            </button>
+            <button type="button" class="btn btn-secondary ms-2" disabled="@this._isBusy" @onclick="this.OnCancelEditing">Cancelar</button>
+        </div>
+    </div>
+}
+else
+{
+    <button type="button" class="btn btn-primary mb-3" disabled="@this._isBusy" @onclick="this.OnNew">
+        <span class="oi oi-plus" aria-hidden="true"></span> Nueva noticia
+    </button>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Etiqueta</th>
+            <th>Título</th>
+            <th>Estado</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (var i = 0; i < this._items.Count; i++)
+        {
+            var index = i;
+            var item = this._items[index];
+            <tr>
+                <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                <td>@item.Tag</td>
+                <td>@item.Title</td>
+                <td>@(item.IsPublished ? "Publicada" : "Oculta")</td>
+                <td class="text-end text-nowrap">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" title="Subir" disabled="@(this._isBusy || index == 0)" @onclick="() => this.OnMoveAsync(index, -1)"><span class="oi oi-arrow-top"></span></button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" title="Bajar" disabled="@(this._isBusy || index == this._items.Count - 1)" @onclick="() => this.OnMoveAsync(index, 1)"><span class="oi oi-arrow-bottom"></span></button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" title="Editar" disabled="@this._isBusy" @onclick="() => this.OnEdit(index)"><span class="oi oi-pencil"></span></button>
+                    @if (this._confirmDeleteIndex == index)
+                    {
+                        <button type="button" class="btn btn-sm btn-danger" disabled="@this._isBusy" @onclick="() => this.OnDeleteAsync(index)">¿Borrar?</button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-danger" title="Borrar" disabled="@this._isBusy" @onclick="() => this._confirmDeleteIndex = index"><span class="oi oi-trash"></span></button>
+                    }
+                </td>
+            </tr>
+        }
+        @if (this._items.Count == 0)
+        {
+            <tr><td colspan="5">Todavía no hay noticias.</td></tr>
+        }
+    </tbody>
+</table>

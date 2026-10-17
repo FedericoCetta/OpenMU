@@ -4,14 +4,19 @@
 
 namespace MUnique.OpenMU.Web.AdminPanel.API;
 
+using System.Globalization;
 using System.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MUnique.OpenMU.GameLogic.Attributes;
 using MUnique.OpenMU.GameLogic.CastleSiege;
 using MUnique.OpenMU.GameLogic.Offline;
 using MUnique.OpenMU.GameLogic.PlugIns;
 using MUnique.OpenMU.GameLogic.PlugIns.InvasionEvents;
 using MUnique.OpenMU.GameLogic.PlugIns.PeriodicTasks;
+using MUnique.OpenMU.GameLogic.Resets;
+using MUnique.OpenMU.GameLogic.Vip;
+using MUnique.OpenMU.GameLogic.Web;
 using MUnique.OpenMU.GameServer;
 using MUnique.OpenMU.Interfaces;
 using MUnique.OpenMU.Persistence;
@@ -141,6 +146,81 @@ public class GkzPublicWebController : ControllerBase
             }
 
             return (object)new { owner = owner is null ? null : ToGuild(owner), nextSiege };
+        });
+
+    /// <summary>
+    /// Gets the published news, for the website and the launcher (the format of the old news.json).
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The news.</returns>
+    [HttpGet("news")]
+    public IActionResult GetNews(CancellationToken cancellationToken)
+    {
+        // Without the cache of the other answers: the news are in memory, and an edit in the admin panel
+        // has to show up right away.
+        this.Response.Headers.CacheControl = "no-cache";
+        var items = this.GetGameContext() is { } context ? GkzWebNewsPlugIn.GetPublishedNews(context) : [];
+        return this.Ok(items.Select(n => new
+        {
+            title = n.Title,
+            date = n.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            tag = n.Tag,
+            text = n.Text,
+        }).ToList());
+    }
+
+    /// <summary>
+    /// Gets the data of the server for the information page: experience, reset, VIP and stats, as they
+    /// are configured in the admin panel.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The information; <c>null</c> values when something isn't configured.</returns>
+    [HttpGet("info")]
+    public Task<IActionResult> GetInfoAsync(CancellationToken cancellationToken)
+        => this.CachedAsync("info", () =>
+        {
+            if (this.GetGameContext() is not { } context)
+            {
+                return Task.FromResult<object>(new { });
+            }
+
+            var experience = context.ExperienceRate;
+            var vip = VipPlugIn.GetConfiguration(context);
+            var reset = context.FeaturePlugIns.GetPlugIn<ResetFeaturePlugIn>()?.Configuration;
+            var darkLordPoints = context.Configuration.CharacterClasses
+                .FirstOrDefault(c => c.Number == 16)?.BaseAttributeValues
+                .FirstOrDefault(a => a.Definition == Stats.PointsPerReset)?.Value;
+            var maxStats = context.Configuration.Attributes.FirstOrDefault(a => a == Stats.BaseStrength)?.MaximumValue;
+
+            return Task.FromResult<object>(new
+            {
+                experience = Math.Round(experience),
+                vipExperience = vip is null ? (double?)null : Math.Round(experience * (1 + vip.ExperienceBonus)),
+                maxStats,
+                reset = reset is null ? null : new
+                {
+                    level = reset.RequiredLevel,
+                    levelVip = reset.RequiredLevelVip,
+                    zen = reset.RequiredMoney,
+                    zenMultipliedByResets = reset.MultiplyRequiredMoneyByResetCount,
+                    points = reset.PointsPerReset,
+                    pointsDarkLord = darkLordPoints is > 0 ? (int?)darkLordPoints : null,
+                    statsBackToZero = reset.ResetStats,
+                    limit = reset.ResetLimit,
+                },
+                vip = vip is null ? null : new
+                {
+                    price = vip.Price,
+                    coinName = vip.CoinName,
+                    days = vip.DaysPerPurchase,
+                    experienceBonusPercent = Math.Round(vip.ExperienceBonus * 100),
+                    dropBonusPercent = Math.Round(vip.ItemDropChanceBonus * 100),
+                    zenBonusPercent = Math.Round(vip.MoneyBonus * 100),
+                    vaults = vip.NormalVaults,
+                    vipVaults = vip.VipVaults,
+                    combination = vip.CombinationRequiresVip,
+                },
+            });
         });
 
     /// <summary>

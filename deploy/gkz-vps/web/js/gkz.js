@@ -77,9 +77,59 @@
     }
   }
 
+  // ---------- información del server (sale de la configuración del admin) ----------
+
+  function poner(clave, texto) {
+    document.querySelectorAll('[data-info="' + clave + '"]').forEach(function (n) { n.textContent = texto; });
+  }
+
+  async function cargarInfo() {
+    if (!document.querySelector("[data-info]")) return;
+    let d;
+    try {
+      d = await pedir(API + "/info");
+    } catch (e) {
+      return; // quedan los valores escritos en la página
+    }
+    const esNumero = function (v) { return typeof v === "number" && Number.isFinite(v); };
+    if (esNumero(d.experience)) {
+      poner("experiencia", "x" + numero(d.experience) + (esNumero(d.vipExperience) ? " · VIP x" + numero(d.vipExperience) : ""));
+    }
+    if (esNumero(d.maxStats)) poner("stats", numero(d.maxStats));
+    const r = d.reset;
+    if (r) {
+      if (esNumero(r.level)) {
+        poner("reset-nivel", numero(r.level) + (esNumero(r.levelVip) ? " · VIP " + numero(r.levelVip) : ""));
+        poner("reset-nivel-corto", "Nivel " + numero(r.level));
+      }
+      if (esNumero(r.zen)) poner("reset-costo", numero(r.zen) + " de zen" + (r.zenMultipliedByResets ? " × resets" : ""));
+      if (esNumero(r.points)) poner("reset-puntos", numero(r.points) + (esNumero(r.pointsDarkLord) ? " · DL " + numero(r.pointsDarkLord) : ""));
+      poner("reset-stats", r.statsBackToZero ? "Vuelven a 0" : "Se mantienen");
+      poner("reset-limite", esNumero(r.limit) ? numero(r.limit) : "Sin límite");
+    }
+    const v = d.vip;
+    const lista = document.getElementById("vip-lista");
+    if (v && lista) {
+      const puntos = [];
+      if (esNumero(d.vipExperience) && esNumero(d.experience)) puntos.push("Experiencia x" + numero(d.vipExperience) + " en lugar de x" + numero(d.experience) + ".");
+      if (esNumero(v.dropBonusPercent) && v.dropBonusPercent > 0) puntos.push("+" + numero(v.dropBonusPercent) + " % de chance de drop.");
+      if (esNumero(v.zenBonusPercent) && v.zenBonusPercent > 0) puntos.push("+" + numero(v.zenBonusPercent) + " % de zen.");
+      if (r && esNumero(r.levelVip)) puntos.push("Reset desde el nivel " + numero(r.levelVip) + ".");
+      if (esNumero(v.vipVaults) && esNumero(v.vaults)) puntos.push(numero(v.vipVaults) + " baúles en lugar de " + numero(v.vaults) + ".");
+      if (v.combination) puntos.push("Combinación de ítems excellent.");
+      vaciar(lista);
+      puntos.forEach(function (t) { lista.appendChild(el("li", null, t)); });
+      const precio = document.getElementById("vip-precio");
+      if (precio && esNumero(v.price) && esNumero(v.days)) {
+        precio.textContent = "Cuesta " + numero(v.price) + " " + String(v.coinName || "GKZ Coins") + " por " + numero(v.days)
+          + " días. Se compra en el juego, desde el botón VIP de la ventana del personaje.";
+      }
+    }
+  }
+
   // ---------- noticias (las mismas del launcher) ----------
 
-  const IMAGEN_NOTICIA = { evento: "img/noticia-evento.webp", servidor: "img/noticia-servidor.webp" };
+  const IMAGEN_NOTICIA = { evento: "img/noticia-evento.webp", servidor: "img/noticia-servidor.webp", mantenimiento: "img/noticia-servidor.webp" };
 
   async function cargarNoticias() {
     const lista = document.getElementById("noticias");
@@ -386,6 +436,7 @@
 
     cargarEstado();
     cargarNoticias();
+    cargarInfo();
     cargarEventos();
     cargarCastillo();
     cargarDestacados();

@@ -6,8 +6,8 @@
   <title>Información · MU GKZ</title>
   <meta name="description" content="MU GKZ: servidor de MU Online Season 3 con resets, Castle Siege, invasiones y eventos.">
   <link rel="icon" href="img/icono.png">
-  <link rel="stylesheet" href="css/gkz.css?v=3">
-  <script src="js/gkz.js?v=3" defer></script>
+  <link rel="stylesheet" href="css/gkz.css?v=4">
+  <script src="js/gkz.js?v=4" defer></script>
 </head>
 <body data-pagina="info">
   <nav class="barra">
@@ -35,8 +35,8 @@
           <ul class="datos-lista">
             <li>Versión <b>Season 3 clásica</b></li>
             <li>Clases <b>Mago, Caballero, Elfa, MG y DL</b></li>
-            <li>Experiencia <b>x300 · VIP x500</b></li>
-            <li>Stats máximas <b>32.767</b></li>
+            <li>Experiencia <b data-info="experiencia">x300 · VIP x500</b></li>
+            <li>Stats máximas <b data-info="stats">32.767</b></li>
             <li>Master Level <b>No</b></li>
           </ul>
         </div>
@@ -45,25 +45,25 @@
         <header><div><small>Progreso</small><h3>Sistema de reset</h3></div></header>
         <div class="cuerpo">
           <ul class="datos-lista">
-            <li>Nivel para resetear <b>380 · VIP 360</b></li>
-            <li>Costo <b>5.000.000 de zen</b></li>
-            <li>Puntos por reset <b>874 · DL 1.092</b></li>
-            <li>Stats después del reset <b>Vuelven a 0</b></li>
-            <li>Límite de resets <b>Sin límite</b></li>
+            <li>Nivel para resetear <b data-info="reset-nivel">380 · VIP 360</b></li>
+            <li>Costo <b data-info="reset-costo">5.000.000 de zen</b></li>
+            <li>Puntos por reset <b data-info="reset-puntos">874 · DL 1.092</b></li>
+            <li>Stats después del reset <b data-info="reset-stats">Vuelven a 0</b></li>
+            <li>Límite de resets <b data-info="reset-limite">Sin límite</b></li>
           </ul>
         </div>
       </section>
       <section class="panel" id="vip">
         <header><div><small>Ventajas</small><h3>VIP</h3></div></header>
         <div class="cuerpo texto">
-          <ul>
+          <ul id="vip-lista">
             <li>Experiencia x500 en lugar de x300.</li>
             <li>Más chance de drop y +50 % de zen.</li>
             <li>Reset desde el nivel 360.</li>
             <li>6 baúles en lugar de 2.</li>
             <li>Combinación de ítems excellent.</li>
           </ul>
-          <p>Se compra en el juego con GKZ Coins, desde el botón VIP de la ventana del personaje.</p>
+          <p id="vip-precio">Se compra en el juego con GKZ Coins, desde el botón VIP de la ventana del personaje.</p>
         </div>
       </section>
       <section class="panel" id="eventos">
