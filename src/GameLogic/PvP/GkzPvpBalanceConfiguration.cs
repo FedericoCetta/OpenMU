@@ -88,6 +88,48 @@ public class GkzPvpBalanceConfiguration
     public int CastleSiegePercent { get; set; } = 100;
 
     /// <summary>
+    /// Gets or sets the most damage which the victim's armor and wings take away in PvP, in percent.
+    /// </summary>
+    [Display(Name = "Reducción de daño máxima (%)", Description = "Lo máximo que sacan juntas las alas y las opciones de reducción de daño en PvP. Las alas de 3ª +15 solas sacan un 69 %.")]
+    public int MaxDamageReductionPercent { get; set; } = 60;
+
+    /// <summary>
+    /// Gets or sets the most damage which the soul barrier takes away in PvP, in percent.
+    /// </summary>
+    [Display(Name = "Soul Barrier máximo (%)")]
+    public int MaxSoulBarrierPercent { get; set; } = 60;
+
+    /// <summary>
+    /// Gets or sets the most damage which the elf's damage buff (Greater Damage) adds in PvP.
+    /// </summary>
+    [Display(Name = "Buff de daño de la Elfa máximo", Description = "Lo máximo que suma el buff de daño en PvP (con 32767 de energía daría unos 4700).")]
+    public int MaxGreaterDamageBonus { get; set; } = 1000;
+
+    /// <summary>
+    /// Gets or sets the most defense which the elf's defense buff (Greater Defense) adds in PvP.
+    /// </summary>
+    [Display(Name = "Buff de defensa de la Elfa máximo", Description = "Lo máximo que suma el buff de defensa en PvP (con 32767 de energía daría unos 4100).")]
+    public int MaxGreaterDefenseBonus { get; set; } = 800;
+
+    /// <summary>
+    /// Gets or sets the most damage which is reflected to an attacking player, in percent.
+    /// </summary>
+    [Display(Name = "Reflejo de daño máximo (%)")]
+    public int MaxReflectPercent { get; set; } = 70;
+
+    /// <summary>
+    /// Gets or sets the highest chance of a critical hit in PvP, in percent.
+    /// </summary>
+    [Display(Name = "Chance de crítico máxima (%)")]
+    public int MaxCriticalChancePercent { get; set; } = 80;
+
+    /// <summary>
+    /// Gets or sets the highest chance of an excellent hit in PvP, in percent.
+    /// </summary>
+    [Display(Name = "Chance de excellent máxima (%)")]
+    public int MaxExcellentChancePercent { get; set; } = 70;
+
+    /// <summary>
     /// Gets or sets the percentages by attacker and victim class.
     /// </summary>
     [Display(Name = "Por clase: atacante contra víctima (%)", Description = "Ejemplo: Caballero contra Mago 80 = el DK le hace 80 % de daño al mago.")]

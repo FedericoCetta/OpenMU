@@ -78,9 +78,20 @@ public static class AttackableExtensions
         bool isClassicPvpDuel = isClassicPvp && attackerPlayer!.DuelRoom?.Opponent == defender;
         var duelDmgDec = isClassicPvpDuel ? 0.6 : 1;
 
+        // MU GKZ: the limits of the PvP balance (admin panel), only between players.
+        var pvpLimits = isPvp ? PvP.GkzPvpBalancePlugIn.GetConfiguration(attackerPlayer!.GameContext) : null;
+
         DamageAttributes attributes = DamageAttributes.Undefined;
-        bool isCriticalHit = Rand.NextRandomBool(attacker.Attributes[Stats.CriticalDamageChance]);
-        bool isExcellentHit = Rand.NextRandomBool(attacker.Attributes[Stats.ExcellentDamageChance]);
+        var criticalChance = attacker.Attributes[Stats.CriticalDamageChance];
+        var excellentChance = attacker.Attributes[Stats.ExcellentDamageChance];
+        if (pvpLimits is not null)
+        {
+            criticalChance = Math.Min(criticalChance, pvpLimits.MaxCriticalChancePercent / 100f);
+            excellentChance = Math.Min(excellentChance, pvpLimits.MaxExcellentChancePercent / 100f);
+        }
+
+        bool isCriticalHit = Rand.NextRandomBool(criticalChance);
+        bool isExcellentHit = Rand.NextRandomBool(excellentChance);
         bool isIgnoringDefense = Rand.NextRandomBool(attacker.Attributes[Stats.DefenseIgnoreChance]);
 
         var defense = 0;
@@ -91,7 +102,13 @@ public static class AttackableExtensions
         else
         {
             var defenseAttribute = defender.GetDefenseAttribute(attacker);
-            defense = (int)((defender.Attributes[defenseAttribute] + defender.Attributes[Stats.GreaterDefenseBonus]) * defender.Attributes[Stats.DefenseDecrement]);
+            var greaterDefense = defender.Attributes[Stats.GreaterDefenseBonus];
+            if (pvpLimits is not null)
+            {
+                greaterDefense = Math.Min(greaterDefense, pvpLimits.MaxGreaterDefenseBonus);
+            }
+
+            defense = (int)((defender.Attributes[defenseAttribute] + greaterDefense) * defender.Attributes[Stats.DefenseDecrement]);
             if (defense < 0)
             {
                 defense = 0;
@@ -182,7 +199,9 @@ public static class AttackableExtensions
             }
         }
 
-        dmg += (int)attacker.Attributes[Stats.GreaterDamageBonus];
+        dmg += (int)(pvpLimits is null
+            ? attacker.Attributes[Stats.GreaterDamageBonus]
+            : Math.Min(attacker.Attributes[Stats.GreaterDamageBonus], pvpLimits.MaxGreaterDamageBonus));
 
         /*Scroll of Wrath/Wizardry and Remedy of Love go here (but for now they don't exist)*/
 
@@ -207,6 +226,7 @@ public static class AttackableExtensions
             dmg = (int)(dmg * 0.3);
         }
 
+        var damageBeforeReduction = dmg;
         dmg -= (int)(dmg * defender.Attributes[Stats.ArmorDamageDecrease]);
 
         var attackerLevel = attacker is Player ? attacker.Attributes[Stats.TotalLevel] :
@@ -221,6 +241,15 @@ public static class AttackableExtensions
         if (dmg > 1)
         {
             dmg = (int)(dmg * defender.Attributes[Stats.DamageReceiveDecrement]);
+        }
+
+        if (pvpLimits is not null)
+        {
+            // MU GKZ: the armor and the wings of the victim together take away at most MaxDamageReductionPercent in PvP.
+            // The damage increase of the attacker (its wings) is applied in between, so it's part of the comparison.
+            var damageWithoutReduction = damageBeforeReduction * attacker.Attributes[Stats.AttackDamageIncrease];
+            var minimumDamage = (int)(damageWithoutReduction * (100 - Math.Clamp(pvpLimits.MaxDamageReductionPercent, 0, 100)) / 100.0);
+            dmg = Math.Max(dmg, minimumDamage);
         }
 
         if (skill != null)
@@ -264,7 +293,7 @@ public static class AttackableExtensions
         {
             manaToll = soulBarrierManaToll;
             float soulBarrierReduction = defender.Attributes[Stats.SoulBarrierReceiveDecrement];
-            soulBarrierReduction = Math.Clamp(soulBarrierReduction, 0f, 0.9f);
+            soulBarrierReduction = Math.Clamp(soulBarrierReduction, 0f, pvpLimits is null ? 0.9f : Math.Clamp(pvpLimits.MaxSoulBarrierPercent, 0, 90) / 100f);
             dmg -= (int)(dmg * soulBarrierReduction);
         }
 

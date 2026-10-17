@@ -26,6 +26,14 @@ public class GkzPvpBalancePlugIn : IFeaturePlugIn, ISupportCustomConfiguration<G
     public GkzPvpBalanceConfiguration? Configuration { get; set; }
 
     /// <summary>
+    /// Gets the configuration of the PvP balance, when it's active.
+    /// </summary>
+    /// <param name="gameContext">The game context.</param>
+    /// <returns>The configuration; <c>null</c> when the plugin isn't active.</returns>
+    public static GkzPvpBalanceConfiguration? GetConfiguration(IGameContext gameContext)
+        => gameContext.FeaturePlugIns.GetPlugIn<GkzPvpBalancePlugIn>()?.Configuration;
+
+    /// <summary>
     /// Gets the base class of a character class.
     /// </summary>
     /// <param name="classNumber">The number of the character class.</param>

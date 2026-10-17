@@ -24,6 +24,10 @@ public class GkzPvpBalanceTest
         Assert.That(configuration.ClassPairs.Select(p => (p.Attacker, p.Victim)), Is.Unique);
         Assert.That(configuration.ClassPairs.All(p => p.Percent == 100), Is.True);
         Assert.That(configuration.GetFactor(GkzPvpClass.DarkKnight, GkzPvpClass.DarkWizard, GkzPvpPlace.Normal), Is.EqualTo(0.7).Within(0.0001));
+        Assert.That(
+            (configuration.MaxDamageReductionPercent, configuration.MaxSoulBarrierPercent, configuration.MaxGreaterDamageBonus, configuration.MaxGreaterDefenseBonus,
+                configuration.MaxReflectPercent, configuration.MaxCriticalChancePercent, configuration.MaxExcellentChancePercent),
+            Is.EqualTo((60, 60, 1000, 800, 70, 80, 70)));
     }
 
     /// <summary>

@@ -1725,6 +1725,12 @@ public class Player : AsyncDisposable, IBucketMapObserver, IAttackable, IAttacke
             var attackableAttacker = attacker is AttackerSurrogate surrogate ? surrogate.Owner : (IAttackable)attacker;
 
             var reflectPercentage = this.Attributes[Stats.DamageReflection];
+            if (attackableAttacker is Player && PvP.GkzPvpBalancePlugIn.GetConfiguration(this.GameContext) is { } pvpLimits)
+            {
+                // MU GKZ: the limit of the PvP balance (admin panel).
+                reflectPercentage = Math.Min(reflectPercentage, pvpLimits.MaxReflectPercent / 100f);
+            }
+
             if (reflectPercentage > 0)
             {
                 var reflectedDamage = hitInfo.TotalDamage * reflectPercentage;
