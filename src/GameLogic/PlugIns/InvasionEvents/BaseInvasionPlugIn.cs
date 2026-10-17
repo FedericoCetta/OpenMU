@@ -139,10 +139,8 @@ public abstract class BaseInvasionPlugIn<TConfiguration> : PeriodicTaskBasePlugI
             var state = this.GetStateByGameContext(gameContext);
             state.AddMonster(monster);
 
-            if (announceDeath)
-            {
-                this.AttachDeathBroadcast(monster, state);
-            }
+            // MU GKZ: every monster of an invasion is announced when it dies, not only the configured ones.
+            this.AttachDeathBroadcast(monster, state);
         }
     }
 
@@ -380,7 +378,8 @@ public abstract class BaseInvasionPlugIn<TConfiguration> : PeriodicTaskBasePlugI
 
                 try
                 {
-                    await player.ShowLocalizedGoldenMessageAsync(nameof(PlayerMessage.InvasionMonsterDefeated), e.KillerName, translatedMapName, monsterName).ConfigureAwait(false);
+                    // MU GKZ: in Spanish, e.g. "GKZ mató a Golden Tantalos en Devias".
+                    await player.InvokeViewPlugInAsync<IShowMessagePlugIn>(p => p.ShowMessageAsync($"{e.KillerName} mató a {monsterName} en {translatedMapName}", MessageType.GoldenCenter)).ConfigureAwait(false);
                 }
                 catch
                 {
