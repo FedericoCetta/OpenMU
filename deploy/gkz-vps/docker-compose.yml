@@ -15,6 +15,7 @@ services:
       - ./nginx/gkz-public.conf:/etc/nginx/gkz-public.conf:ro
       - ./nginx/gkz-secrets.conf:/etc/nginx/gkz-secrets.conf:ro
       - ./nginx/gkz-headers.conf:/etc/nginx/gkz-headers.conf:ro
+      - ./nginx/gkz-headers-registro.conf:/etc/nginx/gkz-headers-registro.conf:ro
       # La web pública: archivos estáticos.
       - ./web:/usr/share/nginx/gkz-web:ro
       - ./launcher:/usr/share/nginx/gkz-launcher:ro
@@ -52,6 +53,8 @@ services:
       GKZ_NETWORK_KEYS_FILE: /app/secrets/gkz-network-keys.json
       GKZ_CLIENT_SERIAL: ${GKZ_CLIENT_SERIAL}
       GKZ_GUARD_SECRET: ${GKZ_GUARD_SECRET}
+      # Clave secreta de Cloudflare Turnstile (captcha del registro). Sin ella, el registro público rechaza todo.
+      GKZ_TURNSTILE_SECRET: ${GKZ_TURNSTILE_SECRET:-}
     volumes:
       - adminpanel-keys:/app/data-protection-keys
       - ./logs:/app/logs

@@ -379,6 +379,28 @@
     if (!form) return;
     const mensaje = document.getElementById("registro-mensaje");
     const boton = form.querySelector("button[type=submit]");
+    const captcha = document.getElementById("registro-captcha");
+    let captchaId = null;
+    let captchaToken = "";
+
+    // Captcha de Cloudflare Turnstile. La clave del sitio es pública; la secreta solo la tiene el servidor,
+    // que verifica cada token con Cloudflare antes de crear la cuenta.
+    if (captcha && window.turnstile) {
+      captchaId = window.turnstile.render(captcha, {
+        sitekey: captcha.dataset.sitekey,
+        action: "registro",
+        language: "es",
+        theme: "dark",
+        callback: function (token) { captchaToken = token; },
+        "expired-callback": function () { captchaToken = ""; },
+        "error-callback": function () { captchaToken = ""; },
+      });
+    }
+
+    function reiniciarCaptcha() {
+      captchaToken = "";
+      if (captchaId !== null && window.turnstile) window.turnstile.reset(captchaId);
+    }
 
     function avisar(tipo, texto) {
       mensaje.className = "mensaje " + tipo;
@@ -395,6 +417,9 @@
       if (!/^[\x21-\x7E]{6,20}$/.test(clave)) return avisar("error", "La contraseña debe tener de 6 a 20 caracteres, sin espacios ni acentos.");
       if (clave !== clave2) return avisar("error", "Las contraseñas no coinciden.");
       if (email && !/^[^\s@<>"']{1,64}@[^\s@<>"']{1,190}\.[A-Za-z]{2,}$/.test(email)) return avisar("error", "El e-mail no es válido.");
+      if (!captchaToken) return avisar("error", captchaId === null
+        ? "No se pudo cargar la verificación anti-bots. Recargá la página."
+        : "Esperá a que termine la verificación anti-bots.");
 
       boton.disabled = true;
       try {
@@ -402,7 +427,7 @@
           method: "POST",
           credentials: "omit",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ loginName: usuario, password: clave, eMail: email || null }),
+          body: JSON.stringify({ loginName: usuario, password: clave, eMail: email || null, captchaToken: captchaToken }),
         });
         if (r.status === 201) {
           form.reset();
@@ -411,6 +436,8 @@
           avisar("error", "Ese usuario ya existe. Probá con otro.");
         } else if (r.status === 429 || r.status === 503) {
           avisar("error", "Demasiados intentos. Esperá un minuto y probá de nuevo.");
+        } else if (r.status === 403) {
+          avisar("error", "No pasaste la verificación anti-bots. Probá de nuevo.");
         } else if (r.status === 400) {
           avisar("error", "Revisá los datos: alguno no es válido.");
         } else {
@@ -419,6 +446,8 @@
       } catch (e) {
         avisar("error", "No hay conexión con el servidor.");
       } finally {
+        // Cada token sirve una sola vez.
+        reiniciarCaptcha();
         boton.disabled = false;
       }
     });

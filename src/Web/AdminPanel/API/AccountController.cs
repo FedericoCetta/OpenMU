@@ -58,7 +58,36 @@ public class AccountController : ControllerBase
     /// registration is invalid, and <c>409</c> when the login name is already taken.
     /// </returns>
     [HttpPost]
-    public async Task<IActionResult> RegisterAsync([FromBody] AccountRegistration registration, CancellationToken cancellationToken)
+    public Task<IActionResult> RegisterAsync([FromBody] AccountRegistration registration, CancellationToken cancellationToken)
+        => this.CreateAccountAsync(registration, cancellationToken);
+
+    /// <summary>
+    /// MU GKZ: registers a new account from the public website, which also needs a valid Cloudflare
+    /// Turnstile token. nginx only forwards the public registration to this action.
+    /// </summary>
+    /// <param name="registration">The login name, password, e-mail address and captcha token of the new account.</param>
+    /// <param name="verifier">The verifier of the captcha.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    /// Like <see cref="RegisterAsync"/>, and <c>403</c> when the captcha isn't valid.
+    /// </returns>
+    [HttpPost("public")]
+    public async Task<IActionResult> RegisterPublicAsync(
+        [FromBody] PublicAccountRegistration registration,
+        [FromServices] GkzTurnstileVerifier verifier,
+        CancellationToken cancellationToken)
+    {
+        // nginx sets X-Real-IP; the game server isn't reachable from the internet without it.
+        var remoteIp = this.Request.Headers["X-Real-IP"].ToString();
+        if (!await verifier.VerifyAsync(registration.CaptchaToken, remoteIp, cancellationToken).ConfigureAwait(false))
+        {
+            return this.StatusCode(StatusCodes.Status403Forbidden);
+        }
+
+        return await this.CreateAccountAsync(registration, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<IActionResult> CreateAccountAsync(AccountRegistration registration, CancellationToken cancellationToken)
     {
         var gameConfiguration = await this._gameConfigurationSource.GetOwnerAsync(Guid.Empty, cancellationToken).ConfigureAwait(false);
         using var context = this._persistenceContextProvider.CreateNewPlayerContext(gameConfiguration);

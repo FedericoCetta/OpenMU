@@ -5,6 +5,7 @@
 namespace MUnique.OpenMU.Web.Tests.Api;
 
 using System.ComponentModel.DataAnnotations;
+using System.Net.Http;
 using System.Threading;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -123,6 +124,46 @@ public class AccountControllerTests
         Assert.That(GetInvalidMembers(CreateRegistration(loginName, password, eMail)), Is.EqualTo(new[] { invalidMember }));
     }
 
+    /// <summary>
+    /// MU GKZ: the public registration creates the account only with a captcha which Cloudflare accepts
+    /// for the hostname and the action of the registration form.
+    /// </summary>
+    /// <param name="answer">The answer of Cloudflare.</param>
+    /// <param name="secret">The secret key, or <c>null</c> when it isn't configured.</param>
+    /// <param name="expectedStatus">The expected status code.</param>
+    [TestCase("""{"success":true,"hostname":"mugkz.com","action":"registro"}""", "secreto", StatusCodes.Status201Created)]
+    [TestCase("""{"success":true,"hostname":"mugkz.com","action":"registro"}""", null, StatusCodes.Status403Forbidden)]
+    [TestCase("""{"success":false,"error-codes":["invalid-input-response"]}""", "secreto", StatusCodes.Status403Forbidden)]
+    [TestCase("""{"success":true,"hostname":"otra.com","action":"registro"}""", "secreto", StatusCodes.Status403Forbidden)]
+    [TestCase("""{"success":true,"hostname":"mugkz.com","action":"otra"}""", "secreto", StatusCodes.Status403Forbidden)]
+    [TestCase("no es json", "secreto", StatusCodes.Status403Forbidden)]
+    public async Task PublicRegisterNeedsAValidCaptchaAsync(string answer, string? secret, int expectedStatus)
+    {
+        var verifier = new GkzTurnstileVerifier(new HttpClient(new FixedAnswerHandler(answer)), Mock.Of<ILogger<GkzTurnstileVerifier>>(), secret, null);
+        var registration = new PublicAccountRegistration { LoginName = "newbie", Password = "secret1", CaptchaToken = "token" };
+
+        var result = await this._controller.RegisterPublicAsync(registration, verifier, CancellationToken.None).ConfigureAwait(false);
+
+        Assert.That(((StatusCodeResult)result).StatusCode, Is.EqualTo(expectedStatus));
+        Assert.That(await this.GetAccountAsync("newbie").ConfigureAwait(false), expectedStatus == StatusCodes.Status201Created ? Is.Not.Null : Is.Null);
+    }
+
+    /// <summary>
+    /// MU GKZ: without a token, Cloudflare isn't even asked.
+    /// </summary>
+    [Test]
+    public async Task PublicRegisterWithoutTokenIsRejectedAsync()
+    {
+        var handler = new FixedAnswerHandler("""{"success":true,"hostname":"mugkz.com","action":"registro"}""");
+        var verifier = new GkzTurnstileVerifier(new HttpClient(handler), Mock.Of<ILogger<GkzTurnstileVerifier>>(), "secreto", null);
+        var registration = new PublicAccountRegistration { LoginName = "newbie", Password = "secret1", CaptchaToken = string.Empty };
+
+        var result = await this._controller.RegisterPublicAsync(registration, verifier, CancellationToken.None).ConfigureAwait(false);
+
+        Assert.That(((StatusCodeResult)result).StatusCode, Is.EqualTo(StatusCodes.Status403Forbidden));
+        Assert.That(handler.Requests, Is.Zero);
+    }
+
     private static AccountRegistration CreateRegistration(string loginName, string password, string? eMail)
     {
         return new AccountRegistration { LoginName = loginName, Password = password, EMail = eMail };
@@ -139,5 +180,26 @@ public class AccountControllerTests
     {
         using var context = this._persistenceContextProvider.CreateNewPlayerContext(new GameConfiguration());
         return await context.GetAccountByLoginNameAsync(loginName).ConfigureAwait(false);
+    }
+
+    private sealed class FixedAnswerHandler : HttpMessageHandler
+    {
+        private readonly string _answer;
+
+        public FixedAnswerHandler(string answer)
+        {
+            this._answer = answer;
+        }
+
+        public int Requests { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            this.Requests++;
+            return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent(this._answer, System.Text.Encoding.UTF8, "application/json"),
+            });
+        }
     }
 }

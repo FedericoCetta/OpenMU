@@ -340,6 +340,7 @@ internal sealed class Program : IDisposable
                     .WaitAndUnwrapException())
             .AddSingleton<IPersistenceContextProvider>(s => s.GetService<IMigratableDatabaseContextProvider>()!)
             .AddSingleton<IGkzPublicWebQueries, MUnique.OpenMU.Persistence.EntityFramework.GkzPublicWebQueries>()
+            .AddSingleton<MUnique.OpenMU.Web.AdminPanel.API.GkzTurnstileVerifier>()
             .AddSingleton<Lazy<IPersistenceContextProvider>>(s => new(() => s.GetService<IMigratableDatabaseContextProvider>()!))
             .AddSingleton<ILoginServer, LoginServer>()
             .AddSingleton<IGuildServer, GuildServer>()
