@@ -63,10 +63,40 @@ public class GkzGuardTest
     public async Task ForgedHeartbeatDisconnectsAsync()
     {
         this._now += TimeSpan.FromSeconds(10);
-        await this._guard.HandleHeartbeatAsync(this._player, 1, 10_000, 0, 0, 12345).ConfigureAwait(false);
+        await this.SendHeartbeatAsync(clientTime: 10_000).ConfigureAwait(false);
+        this._now += TimeSpan.FromSeconds(10);
+        await this._guard.HandleHeartbeatAsync(this._player, this._sequence + 1, 20_000, 0, 0, 12345).ConfigureAwait(false);
 
         Assert.That(this.IsDisconnected, Is.True);
         Assert.That(GkzSecurityIncidents.GetRecent(), Has.Some.Matches<SecurityIncident>(i => i.Kind == "Anti-cheat" && i.Account == this._player.Account!.LoginName));
+    }
+
+    /// <summary>
+    /// Tests that heartbeats signed with the challenge of the previous connection, which the client sends after a
+    /// reconnect until it gets the new challenge, don't disconnect the player.
+    /// </summary>
+    [Test]
+    public async Task HeartbeatOfThePreviousConnectionIsIgnoredAsync()
+    {
+        this._now += TimeSpan.FromSeconds(2);
+        await this._guard.HandleHeartbeatAsync(this._player, 57, 600_000, 0, 0, 12345).ConfigureAwait(false);
+        Assert.That(this.IsDisconnected, Is.False);
+
+        this._now += TimeSpan.FromSeconds(8);
+        await this.SendHeartbeatAsync(clientTime: 10_000).ConfigureAwait(false);
+        Assert.That(this.IsDisconnected, Is.False);
+    }
+
+    /// <summary>
+    /// Tests that forged heartbeats after the time of the challenge disconnect, also without a correct one before.
+    /// </summary>
+    [Test]
+    public async Task ForgedHeartbeatsAfterTheChallengeTimeDisconnectAsync()
+    {
+        this._now += TimeSpan.FromSeconds(31);
+        await this._guard.HandleHeartbeatAsync(this._player, 1, 31_000, 0, 0, 12345).ConfigureAwait(false);
+
+        Assert.That(this.IsDisconnected, Is.True);
     }
 
     /// <summary>

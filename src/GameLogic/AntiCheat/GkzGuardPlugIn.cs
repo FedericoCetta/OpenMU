@@ -40,6 +40,14 @@ public class GkzGuardPlugIn : IFeaturePlugIn, IPeriodicTaskPlugIn, IPlayerStateC
 
     private static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(5);
 
+    /// <summary>
+    /// The time after the challenge in which heartbeats with a wrong proof are ignored, as long as no correct one
+    /// arrived yet: when the client reconnects, it keeps sending heartbeats signed with the challenge of the previous
+    /// connection until it receives the new one. A client which never sends a correct one is disconnected anyway by
+    /// the heartbeat timeout.
+    /// </summary>
+    private static readonly TimeSpan ChallengeGracePeriod = TimeSpan.FromSeconds(30);
+
     private readonly ConditionalWeakTable<Player, GuardState> _states = new();
 
     private readonly ConditionalWeakTable<GameContext, StrongBox<DateTime>> _nextChecks = new();
@@ -118,6 +126,12 @@ public class GkzGuardPlugIn : IFeaturePlugIn, IPeriodicTaskPlugIn, IPlayerStateC
         {
             if (proof != GkzGuardProof.Compute(GkzGuardProof.Secret, state.Challenge, sequence, clientTime, flags, detail))
             {
+                if (!state.HasCorrectHeartbeat && now - state.EnteredAt < ChallengeGracePeriod)
+                {
+                    // Signed with the challenge of the previous connection.
+                    return;
+                }
+
                 violation = "a forged heartbeat";
                 ban = true;
             }
@@ -130,6 +144,7 @@ public class GkzGuardPlugIn : IFeaturePlugIn, IPeriodicTaskPlugIn, IPlayerStateC
             {
                 state.LastSequence = sequence;
                 state.LastHeartbeat = now;
+                state.HasCorrectHeartbeat = true;
                 violation = this.CheckClock(state, now, clientTime, configuration, out ban) ?? DescribeDetections((GkzGuardFlags)flags, detail, ref ban);
             }
         }
@@ -267,6 +282,8 @@ public class GkzGuardPlugIn : IFeaturePlugIn, IPeriodicTaskPlugIn, IPlayerStateC
         public DateTime EnteredAt { get; }
 
         public DateTime LastHeartbeat { get; set; }
+
+        public bool HasCorrectHeartbeat { get; set; }
 
         public uint LastSequence { get; set; }
 
