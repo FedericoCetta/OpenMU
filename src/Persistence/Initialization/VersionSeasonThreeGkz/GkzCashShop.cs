@@ -13,8 +13,8 @@ using MUnique.OpenMU.GameLogic.Resets;
 /// <summary>
 /// The item shop of MU GKZ (X key), from <c>GkzCashShop.json</c>. The client script is built from the same file
 /// by <c>tools/gkz_shop_script.py</c>, so the sequence numbers, names and prices always match.
-/// Everything is paid with the GKZ Coins (WCoinC), and nothing in it gives power: talismans, event invitations
-/// and transformation rings.
+/// Everything is paid with the GKZ Coins (WCoinC): talismans, packs of jewels (only Bless and Soul, which also
+/// drop), event invitations and transformation rings.
 /// </summary>
 internal static class GkzCashShop
 {

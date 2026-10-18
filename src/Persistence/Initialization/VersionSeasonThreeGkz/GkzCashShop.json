@@ -3,7 +3,7 @@
   "scriptVersion": {
     "zone": 512,
     "year": 2026,
-    "yearId": 4
+    "yearId": 5
   },
   "bannerVersion": {
     "zone": 583,
@@ -15,6 +15,10 @@
     {
       "id": 11,
       "name": "Talismanes"
+    },
+    {
+      "id": 14,
+      "name": "Joyas"
     },
     {
       "id": 12,
@@ -259,6 +263,28 @@
       "number": 10,
       "level": 5,
       "description": "Anillo de transformación:#te transforma en Death Cow."
+    },
+    {
+      "seq": 51,
+      "category": 14,
+      "name": "10 Jewel of Bless",
+      "price": 600,
+      "group": 14,
+      "number": 13,
+      "level": 0,
+      "description": "Pack de 10 Jewel of Bless.",
+      "quantity": 10
+    },
+    {
+      "seq": 52,
+      "category": 14,
+      "name": "10 Jewel of Soul",
+      "price": 600,
+      "group": 14,
+      "number": 14,
+      "level": 0,
+      "description": "Pack de 10 Jewel of Soul.",
+      "quantity": 10
     },
     {
       "seq": 101,

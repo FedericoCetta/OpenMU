@@ -29,4 +29,10 @@ public class HappyHourConfiguration : PeriodicTaskConfiguration
     /// </summary>
     [Display(ResourceType = typeof(PlugInResources), Name = nameof(PlugInResources.HappyHourConfiguration_ExperienceMultiplier_Name))]
     public float ExperienceMultiplier { get; set; } = 1.5f;
+
+    /// <summary>
+    /// Gets or sets the zen which a reset costs during the Happy Hour (MU GKZ). 0 keeps the normal cost.
+    /// </summary>
+    [Display(Name = "Zen del reset durante Happy Hour (0 = costo normal)")]
+    public int ResetRequiredMoney { get; set; }
 }

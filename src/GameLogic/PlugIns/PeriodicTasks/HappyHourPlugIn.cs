@@ -27,6 +27,27 @@ public class HappyHourPlugIn : PeriodicTaskBasePlugIn<HappyHourConfiguration, Pe
     /// <inheritdoc />
     public object CreateDefaultConfig() => HappyHourConfiguration.Default;
 
+    /// <summary>
+    /// Gets the zen which the next reset costs: during the Happy Hour, the <see cref="HappyHourConfiguration.ResetRequiredMoney"/>
+    /// when it's configured and cheaper (MU GKZ).
+    /// </summary>
+    /// <param name="gameContext">The game context.</param>
+    /// <param name="requiredZen">The normal cost of the reset.</param>
+    /// <returns>The cost of the reset.</returns>
+    public static int GetResetRequiredZen(IGameContext gameContext, int requiredZen)
+    {
+        foreach (var plugIn in gameContext.PlugInManager.GetActivePlugInsOf<IPeriodicTaskPlugIn>().OfType<HappyHourPlugIn>())
+        {
+            if (plugIn.Configuration is { ResetRequiredMoney: > 0 } configuration
+                && plugIn.GetStateByGameContext(gameContext).State == PeriodicTaskState.Started)
+            {
+                return Math.Min(requiredZen, configuration.ResetRequiredMoney);
+            }
+        }
+
+        return requiredZen;
+    }
+
     /// <inheritdoc />
     public async ValueTask PlayerStateChangedAsync(Player player, State previousState, State currentState)
     {
@@ -87,11 +108,28 @@ public class HappyHourPlugIn : PeriodicTaskBasePlugIn<HappyHourConfiguration, Pe
     }
 
     /// <inheritdoc/>
-    protected override ValueTask OnFinishedAsync(PeriodicTaskGameServerState state)
+    protected override async ValueTask OnFinishedAsync(PeriodicTaskGameServerState state)
     {
         this._happyHourExtraMultiplier.Value = 1;
 
-        return ValueTask.CompletedTask;
+        // MU GKZ: the end is announced, too.
+        if (this.Configuration is { } configuration)
+        {
+            await state.Context.ForEachPlayerAsync(async player =>
+            {
+                if (this.IsPlayerOnMap(player) && configuration.EndMessage.GetTranslation(player.Culture) is { Length: > 0 } message)
+                {
+                    try
+                    {
+                        await player.InvokeViewPlugInAsync<IShowMessagePlugIn>(p => p.ShowMessageAsync(message, Interfaces.MessageType.GoldenCenter)).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        player.Logger.LogDebug(ex, "Unexpected error sending end message.");
+                    }
+                }
+            }).ConfigureAwait(false);
+        }
     }
 
     /// <summary>

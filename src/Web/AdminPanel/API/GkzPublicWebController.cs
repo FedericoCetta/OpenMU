@@ -47,6 +47,7 @@ public class GkzPublicWebController : ControllerBase
         [nameof(RedDragonInvasionPlugIn)] = "Red Dragon",
         [nameof(WhiteWizardInvasionPlugIn)] = "Invasión blanca",
         [nameof(HappyHourPlugIn)] = "Happy Hour",
+        [nameof(GkzJewelRainPlugIn)] = "Lluvia de joyas",
     };
 
     private static readonly Dictionary<short, string> ClassNames = new()

@@ -7,6 +7,7 @@ namespace MUnique.OpenMU.GameLogic.Resets;
 using System.Runtime.InteropServices;
 using MUnique.OpenMU.GameLogic.Attributes;
 using MUnique.OpenMU.GameLogic.PlugIns.ChatCommands;
+using MUnique.OpenMU.GameLogic.PlugIns.PeriodicTasks;
 using MUnique.OpenMU.PlugIns;
 
 /// <summary>
@@ -46,6 +47,9 @@ public class ResetInfoChatCommandPlugIn : IChatCommandPlugIn
             (int)player.Attributes[Stats.Resets],
             (int)player.Attributes[Stats.PointsPerReset],
             configuration);
+
+        // MU GKZ: the reset is cheaper during the Happy Hour.
+        progression = progression with { RequiredZen = HappyHourPlugIn.GetResetRequiredZen(player.GameContext, progression.RequiredZen) };
         if (progression.RequiredItemAmount > 0 && configuration.RequiredResetItem is { Name: { } itemName })
         {
             await player.ShowLocalizedBlueMessageAsync(

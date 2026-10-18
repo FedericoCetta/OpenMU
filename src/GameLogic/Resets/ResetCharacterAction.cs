@@ -8,6 +8,7 @@ using MUnique.OpenMU.GameLogic.Attributes;
 using MUnique.OpenMU.GameLogic.NPC;
 using MUnique.OpenMU.GameLogic.PlayerActions;
 using MUnique.OpenMU.GameLogic.PlugIns;
+using MUnique.OpenMU.GameLogic.PlugIns.PeriodicTasks;
 using MUnique.OpenMU.GameLogic.Views.Character;
 using MUnique.OpenMU.GameLogic.Views.Login;
 using MUnique.OpenMU.GameLogic.Views.NPC;
@@ -64,6 +65,9 @@ public class ResetCharacterAction
         }
 
         var resetProgression = ResetProgressionCalculator.Calculate(this.GetResetCount(), (int)this._player.Attributes[Stats.PointsPerReset], configuration);
+
+        // MU GKZ: the reset is cheaper during the Happy Hour.
+        resetProgression = resetProgression with { RequiredZen = HappyHourPlugIn.GetResetRequiredZen(this._player.GameContext, resetProgression.RequiredZen) };
 
         var requiredLevel = configuration.GetRequiredLevel(this._player);
         if (this._player.Level < requiredLevel)
