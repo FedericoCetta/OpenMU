@@ -49,18 +49,22 @@ def base(numero):
 
 def main():
     nombre, salida = sys.argv[1], sys.argv[2]
-    pj = json_de(f'''select c."Id", c."InventoryId", a."VaultId", cc."Number" clase from data."Character" c join data."Account" a on a."Id"=c."AccountId"
+    pj = json_de(f'''select c."Id", c."InventoryId", a."Id" cuenta, a."VaultId", cc."Number" clase from data."Character" c join data."Account" a on a."Id"=c."AccountId"
                      join config."CharacterClass" cc on cc."Id"=c."CharacterClassId" where c."Name"='{nombre}' ''')
     if not pj:
         raise SystemExit(f'No existe el personaje {nombre}')
     pj = pj[0]
+    # Una cuenta nueva no tiene baúl hasta que lo abre en el juego: se crea acá.
+    baul_nuevo = pj['VaultId'] is None
+    if baul_nuevo:
+        pj['VaultId'] = str(uuid.uuid4())
     tipo = base(pj['clase'])
     if tipo not in CLASES:
         raise SystemExit(f'La clase {tipo} no está preparada')
     conf = CLASES[tipo]
     defs = {(d['Group'], d['Number']): d for d in json_de('select "Id","Group","Number","Width","Height","Durability","MaximumItemLevel" from config."ItemDefinition"')}
     inv = json_de(f'''select i."Id", i."ItemSlot", d."Width", d."Height" from data."Item" i join config."ItemDefinition" d on d."Id"=i."DefinitionId" where i."ItemStorageId"='{pj["InventoryId"]}' ''')
-    baul = json_de(f'''select i."Id", i."ItemSlot", d."Width", d."Height" from data."Item" i join config."ItemDefinition" d on d."Id"=i."DefinitionId" where i."ItemStorageId"='{pj["VaultId"]}' ''')
+    baul = [] if baul_nuevo else json_de(f'''select i."Id", i."ItemSlot", d."Width", d."Height" from data."Item" i join config."ItemDefinition" d on d."Id"=i."DefinitionId" where i."ItemStorageId"='{pj["VaultId"]}' ''')
     sets = json_de('select "ItemSetGroupId", "Id", "ItemDefinitionId", "BonusOptionId" from config."ItemOfItemSet" where "AncientSetDiscriminator" > 0')
 
     def ocupadas(items, base_slot):
@@ -83,6 +87,9 @@ def main():
         return None
 
     sql = [f'-- MU GKZ: personaje de prueba de PvP {nombre} ({tipo}).', 'begin;']
+    if baul_nuevo:
+        sql.append(f'''insert into data."ItemStorage" ("Id", "Money") values ('{pj["VaultId"]}', 0);''')
+        sql.append(f'''update data."Account" set "VaultId" = '{pj["VaultId"]}' where "Id" = '{pj["cuenta"]}';''')
     # Clase, nivel, resets, estadísticas y puntos.
     sql.append(f'''update data."Character" set "CharacterClassId" = (select "Id" from config."CharacterClass" where "Number" = {conf["clase"]}), "LevelUpPoints" = 0,
   "Experience" = 10::bigint * ({NIVEL} + 8) * ({NIVEL} - 1) * ({NIVEL} - 1) + 1000::bigint * ({NIVEL} - 247) * ({NIVEL} - 256) * ({NIVEL} - 256) where "Id" = '{pj["Id"]}';''')
