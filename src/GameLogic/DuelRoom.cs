@@ -485,5 +485,9 @@ public sealed class DuelRoom : AsyncDisposable
         await this.NotifyDuelFinishedAsync().ConfigureAwait(false);
         await Task.Delay(10000, default).ConfigureAwait(false);
         await this.MovePlayersToExitAsync().ConfigureAwait(false);
+
+        // MU GKZ: without this, the client keeps the duel score and the duel effect after a finished duel;
+        // it was only sent when a duel was cancelled.
+        await this.AllPlayers.ForEachAsync(player => player.InvokeViewPlugInAsync<IDuelEndedPlugIn>(p => p.DuelEndedAsync())).ConfigureAwait(false);
     }
 }
