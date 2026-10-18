@@ -7,19 +7,26 @@ namespace MUnique.OpenMU.GameLogic.PlugIns.PeriodicTasks;
 using System.Runtime.InteropServices;
 using System.Threading;
 using MUnique.OpenMU.GameLogic.Views;
+using MUnique.OpenMU.GameLogic.Views.Character;
 using MUnique.OpenMU.Interfaces;
 using MUnique.OpenMU.Pathfinding;
 using MUnique.OpenMU.PlugIns;
 
 /// <summary>
 /// The jewel rain of MU GKZ: at the configured times, jewels fall on the ground around a point of a map
-/// (by default the PvP ring of Lorencia), evenly spread over the duration of the event. Anybody can pick them up.
+/// (by default the PvP ring of Lorencia), evenly spread over the duration of the event, each with fireworks.
+/// Anybody can pick them up.
 /// </summary>
 [PlugIn]
 [Display(Name = "MU GKZ: lluvia de joyas", Description = "Every hour, jewels fall around the PvP ring of Lorencia for 2 minutes. Times, place, amount and jewels are in the configuration.")]
 [Guid("3B7E9D21-4C58-4A6F-B2E0-7F1D5C8A9E63")]
 public class GkzJewelRainPlugIn : PeriodicTaskBasePlugIn<GkzJewelRainConfiguration, GkzJewelRainPlugIn.RainState>, ISupportDefaultCustomConfiguration
 {
+    /// <summary>
+    /// The distance up to which players see the fireworks of a falling jewel, in coordinates.
+    /// </summary>
+    private const int FireworksRange = 24;
+
     /// <inheritdoc />
     public object CreateDefaultConfig() => GkzJewelRainConfiguration.Default;
 
@@ -32,7 +39,20 @@ public class GkzJewelRainPlugIn : PeriodicTaskBasePlugIn<GkzJewelRainConfigurati
     /// <inheritdoc/>
     protected override async ValueTask OnPreparedAsync(RainState state)
     {
-        await SendMessageAsync(state.Context, this.Configuration?.StartMessage).ConfigureAwait(false);
+        if (this.Configuration is not { } configuration)
+        {
+            return;
+        }
+
+        // Out of the timetable, it was started by /lluvia: a shorter notice.
+        if (!configuration.IsItTimeToStart(state.Context.ServerTimeZone))
+        {
+            state.NextRunUtc = DateTime.UtcNow.Add(configuration.ForcedPreStartMessageDelay);
+            await SendMessageAsync(state.Context, configuration.ForcedStartMessage).ConfigureAwait(false);
+            return;
+        }
+
+        await SendMessageAsync(state.Context, configuration.StartMessage).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -99,6 +119,7 @@ public class GkzJewelRainPlugIn : PeriodicTaskBasePlugIn<GkzJewelRainConfigurati
 
                 var position = map.Terrain.GetRandomCoordinate(center, configuration.Radius);
                 await map.AddAsync(new DroppedItem(item, position, map, null, null)).ConfigureAwait(false);
+                await ShowFireworksAsync(gameContext, map, position).ConfigureAwait(false);
 
                 await Task.Delay(interval, cancellationToken).ConfigureAwait(false);
             }
@@ -111,6 +132,28 @@ public class GkzJewelRainPlugIn : PeriodicTaskBasePlugIn<GkzJewelRainConfigurati
         {
             logger.LogError(ex, "Jewel rain: unexpected error.");
         }
+    }
+
+    private static async ValueTask ShowFireworksAsync(IGameContext gameContext, GameMap map, Point position)
+    {
+        await gameContext.ForEachPlayerAsync(async player =>
+        {
+            if (player.CurrentMap != map
+                || Math.Abs(player.Position.X - position.X) > FireworksRange
+                || Math.Abs(player.Position.Y - position.Y) > FireworksRange)
+            {
+                return;
+            }
+
+            try
+            {
+                await player.InvokeViewPlugInAsync<IShowItemDropEffectPlugIn>(p => p.ShowEffectAsync(ItemDropEffect.Fireworks, position)).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                player.Logger.LogDebug(ex, "Jewel rain: unexpected error showing the fireworks.");
+            }
+        }).ConfigureAwait(false);
     }
 
     private static async ValueTask SendMessageAsync(IGameContext gameContext, LocalizedString? text)

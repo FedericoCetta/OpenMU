@@ -13,16 +13,18 @@ public class GkzJewelRainConfiguration : PeriodicTaskConfiguration
 {
     /// <summary>
     /// Gets the default configuration: every hour at minute 30 (in the time zone of the server), for 2 minutes,
-    /// around the PvP ring of Lorencia, announced one minute before.
+    /// around the PvP ring of Lorencia, announced 3 minutes before (1 minute when it's started by /lluvia).
     /// </summary>
     public static GkzJewelRainConfiguration Default => new()
     {
-        PreStartMessageDelay = TimeSpan.FromMinutes(1),
+        PreStartMessageDelay = TimeSpan.FromMinutes(3),
+        ForcedPreStartMessageDelay = TimeSpan.FromMinutes(1),
         TaskDuration = TimeSpan.FromMinutes(2),
-        StartMessage = "¡Lluvia de joyas en 1 minuto en la fuente de Lorencia!",
+        StartMessage = "¡Lluvia de joyas en 3 minutos en Lorencia!",
+        ForcedStartMessage = "¡Lluvia de joyas en 1 minuto en Lorencia!",
         EndMessage = "Terminó la lluvia de joyas.",
-        RainStartedMessage = "¡Empezó la lluvia de joyas en la fuente de Lorencia!",
-        Timetable = GenerateTimeSequence(TimeSpan.FromHours(1), new TimeOnly(0, 29)).ToList(),
+        RainStartedMessage = "¡Empezó la lluvia de joyas en Lorencia!",
+        Timetable = GenerateTimeSequence(TimeSpan.FromHours(1), new TimeOnly(0, 27)).ToList(),
         MapNumber = 0,
         CenterX = 141,
         CenterY = 128,
@@ -36,6 +38,18 @@ public class GkzJewelRainConfiguration : PeriodicTaskConfiguration
             new() { Group = 14, Number = 16, Weight = 8 }, // Jewel of Life
         },
     };
+
+    /// <summary>
+    /// Gets or sets the time between the message and the rain when it's started by /lluvia.
+    /// </summary>
+    [Display(Name = "Aviso previo con /lluvia", Order = 8)]
+    public TimeSpan ForcedPreStartMessageDelay { get; set; } = TimeSpan.FromMinutes(1);
+
+    /// <summary>
+    /// Gets or sets the message which is shown when the rain is started by /lluvia.
+    /// </summary>
+    [Display(Name = "Mensaje con /lluvia", Order = 9)]
+    public string ForcedStartMessage { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the message which is shown when the jewels start to fall.
