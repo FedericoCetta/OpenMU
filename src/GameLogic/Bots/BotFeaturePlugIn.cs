@@ -616,11 +616,10 @@ public class BotFeaturePlugIn : IFeaturePlugIn, IPeriodicTaskPlugIn, ISupportCus
 
         var minShare = Math.Clamp(configuration.MinOnlineSharePercent, 0, 100) / 100.0;
 
-        // Local wall-clock time on purpose (the rest of the class uses UtcNow for durations): this curve
-        // models human presence - fewest in the early morning, most in the evening - so it has to follow
-        // the players' day, which is the host's local time, not UTC. On a UTC-configured host the two
-        // coincide; on a host set to the player base's zone, local time keeps the peak in their evening.
-        var activity = ActivityByHour[DateTime.Now.Hour];
+        // Wall-clock time of the server's time zone on purpose (the rest of the class uses UtcNow for durations):
+        // this curve models human presence - fewest in the early morning, most in the evening - so it has to
+        // follow the players' day. MU GKZ: the time zone of the server (Argentina), not the one of the host.
+        var activity = ActivityByHour[TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, gameContext.ServerTimeZone).Hour];
         var targetOnline = (int)Math.Round(totalPopulation * (minShare + ((1.0 - minShare) * activity)));
         var online = state.Manager.Bots.Count;
 

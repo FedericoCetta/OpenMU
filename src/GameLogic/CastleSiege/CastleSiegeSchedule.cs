@@ -19,10 +19,12 @@ internal sealed class CastleSiegeSchedule
     /// Initializes a new instance of the <see cref="CastleSiegeSchedule"/> class.
     /// </summary>
     /// <param name="entries">The configured state schedule.</param>
-    public CastleSiegeSchedule(IEnumerable<CastleSiegeStateScheduleEntry> entries)
+    /// <param name="utcOffset">MU GKZ: the offset of the time zone of the server, in which the schedule is configured
+    /// (e.g. -3 hours for Argentina). It's fixed, so changes of daylight saving time aren't followed.</param>
+    public CastleSiegeSchedule(IEnumerable<CastleSiegeStateScheduleEntry> entries, TimeSpan utcOffset = default)
     {
         this._states = entries
-            .Select(entry => new ScheduledState(entry.State, GetStartOfWeek(entry)))
+            .Select(entry => new ScheduledState(entry.State, ToUtcStartOfWeek(GetStartOfWeek(entry), utcOffset)))
             .OrderBy(entry => entry.StartOfWeek)
             .ToList();
 
@@ -174,6 +176,12 @@ internal sealed class CastleSiegeSchedule
         return TimeSpan.FromDays((int)entry.DayOfWeek)
                + TimeSpan.FromHours(entry.Hour)
                + TimeSpan.FromMinutes(entry.Minute);
+    }
+
+    private static TimeSpan ToUtcStartOfWeek(TimeSpan localStartOfWeek, TimeSpan utcOffset)
+    {
+        var utcStart = (localStartOfWeek - utcOffset).Ticks % WeekDuration.Ticks;
+        return TimeSpan.FromTicks(utcStart < 0 ? utcStart + WeekDuration.Ticks : utcStart);
     }
 
     private static DateTime EnsureUtc(DateTime value)

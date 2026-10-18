@@ -61,6 +61,23 @@ public class CastleSiegeStateMachineTests
     }
 
     /// <summary>
+    /// MU GKZ: verifies that the schedule is configured in the time zone of the server (Argentina, UTC-3).
+    /// </summary>
+    /// <param name="utcTime">The time in UTC.</param>
+    /// <param name="expectedState">The expected state.</param>
+    [TestCase("2026-08-08T22:00:00Z", CastleSiegeState.Ready)]
+    [TestCase("2026-08-09T00:00:00Z", CastleSiegeState.Start)]
+    [TestCase("2026-08-09T02:00:00Z", CastleSiegeState.EndCycle)]
+    public void ScheduleIsInTheTimeZoneOfTheServer(string utcTime, CastleSiegeState expectedState)
+    {
+        var schedule = new CastleSiegeSchedule(CreateSchedule(), TimeSpan.FromHours(-3));
+
+        var period = schedule.GetCurrentPeriod(DateTime.Parse(utcTime, null, System.Globalization.DateTimeStyles.AdjustToUniversal));
+
+        Assert.That(period.State, Is.EqualTo(expectedState));
+    }
+
+    /// <summary>
     /// Verifies that the early registration period survives a restart through the scheduled idle and registration states.
     /// </summary>
     /// <param name="utcTime">The restart time.</param>
