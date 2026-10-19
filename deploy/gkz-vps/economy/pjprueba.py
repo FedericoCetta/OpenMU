@@ -107,7 +107,8 @@ def main():
         sql.append(f'''insert into data."StatAttribute" ("Id", "CharacterId", "DefinitionId", "Value") select '{uuid.uuid4()}', '{pj["Id"]}', "Id", {valor} from config."AttributeDefinition" where split_part("Designation", '||', 1) = '{nombre_stat}';''')
 
     # Lo equipado en los lugares que se reemplazan (arma, escudo, set y alas) pasa al inventario o al baúl.
-    reemplazar = {0, 2, 3, 4, 5, 6, 7} | ({1} if tipo == 'DK' else set())
+    # Al cambiar de clase también se vacía la otra mano (p. ej. el arco o las flechas de una elfa).
+    reemplazar = {0, 2, 3, 4, 5, 6, 7} | ({1} if tipo == 'DK' or clase_pedida else set())
     quedan = [i for i in inv if i['ItemSlot'] not in reemplazar]
     cel_inv = ocupadas([i for i in quedan if i['ItemSlot'] >= 12], 12)
     cel_baul = ocupadas(baul, 0)
