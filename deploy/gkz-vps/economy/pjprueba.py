@@ -2,7 +2,8 @@
 el set 380 equipado (+15, luck, opción +16 y 3 excellent) con alas de 3ª, y sets ancient en el baúl de la cuenta.
 Lo que el personaje tenía equipado pasa al inventario (o al baúl si no entra); no se borra nada.
 
-Uso: python pjprueba.py <nombre del personaje> <salida.sql>
+Uso: python pjprueba.py <nombre del personaje> <salida.sql> [DW|DK|MG|DL]
+Con la clase, el personaje pasa a esa clase (de 3ª); sin ella, se queda con la suya.
 Lee los datos del server por ssh. El personaje tiene que estar desconectado cuando se aplica el SQL."""
 import json, subprocess, sys, uuid
 
@@ -35,6 +36,9 @@ CLASES = {
                ancient=['00000092-0007-0001-0000-000000000000']),  # Heras
     'DK': dict(clase=7, arma=(0, 22, OPCION_FISICA, EXC_FISICA), set=29, alas=(12, 36, '00000088-0060-c024-0200-000000000000'),
                ancient=['00000092-0001-0001-0000-000000000000', '00000092-0001-0002-0000-000000000000']),  # Hyon, Vicious
+    'MG': dict(clase=13, arma=(0, 23, OPCION_FISICA, EXC_FISICA), set=32, alas=(12, 39, '00000088-0060-c027-0200-000000000000'),
+               ancient=['00000092-000f-0001-0000-000000000000', '00000092-000f-0002-0000-000000000000'],  # Gaion, Muren
+               sin_casco=True),  # Explosion Blade, set Volcano (sin casco: el MG no usa), Wing of Ruin
     'DL': dict(clase=17, arma=(2, 14, OPCION_FISICA, EXC_FISICA), set=33, alas=(12, 40, '00000088-0060-c028-0200-000000000000'),
                ancient=['00000092-001a-0001-0000-000000000000', '00000092-001a-0002-0000-000000000000']),  # Agnis, Broy
 }
@@ -49,6 +53,7 @@ def base(numero):
 
 def main():
     nombre, salida = sys.argv[1], sys.argv[2]
+    clase_pedida = sys.argv[3].upper() if len(sys.argv) > 3 else None
     pj = json_de(f'''select c."Id", c."InventoryId", a."Id" cuenta, a."VaultId", cc."Number" clase from data."Character" c join data."Account" a on a."Id"=c."AccountId"
                      join config."CharacterClass" cc on cc."Id"=c."CharacterClassId" where c."Name"='{nombre}' ''')
     if not pj:
@@ -58,7 +63,8 @@ def main():
     baul_nuevo = pj['VaultId'] is None
     if baul_nuevo:
         pj['VaultId'] = str(uuid.uuid4())
-    tipo = base(pj['clase'])
+    # Sin clase pedida, se queda con la suya; con una (DW, DK, MG, DL), el personaje pasa a esa clase.
+    tipo = clase_pedida or base(pj['clase'])
     if tipo not in CLASES:
         raise SystemExit(f'La clase {tipo} no está preparada')
     conf = CLASES[tipo]
@@ -134,6 +140,8 @@ def main():
     ag, an, aopc, aexc = conf['arma']
     item(pj['InventoryId'], 0, ag, an, [(LUCK, 0), (aopc, 4)] + [(e, 0) for e in aexc], True)
     for slot, grupo in zip((2, 3, 4, 5, 6), (7, 8, 9, 10, 11)):
+        if slot == 2 and conf.get('sin_casco'):
+            continue
         item(pj['InventoryId'], slot, grupo, conf['set'], [(LUCK, 0), (OPCION_DEFENSA, 4)] + [(e, 0) for e in EXC_DEFENSA], False)
     wg, wn, wopc = conf['alas']
     item(pj['InventoryId'], 7, wg, wn, [(LUCK, 0), (ALA_IGNORAR, 0), (wopc, 4)], False, extra_dur=0)
