@@ -2,7 +2,7 @@
 el set 380 equipado (+15, luck, opción +16 y 3 excellent) con alas de 3ª, y sets ancient en el baúl de la cuenta.
 Lo que el personaje tenía equipado pasa al inventario (o al baúl si no entra); no se borra nada.
 
-Uso: python pjprueba.py <nombre del personaje> <salida.sql> [DW|DK|MG|DL]
+Uso: python pjprueba.py <nombre del personaje> <salida.sql> [DW|DK|ELFA|MG|DL]
 Con la clase, el personaje pasa a esa clase (de 3ª); sin ella, se queda con la suya.
 Lee los datos del server por ssh. El personaje tiene que estar desconectado cuando se aplica el SQL."""
 import json, subprocess, sys, uuid
@@ -39,6 +39,10 @@ CLASES = {
     'MG': dict(clase=13, arma=(0, 23, OPCION_FISICA, EXC_FISICA), set=32, alas=(12, 39, '00000088-0060-c027-0200-000000000000'),
                ancient=['00000092-000f-0001-0000-000000000000', '00000092-000f-0002-0000-000000000000'],  # Gaion, Muren
                sin_casco=True),  # Explosion Blade, set Volcano (sin casco: el MG no usa), Wing of Ruin
+    'Elfa': dict(clase=11, arma=(4, 21, OPCION_FISICA, EXC_FISICA), arma_slot=1, flechas=(4, 15), set=31,
+                 alas=(12, 38, '00000088-0060-c026-0200-000000000000'),
+                 ancient=['00000092-000e-0001-0000-000000000000', '00000092-000e-0002-0000-000000000000']),  # Gywen, Aruan
+                 # Sylph Wind Bow en la mano izquierda y las flechas en la derecha, set Sylphid Ray, Wing of Illusion
     'DL': dict(clase=17, arma=(2, 14, OPCION_FISICA, EXC_FISICA), set=33, alas=(12, 40, '00000088-0060-c028-0200-000000000000'),
                ancient=['00000092-001a-0001-0000-000000000000', '00000092-001a-0002-0000-000000000000']),  # Agnis, Broy
 }
@@ -53,7 +57,9 @@ def base(numero):
 
 def main():
     nombre, salida = sys.argv[1], sys.argv[2]
-    clase_pedida = sys.argv[3].upper() if len(sys.argv) > 3 else None
+    clase_pedida = next((k for k in CLASES if k.upper() == sys.argv[3].upper()), None) if len(sys.argv) > 3 else None
+    if len(sys.argv) > 3 and clase_pedida is None:
+        raise SystemExit(f'Clase desconocida: {sys.argv[3]} (DW, DK, ELFA, MG o DL)')
     pj = json_de(f'''select c."Id", c."InventoryId", a."Id" cuenta, a."VaultId", cc."Number" clase from data."Character" c join data."Account" a on a."Id"=c."AccountId"
                      join config."CharacterClass" cc on cc."Id"=c."CharacterClassId" where c."Name"='{nombre}' ''')
     if not pj:
@@ -108,7 +114,7 @@ def main():
 
     # Lo equipado en los lugares que se reemplazan (arma, escudo, set y alas) pasa al inventario o al baúl.
     # Al cambiar de clase también se vacía la otra mano (p. ej. el arco o las flechas de una elfa).
-    reemplazar = {0, 2, 3, 4, 5, 6, 7} | ({1} if tipo == 'DK' or clase_pedida else set())
+    reemplazar = {0, 2, 3, 4, 5, 6, 7} | ({1} if tipo in ('DK', 'Elfa') or clase_pedida else set())
     quedan = [i for i in inv if i['ItemSlot'] not in reemplazar]
     cel_inv = ocupadas([i for i in quedan if i['ItemSlot'] >= 12], 12)
     cel_baul = ocupadas(baul, 0)
@@ -139,7 +145,10 @@ def main():
 
     # Set 380 equipado.
     ag, an, aopc, aexc = conf['arma']
-    item(pj['InventoryId'], 0, ag, an, [(LUCK, 0), (aopc, 4)] + [(e, 0) for e in aexc], True)
+    item(pj['InventoryId'], conf.get('arma_slot', 0), ag, an, [(LUCK, 0), (aopc, 4)] + [(e, 0) for e in aexc], True)
+    if 'flechas' in conf:
+        fg, fn = conf['flechas']
+        item(pj['InventoryId'], 0, fg, fn, [], False, extra_dur=0)
     for slot, grupo in zip((2, 3, 4, 5, 6), (7, 8, 9, 10, 11)):
         if slot == 2 and conf.get('sin_casco'):
             continue
