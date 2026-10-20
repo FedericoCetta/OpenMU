@@ -87,8 +87,34 @@ internal class EntityFrameworkContextBase : IContext
             catch (Exception ex) when (attempt < maxAttempts && IsTransientConcurrencyConflict(ex))
             {
                 this._logger.LogWarning(ex, "Transient concurrency conflict while saving (attempt {Attempt}/{MaxAttempts}); retrying.", attempt, maxAttempts);
+                this.LogConflictingEntries(ex);
                 await Task.Delay(attempt * 10, cancellationToken).ConfigureAwait(false);
             }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                this.LogConflictingEntries(ex);
+                throw;
+            }
+        }
+    }
+
+    /// <summary>
+    /// MU GKZ: logs which rows a concurrency conflict is about (type, key and state), e.g. a row which was
+    /// deleted by another context while this one still tracked it. Without it, the log only says that
+    /// "1 row was expected", and the cause can't be found.
+    /// </summary>
+    /// <param name="exception">The exception.</param>
+    private void LogConflictingEntries(Exception exception)
+    {
+        if (exception is not DbUpdateConcurrencyException concurrency)
+        {
+            return;
+        }
+
+        foreach (var entry in concurrency.Entries)
+        {
+            var key = string.Join(", ", entry.Properties.Where(p => p.Metadata.IsPrimaryKey()).Select(p => p.CurrentValue));
+            this._logger.LogWarning("Concurrency conflict on {EntityType} ({Key}), state {State}.", entry.Metadata.ClrType.Name, key, entry.State);
         }
     }
 
