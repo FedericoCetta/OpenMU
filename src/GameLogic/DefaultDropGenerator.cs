@@ -461,6 +461,18 @@ public class DefaultDropGenerator : IDropGenerator
         }
     }
 
+    /// <summary>
+    /// MU GKZ: picks an option by its <see cref="IncreasableItemOption.Weight"/>, so that e.g. the damage reflection
+    /// comes more often than the other excellent options. A weight of 0 (not configured) counts as 1.
+    /// </summary>
+    /// <param name="options">The options to pick from.</param>
+    /// <returns>The picked option, or <c>null</c> when there is none.</returns>
+    private IncreasableItemOption? SelectWeightedOption(IEnumerable<IncreasableItemOption> options)
+    {
+        var candidates = options.ToList();
+        return candidates.SelectWeightedRandom(candidates.Select(option => Math.Max(1, (int)option.Weight)), this._randomizer);
+    }
+
     private void AddRandomExcOptions(Item item)
     {
         var excellentOptions = item.Definition!.PossibleItemOptions.FirstOrDefault(
@@ -478,7 +490,7 @@ public class DefaultDropGenerator : IDropGenerator
             if (i == 0)
             {
                 // The first option is always added without a chance
-                var newOption = excellentOptions.PossibleOptions.SelectRandom(this._randomizer);
+                var newOption = this.SelectWeightedOption(excellentOptions.PossibleOptions);
                 if (newOption is not null)
                 {
                     item.ItemOptions.Add(new ItemOptionLink { ItemOption = newOption });
@@ -490,12 +502,8 @@ public class DefaultDropGenerator : IDropGenerator
 
             if (this._randomizer.NextRandomBool(excellentOptions.AddChance))
             {
-                var newOption = excellentOptions.PossibleOptions.SelectRandom(this._randomizer);
-                while (item.ItemOptions.Any(o => object.Equals(o.ItemOption, newOption)))
-                {
-                    newOption = excellentOptions.PossibleOptions.SelectRandom(this._randomizer);
-                }
-
+                var newOption = this.SelectWeightedOption(
+                    excellentOptions.PossibleOptions.Where(option => item.ItemOptions.All(o => !object.Equals(o.ItemOption, option))));
                 if (newOption is not null)
                 {
                     item.ItemOptions.Add(new ItemOptionLink { ItemOption = newOption });
