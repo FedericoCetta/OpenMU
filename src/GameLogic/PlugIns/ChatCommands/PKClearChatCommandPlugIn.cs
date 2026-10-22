@@ -95,7 +95,10 @@ public class PkClearChatCommandPlugIn : ChatCommandPlugInBase<PkClearChatCommand
 
         if (!isGameMaster)
         {
-            var cost = (long)targetCharacter.PlayerKillCount * configuration.ZenCostPerKill;
+            // MU GKZ: a fixed cost, when configured, instead of the cost per kill.
+            var cost = configuration.FixedZenCost > 0
+                ? configuration.FixedZenCost
+                : (long)targetCharacter.PlayerKillCount * configuration.ZenCostPerKill;
             if (cost > int.MaxValue)
             {
                 cost = int.MaxValue;
@@ -131,6 +134,12 @@ public class PkClearChatCommandPlugIn : ChatCommandPlugInBase<PkClearChatCommand
         /// </summary>
         [Display(Name = nameof(MUnique.OpenMU.GameLogic.Properties.PlugInResources.PKClearConfiguration_ZenCostPerKill_Name), Description = nameof(MUnique.OpenMU.GameLogic.Properties.PlugInResources.PKClearConfiguration_ZenCostPerKill_Description), ResourceType = typeof(MUnique.OpenMU.GameLogic.Properties.PlugInResources))]
         public int ZenCostPerKill { get; set; } = 10_000_000;
+
+        /// <summary>
+        /// Gets or sets a fixed Zen cost, whatever the number of kills (MU GKZ). 0 uses the cost per kill.
+        /// </summary>
+        [Display(Name = "Costo fijo en zen (0 = costo por kill)")]
+        public int FixedZenCost { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether regular players are allowed to clear their PK status.
