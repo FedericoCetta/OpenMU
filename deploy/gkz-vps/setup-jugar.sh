@@ -46,7 +46,7 @@ fi
 chmod -R a+rX jugar
 
 docker compose build puente
-docker compose up -d puente
-docker compose up -d nginx
+docker compose up -d --no-deps puente
+docker compose up -d --no-deps nginx
 docker exec nginx nginx -t
 echo "Puente y nginx listos."
