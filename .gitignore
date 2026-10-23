@@ -331,3 +331,7 @@ data-protection-keys/
 
 # The archive of the network observation, when the server is started from the repository.
 captures/
+
+# MU GKZ: el juego en el navegador (jugar.mugkz.com): usuarios de la prueba y archivos del juego, solo en el VPS.
+deploy/gkz-vps/nginx/jugar.htpasswd
+deploy/gkz-vps/jugar/

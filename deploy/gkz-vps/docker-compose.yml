@@ -16,11 +16,41 @@ services:
       - ./nginx/gkz-secrets.conf:/etc/nginx/gkz-secrets.conf:ro
       - ./nginx/gkz-headers.conf:/etc/nginx/gkz-headers.conf:ro
       - ./nginx/gkz-headers-registro.conf:/etc/nginx/gkz-headers-registro.conf:ro
+      # El juego en el navegador (jugar.mugkz.com): sus servidores, rutas, cabeceras, usuarios y archivos.
+      - ./nginx/gkz-jugar-servers.conf:/etc/nginx/gkz-jugar-servers.conf:ro
+      - ./nginx/gkz-jugar.conf:/etc/nginx/gkz-jugar.conf:ro
+      - ./nginx/gkz-headers-jugar.conf:/etc/nginx/gkz-headers-jugar.conf:ro
+      - ./nginx/jugar.htpasswd:/etc/nginx/jugar.htpasswd:ro
+      - ./jugar:/usr/share/nginx/gkz-jugar:ro
       # La web pública: archivos estáticos.
       - ./web:/usr/share/nginx/gkz-web:ro
       - ./launcher:/usr/share/nginx/gkz-launcher:ro
       - ./certbot/www:/var/www/certbot:ro
       - ./certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - openmu-startup
+      - puente
+
+  # El puente WebSocket a TCP del juego en el navegador. Sin puertos publicados: solo nginx le habla,
+  # y él solo se conecta a los puertos del juego en openmu-startup. Sin privilegios y de solo lectura.
+  puente:
+    build: ./puente
+    image: mu-server/puente:local
+    container_name: puente
+    restart: unless-stopped
+    command:
+      - --escuchar=0.0.0.0:8768
+      - --servidor=openmu-startup
+      - --puertos=44405,45901-45906,45980
+      - --origenes=https://jugar.mugkz.com
+      - --maximo=500
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    pids_limit: 64
     depends_on:
       - openmu-startup
 
