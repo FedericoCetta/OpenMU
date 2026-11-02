@@ -46,6 +46,8 @@ public class GameContext : AsyncDisposable, IGameContext
 
     private readonly Timer _tasksTimer;
 
+    private readonly ConcurrentDictionary<string, byte> _loggedPeriodicTaskFailures = new();
+
     private readonly AsyncReaderWriterLock _playerListLock = new();
 
     /// <summary>
@@ -476,16 +478,33 @@ public class GameContext : AsyncDisposable, IGameContext
             return;
         }
 
+        // MU GKZ: each task on its own, so that one which fails doesn't stop the ones after it
+        // (the plug-in point runs them one after another, and its exception was swallowed here).
+        // A failure is logged once per task and message, because the timer runs every second.
+        IEnumerable<IPeriodicTaskPlugIn> plugIns;
         try
         {
-            if (this.PlugInManager.GetPlugInPoint<IPeriodicTaskPlugIn>() is { } plugInPoint)
-            {
-                await plugInPoint.ExecuteTaskAsync(this).ConfigureAwait(false);
-            }
+            plugIns = this.PlugInManager.GetActivePlugInsOf<IPeriodicTaskPlugIn>().ToList();
         }
         catch (Exception ex)
         {
             Debug.Fail(ex.Message, ex.StackTrace);
+            return;
+        }
+
+        foreach (var plugIn in plugIns)
+        {
+            try
+            {
+                await plugIn.ExecuteTaskAsync(this).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                if (this._loggedPeriodicTaskFailures.TryAdd(plugIn.GetType().Name + ": " + ex.Message, 0))
+                {
+                    this.LoggerFactory.CreateLogger<GameContext>().LogError(ex, "Periodic task {PlugIn} failed.", plugIn.GetType().Name);
+                }
+            }
         }
     }
 

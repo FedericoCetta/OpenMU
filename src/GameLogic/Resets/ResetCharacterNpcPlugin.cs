@@ -31,5 +31,12 @@ public class ResetCharacterNpcPlugin : NpcTalkPlugInBase
         eventArgs.HasBeenHandled = true;
         var resetAction = new ResetCharacterAction(player, npc);
         await resetAction.ResetCharacterAsync().ConfigureAwait(false);
+
+        // MU GKZ: when the reset warped the player, the map change owns the state until the client is ready.
+        if (player.PlayerState.CurrentState == PlayerState.ChangingMap)
+        {
+            player.OpenedNpc = null;
+            eventArgs.LeavesDialogOpen = true;
+        }
     }
 }

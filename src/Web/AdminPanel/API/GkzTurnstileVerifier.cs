@@ -37,6 +37,11 @@ public class GkzTurnstileVerifier
     public const string ExpectedAction = "registro";
 
     /// <summary>
+    /// The action which the forms of the player panel (login, recovering a password) set on their widget.
+    /// </summary>
+    public const string PanelAction = "panel";
+
+    /// <summary>
     /// The maximum length of a token, as documented by Cloudflare.
     /// </summary>
     public const int MaximumTokenLength = 2048;
@@ -81,13 +86,21 @@ public class GkzTurnstileVerifier
     }
 
     /// <summary>
+    /// Gets a value indicating whether the secret is one of the testing secrets of Cloudflare
+    /// (1x0000..., 2x0000..., 3x0000...). Their answers carry no action, and they accept any
+    /// token (or none) anyway, so the action isn't checked with them.
+    /// </summary>
+    private bool IsTestSecret => this._secret is { Length: > 6 } secret && secret[1] == 'x' && secret[2..6] == "0000";
+
+    /// <summary>
     /// Verifies a token with Cloudflare.
     /// </summary>
     /// <param name="token">The token of the widget.</param>
     /// <param name="remoteIp">The IP address of the visitor, if known.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c>, if the token is valid for the registration form.</returns>
-    public async Task<bool> VerifyAsync(string? token, string? remoteIp, CancellationToken cancellationToken)
+    /// <param name="expectedAction">The action of the form: <see cref="ExpectedAction"/> for the registration, <see cref="PanelAction"/> for the player panel.</param>
+    /// <returns><c>true</c>, if the token is valid for the form.</returns>
+    public async Task<bool> VerifyAsync(string? token, string? remoteIp, CancellationToken cancellationToken, string expectedAction = ExpectedAction)
     {
         if (this._secret is null || string.IsNullOrEmpty(token) || token.Length > MaximumTokenLength)
         {
@@ -116,12 +129,12 @@ public class GkzTurnstileVerifier
             var result = await response.Content.ReadFromJsonAsync<SiteVerifyResult>(cancellationToken).ConfigureAwait(false);
             if (result is not { Success: true })
             {
-                this._logger.LogInformation("Turnstile rejected a registration: {Errors}.", string.Join(", ", result?.ErrorCodes ?? []));
+                this._logger.LogInformation("Turnstile rejected a token: {Errors}.", string.Join(", ", result?.ErrorCodes ?? []));
                 return false;
             }
 
             if (!string.Equals(result.Hostname, this._hostname, StringComparison.OrdinalIgnoreCase)
-                || !string.Equals(result.Action, ExpectedAction, StringComparison.Ordinal))
+                || (!string.Equals(result.Action, expectedAction, StringComparison.Ordinal) && !this.IsTestSecret))
             {
                 this._logger.LogWarning("Turnstile token of another hostname or action: {Hostname}, {Action}.", result.Hostname, result.Action);
                 return false;

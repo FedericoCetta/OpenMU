@@ -85,6 +85,14 @@ services:
       GKZ_GUARD_SECRET: ${GKZ_GUARD_SECRET}
       # Clave secreta de Cloudflare Turnstile (captcha del registro). Sin ella, el registro público rechaza todo.
       GKZ_TURNSTILE_SECRET: ${GKZ_TURNSTILE_SECRET:-}
+      # Correo del panel del jugador (recuperar contraseña) por el SMTP de Brevo, como soporte@mugkz.com.
+      # Sin usuario y clave, el panel funciona igual pero no puede mandar correos.
+      GKZ_SMTP_USER: ${GKZ_SMTP_USER:-}
+      GKZ_SMTP_PASSWORD: ${GKZ_SMTP_PASSWORD:-}
+      # Cobro de los packs de GKZ Coins con Mercado Pago (cuenta de Uruguay, en dólares): el Access Token
+      # y la clave secreta de los avisos (webhooks). Sin el token, el panel no vende coins.
+      GKZ_MP_ACCESS_TOKEN: ${GKZ_MP_ACCESS_TOKEN:-}
+      GKZ_MP_WEBHOOK_SECRET: ${GKZ_MP_WEBHOOK_SECRET:-}
     volumes:
       - adminpanel-keys:/app/data-protection-keys
       - ./logs:/app/logs

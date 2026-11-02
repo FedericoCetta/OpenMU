@@ -12,6 +12,7 @@ The balance of the server, applied to the database of the VPS in this order (eac
 | `09-fenrir-rates.sql` | Materiales de Fenrir más lentos: Splinter of Armor 4 %, Bless of Guardian 1,5 %, Claw of Beast 0,5 % |
 | `terrainsync.py` | Copia el terreno del cliente al server (caminable y zona segura). Aplicado el 16/10 en Lorencia, Devias, Lost Tower, Atlans, Tarkan e Icarus; no se tocan los mapas de eventos (Crywolf, Kanturu III, Valley of Loren, Blood y Chaos Castle). `terrainanalisis.py` muestra las diferencias por zona |
 | `18-premios.sql` | Premios: Blood Castle da cajas de Kundun (5×+2 … 5×+5); Kundun da 1 ancient y 2 anillos o pendientes; Nightmare da 1 ítem 380, 2 joyas y 1 Jewel of Guardian; Maya 1 excellent y 2 joyas; Box of Kundun sin zen (excellent, y ancient desde la +3); dorados 3 cajas; mapas bajos tiran piezas de sets +0 sin excellent |
+| `34-castle-siege-domingo.sql` | Castle Siege los domingos a las 20:00: todo el ciclo semanal se corre un día (inscripción el martes, marcas el jueves, aviso el sábado) |
 | `10-tiendas-v1.sql` | Tiendas v1: ninguna entrada a eventos se vende (todas caen; la Armor of Guardsman ahora cae al 1 %) y Harold (Lorencia 183,137) es la tienda del Dark Lord |
 
 `resetcalc.py` estimates the time and the zen of a reset with the spawns of the server

@@ -98,7 +98,7 @@ public class ResetCharacterAction
         }
         if (configuration.MoveHome)
         {
-            await this.MoveHomeAsync().ConfigureAwait(false);
+            await this.MoveHomeAsync(configuration).ConfigureAwait(false);
         }
 
         if (configuration.LogOut)
@@ -107,6 +107,7 @@ public class ResetCharacterAction
         }
         else
         {
+            this._player.SetReclaimableAttributesToMaximum();
             await this.UpdateClientStatsAsync(configuration).ConfigureAwait(false);
         }
     }
@@ -207,12 +208,19 @@ public class ResetCharacterAction
         }
     }
 
-    private async ValueTask MoveHomeAsync()
+    private async ValueTask MoveHomeAsync(ResetConfiguration configuration)
     {
         var homeMapDef = this._player.SelectedCharacter!.CharacterClass!.HomeMap;
         if (homeMapDef is { }
             && await this._player.GameContext.GetMapAsync((ushort)homeMapDef.Number).ConfigureAwait(false) is { SafeZoneSpawnGate: { } spawnGate })
         {
+            if (!configuration.LogOut)
+            {
+                // MU GKZ: the character stays in the game, so it has to be moved for real.
+                await this._player.WarpToAsync(spawnGate).ConfigureAwait(false);
+                return;
+            }
+
             this._player.SelectedCharacter.PositionX = (byte)Rand.NextInt(spawnGate.X1, spawnGate.X2);
             this._player.SelectedCharacter.PositionY = (byte)Rand.NextInt(spawnGate.Y1, spawnGate.Y2);
             this._player.SelectedCharacter.CurrentMap = spawnGate.Map;

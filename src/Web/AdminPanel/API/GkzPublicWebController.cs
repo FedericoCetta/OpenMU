@@ -50,7 +50,7 @@ public class GkzPublicWebController : ControllerBase
         [nameof(GkzJewelRainPlugIn)] = "Lluvia de joyas",
     };
 
-    private static readonly Dictionary<short, string> ClassNames = new()
+    internal static readonly Dictionary<short, string> ClassNames = new()
     {
         [0] = "Dark Wizard", [2] = "Soul Master", [3] = "Grand Master",
         [4] = "Dark Knight", [6] = "Blade Knight", [7] = "Blade Master",

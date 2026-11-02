@@ -199,16 +199,17 @@ internal sealed class CastleSiegeInitializer : InitializerBase
 
     private void InitializeStateSchedule(CastleSiegeConfiguration configuration)
     {
-        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Idle1, DayOfWeek.Sunday, 0, 0));
-        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.RegisterGuild, DayOfWeek.Monday, 0, 0));
-        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Idle2, DayOfWeek.Tuesday, 0, 0));
-        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.RegisterMark, DayOfWeek.Wednesday, 0, 0));
-        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Idle3, DayOfWeek.Thursday, 0, 0));
-        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Notify, DayOfWeek.Friday, 0, 0));
-        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Ready, DayOfWeek.Saturday, 18, 0));
-        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Start, DayOfWeek.Saturday, 20, 0));
-        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.End, DayOfWeek.Saturday, 22, 0));
-        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.EndCycle, DayOfWeek.Saturday, 22, 5));
+        // MU GKZ: la batalla es el domingo a las 20:00, así que todo el ciclo empieza un día más tarde (lunes).
+        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Idle1, DayOfWeek.Monday, 0, 0));
+        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.RegisterGuild, DayOfWeek.Tuesday, 0, 0));
+        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Idle2, DayOfWeek.Wednesday, 0, 0));
+        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.RegisterMark, DayOfWeek.Thursday, 0, 0));
+        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Idle3, DayOfWeek.Friday, 0, 0));
+        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Notify, DayOfWeek.Saturday, 0, 0));
+        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Ready, DayOfWeek.Sunday, 18, 0));
+        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.Start, DayOfWeek.Sunday, 20, 0));
+        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.End, DayOfWeek.Sunday, 22, 0));
+        configuration.StateSchedule.Add(this.CreateScheduleEntry(CastleSiegeState.EndCycle, DayOfWeek.Sunday, 22, 5));
     }
 
     private void InitializeNpcDefinitions(CastleSiegeConfiguration configuration)

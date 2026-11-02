@@ -6,8 +6,8 @@
   <title>MU GKZ · Season 3</title>
   <meta name="description" content="MU GKZ: servidor de MU Online Season 3 con resets, Castle Siege, invasiones y eventos.">
   <link rel="icon" href="img/icono.png">
-  <link rel="stylesheet" href="css/gkz.css?v=5">
-  <script src="js/gkz.js?v=5" defer></script>
+  <link rel="stylesheet" href="css/gkz.css?v=9">
+  <script src="js/gkz.js?v=9" defer></script>
 </head>
 <body data-pagina="inicio">
   <nav class="barra">
@@ -19,15 +19,32 @@
         <a href="rankings.html" data-pagina="rankings">Rankings</a>
         <a href="info.html" data-pagina="info">Información</a>
       </div>
-      <div class="jugador" title="Muy pronto">
+      <a class="jugador" href="panel.html">
         <span class="avatar"></span>
-        <span>Área del jugador<b>Próximamente</b></span>
-      </div>
+        <span>Área del jugador<b>Mi cuenta</b></span>
+      </a>
     </div>
   </nav>
 
   <header class="portada">
     <img class="logo" src="img/logo.webp" alt="MU GKZ Season 3">
+    <section class="apertura" id="apertura">
+      <small id="apertura-rotulo">Gran apertura</small>
+      <h2 id="apertura-titulo">Miércoles 4 de noviembre <b>· 19 h</b> <span>(hora argentina)</span></h2>
+      <div class="reloj" id="apertura-reloj">
+        <div><b data-reloj="d">-</b><span>días</span></div>
+        <div><b data-reloj="h">-</b><span>horas</span></div>
+        <div><b data-reloj="m">-</b><span>min</span></div>
+        <div><b data-reloj="s">-</b><span>seg</span></div>
+      </div>
+      <div class="apertura-botones">
+        <a class="boton" href="registro.html">Registrate gratis</a>
+        <a class="boton-borde" href="/launcher/MuGkz.zip" download>Descargar el juego (ZIP)</a>
+        <a class="boton boton-jugar" id="boton-jugar" role="link" aria-disabled="true">
+          <span>Jugar online sin instalar</span><small id="boton-jugar-nota">Disponible el 4/11 a las 19 h</small>
+        </a>
+      </div>
+    </section>
   </header>
 
   <main class="contenedor">
@@ -123,6 +140,7 @@
     <div class="contenedor">
       <div><h5>MU GKZ</h5><a href="./">Inicio</a><a href="registro.html">Registro</a><a href="rankings.html">Rankings</a></div>
       <div><h5>Información</h5><a href="info.html">Guía</a><a href="info.html#vip">VIP</a><a href="info.html#eventos">Eventos</a></div>
+      <div><h5>Ayuda</h5><a href="panel.html">Mi cuenta</a><a href="reembolsos.html">Reembolsos</a><a href="mailto:soporte@mugkz.com">soporte@mugkz.com</a></div>
       <div class="copy">© <span id="anio">2026</span> MU GKZ. MU Online es una marca de Webzen; este es un servidor no oficial.</div>
     </div>
   </footer>

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi cuenta · MU GKZ</title>
+  <meta name="description" content="MU GKZ: panel del jugador. Tu cuenta, tus personajes, tu VIP y tus GKZ Coins.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="img/icono.png">
+  <link rel="stylesheet" href="css/gkz.css?v=9">
+  <script src="js/gkz.js?v=9" defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
+</head>
+<body data-pagina="panel">
+  <nav class="barra">
+    <div class="contenedor">
+      <a class="marca" href="./"><img src="img/icono.png" alt="MU GKZ"></a>
+      <div class="menu">
+        <a href="./" data-pagina="inicio">Inicio</a>
+        <a href="registro.html" data-pagina="registro">Registro</a>
+        <a href="rankings.html" data-pagina="rankings">Rankings</a>
+        <a href="info.html" data-pagina="info">Información</a>
+      </div>
+      <a class="jugador" href="panel.html">
+        <span class="avatar"></span>
+        <span>Área del jugador<b>Mi cuenta</b></span>
+      </a>
+    </div>
+  </nav>
+
+  <main class="contenedor" id="panel" data-sitekey="0x4AAAAAAFa25-wggDp-uyZ4">
+    <div class="titulo-pagina"><h1>Mi cuenta</h1><p id="panel-subtitulo">Entrá con el usuario y la contraseña del juego.</p></div>
+
+    <!-- Entrar -->
+    <section class="panel panel-angosto" id="vista-ingreso" hidden>
+      <header><div><small>Área del jugador</small><h2>Entrar</h2></div></header>
+      <div class="cuerpo">
+        <form class="formulario" id="form-ingreso" novalidate>
+          <label>Usuario
+            <input name="usuario" maxlength="10" required autocomplete="username" spellcheck="false">
+          </label>
+          <label>Contraseña
+            <input name="clave" type="password" maxlength="20" required autocomplete="current-password">
+          </label>
+          <div class="captcha" id="captcha-ingreso"></div>
+          <div class="mensaje" role="status"></div>
+          <button class="boton" type="submit">Entrar</button>
+          <p class="enlaces"><a href="#" data-ir="olvido">¿Olvidaste tu contraseña?</a> · <a href="registro.html">Crear cuenta</a></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- Pedir el correo para recuperar la contraseña -->
+    <section class="panel panel-angosto" id="vista-olvido" hidden>
+      <header><div><small>Área del jugador</small><h2>Recuperar contraseña</h2></div></header>
+      <div class="cuerpo">
+        <form class="formulario" id="form-olvido" novalidate>
+          <p class="ayuda">Te mandamos un enlace al correo de tu cuenta para elegir una contraseña nueva.</p>
+          <label>Usuario
+            <input name="usuario" maxlength="10" required autocomplete="username" spellcheck="false">
+          </label>
+          <div class="captcha" id="captcha-olvido"></div>
+          <div class="mensaje" role="status"></div>
+          <button class="boton" type="submit">Mandar enlace</button>
+          <p class="enlaces"><a href="#" data-ir="ingreso">Volver</a></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- Elegir la contraseña nueva con el enlace del correo -->
+    <section class="panel panel-angosto" id="vista-nueva" hidden>
+      <header><div><small>Área del jugador</small><h2>Contraseña nueva</h2></div></header>
+      <div class="cuerpo">
+        <form class="formulario" id="form-nueva" novalidate>
+          <label>Contraseña nueva
+            <input name="clave" type="password" maxlength="20" required autocomplete="new-password">
+            <span class="ayuda">De 6 a 20 caracteres. No uses la misma que en otros sitios.</span>
+          </label>
+          <label>Repetí la contraseña
+            <input name="clave2" type="password" maxlength="20" required autocomplete="new-password">
+          </label>
+          <div class="mensaje" role="status"></div>
+          <button class="boton" type="submit">Guardar</button>
+          <p class="enlaces"><a href="#" data-ir="ingreso">Ir a entrar</a></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- La cuenta -->
+    <div id="vista-cuenta" hidden>
+      <section class="resumen">
+        <article class="tarjeta">
+          <small>Cuenta</small>
+          <h3 id="cuenta-nombre">-</h3>
+          <div class="estado-cuenta" id="cuenta-estado"><span class="punto"></span><span>-</span></div>
+          <div class="pie"><span>Registrada</span><b id="cuenta-registro">-</b></div>
+        </article>
+        <article class="tarjeta destacada">
+          <small>Saldo</small>
+          <h3>GKZ Coins</h3>
+          <span class="numero" id="cuenta-coins">-</span>
+          <div class="pie"><span id="cuenta-coins-nota">Para el VIP y la tienda X</span><a class="boton-borde" href="#recargar">Recargar</a></div>
+        </article>
+        <article class="tarjeta">
+          <small>VIP</small>
+          <h3 id="cuenta-vip">-</h3>
+          <span class="detalle" id="cuenta-vip-detalle">-</span>
+          <div class="pie"><span>+45 % exp · +50 % zen</span><a class="boton-borde" href="info.html#vip">Ver</a></div>
+        </article>
+      </section>
+
+      <div class="mensaje aviso-conectado" id="aviso-conectado" role="status"></div>
+
+      <section class="panel">
+        <header>
+          <div><small>Tu cuenta</small><h2>Personajes</h2></div>
+          <button class="boton-borde" type="button" id="salir">Salir</button>
+        </header>
+        <div class="cuerpo">
+          <div class="mensaje" id="personajes-mensaje" role="status"></div>
+          <table class="tabla">
+            <thead><tr><th>Personaje</th><th>Clase</th><th class="num">Nivel</th><th class="num">Resets</th><th class="ocultar-celular">Mapa</th><th></th></tr></thead>
+            <tbody id="personajes"></tbody>
+          </table>
+          <p class="ayuda">¿Un personaje quedó trabado? «Destrabar» lo lleva a Lorencia. Tenés que estar fuera del juego.</p>
+        </div>
+      </section>
+
+      <section class="panel" id="recargar">
+        <header><div><small>GKZ Coins</small><h2>Recargar coins</h2></div></header>
+        <div class="cuerpo">
+          <div class="mensaje" id="recarga-mensaje" role="status"></div>
+          <div class="packs" id="packs"></div>
+          <p class="ayuda">Pagás en Mercado Pago, con tarjeta, saldo o efectivo. Los precios están en dólares. Las coins se acreditan solas cuando se aprueba el pago, y en el juego aparecen al abrir la tienda (tecla X).</p>
+          <p class="ayuda">Al comprar aceptás la <a href="reembolsos.html">política de reembolsos</a>.</p>
+          <h3 class="subtitulo">Tus compras</h3>
+          <table class="tabla">
+            <thead><tr><th>Fecha</th><th>Compra</th><th class="num">Coins</th><th class="ocultar-celular">Estado</th></tr></thead>
+            <tbody id="compras"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="dos-columnas">
+        <section class="panel">
+          <header><div><small>Seguridad</small><h3>Cambiar contraseña</h3></div></header>
+          <div class="cuerpo">
+            <form class="formulario" id="form-clave" novalidate>
+              <label>Contraseña actual
+                <input name="actual" type="password" maxlength="20" required autocomplete="current-password">
+              </label>
+              <label>Contraseña nueva
+                <input name="clave" type="password" maxlength="20" required autocomplete="new-password">
+              </label>
+              <label>Repetí la nueva
+                <input name="clave2" type="password" maxlength="20" required autocomplete="new-password">
+              </label>
+              <div class="mensaje" role="status"></div>
+              <button class="boton" type="submit">Cambiar contraseña</button>
+            </form>
+          </div>
+        </section>
+        <section class="panel">
+          <header><div><small>Seguridad</small><h3>Correo de la cuenta</h3></div></header>
+          <div class="cuerpo">
+            <form class="formulario" id="form-email" novalidate>
+              <p class="ayuda">Correo actual: <b id="cuenta-email">-</b>. Sirve para recuperar la contraseña.</p>
+              <label>Correo nuevo
+                <input name="email" type="email" maxlength="254" required autocomplete="email" spellcheck="false">
+              </label>
+              <label>Tu contraseña
+                <input name="clave" type="password" maxlength="20" required autocomplete="current-password">
+              </label>
+              <div class="mensaje" role="status"></div>
+              <button class="boton" type="submit">Cambiar correo</button>
+            </form>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="pie-pagina">
+    <div class="contenedor">
+      <div><h5>MU GKZ</h5><a href="./">Inicio</a><a href="registro.html">Registro</a><a href="rankings.html">Rankings</a></div>
+      <div><h5>Información</h5><a href="info.html">Guía</a><a href="info.html#vip">VIP</a><a href="info.html#eventos">Eventos</a></div>
+      <div><h5>Ayuda</h5><a href="panel.html">Mi cuenta</a><a href="reembolsos.html">Reembolsos</a><a href="mailto:soporte@mugkz.com">soporte@mugkz.com</a></div>
+      <div class="copy">© <span id="anio">2026</span> MU GKZ. MU Online es una marca de Webzen; este es un servidor no oficial.</div>
+    </div>
+  </footer>
+</body>
+</html>

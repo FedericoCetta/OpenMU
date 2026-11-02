@@ -210,6 +210,40 @@
     }
   }
 
+  // ---------- apertura: cuenta regresiva y botón para jugar en el navegador ----------
+
+  // Miércoles 4/11/2026 a las 19 h de Argentina (UTC-3).
+  const APERTURA = Date.parse("2026-11-04T22:00:00Z");
+  const JUEGO_WEB = "https://jugar.mugkz.com/";
+
+  function dosCifras(n) {
+    return (n < 10 ? "0" : "") + n;
+  }
+
+  function pintarApertura() {
+    const reloj = document.getElementById("apertura-reloj");
+    if (!reloj) return;
+    const ms = APERTURA - (Date.now() + desfase);
+    if (ms > 0) {
+      const s = Math.floor(ms / 1000);
+      const partes = { d: Math.floor(s / 86400), h: Math.floor((s % 86400) / 3600), m: Math.floor((s % 3600) / 60), s: s % 60 };
+      Object.keys(partes).forEach(function (k) {
+        reloj.querySelector('[data-reloj="' + k + '"]').textContent = k === "d" ? String(partes[k]) : dosCifras(partes[k]);
+      });
+      return;
+    }
+    // Ya abrimos: el botón lleva al juego (la dirección no aparece en la página antes).
+    const boton = document.getElementById("boton-jugar");
+    if (boton.getAttribute("aria-disabled") !== "true") return;
+    reloj.hidden = true;
+    document.getElementById("apertura-rotulo").textContent = "¡Ya abrimos!";
+    document.getElementById("apertura-titulo").textContent = "Season 3 · Resets · Castle Siege los domingos";
+    document.getElementById("boton-jugar-nota").textContent = "Desde Chrome o Edge en tu PC";
+    boton.href = JUEGO_WEB;
+    boton.removeAttribute("aria-disabled");
+    boton.removeAttribute("role");
+  }
+
   // ---------- Castle Siege y destacados ----------
 
   function llenarGuild(nodo, guild, sinDatos) {
@@ -453,6 +487,388 @@
     });
   }
 
+  // ---------- panel del jugador ----------
+
+  // Pide algo al panel. La sesión es una cookie que el navegador manda solo a /public/panel;
+  // la cabecera X-GKZ-Panel no la puede mandar otro sitio, así que nadie actúa en nombre del jugador.
+  async function panelApi(ruta, datos) {
+    const opciones = {
+      method: datos ? "POST" : "GET",
+      credentials: "same-origin",
+      cache: "no-store",
+      headers: { "Accept": "application/json", "X-GKZ-Panel": "1" },
+    };
+    if (datos) {
+      opciones.headers["Content-Type"] = "application/json";
+      opciones.body = JSON.stringify(datos);
+    }
+    const r = await fetch("/public/panel/" + ruta, opciones);
+    let cuerpo = null;
+    try { cuerpo = await r.json(); } catch (e) { cuerpo = null; }
+    return { estado: r.status, datos: cuerpo };
+  }
+
+  // El texto de error que manda el servidor, o uno general según el código.
+  function textoError(res) {
+    if (res.datos && typeof res.datos.error === "string") return res.datos.error;
+    if (res.estado === 429) return "Demasiados intentos. Esperá un minuto y probá de nuevo.";
+    return "No se pudo hacer. Probá más tarde.";
+  }
+
+  function fechaCorta(iso) {
+    const d = new Date(iso);
+    return isNaN(d) ? "-" : d.toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" });
+  }
+
+  function prepararPanel() {
+    const raiz = document.getElementById("panel");
+    if (!raiz) return;
+    const vistas = ["ingreso", "olvido", "nueva", "cuenta"];
+    const captchas = {};
+    let tokenRecuperar = "";
+
+    function avisar(nodo, tipo, texto) {
+      nodo.className = "mensaje " + tipo;
+      nodo.textContent = texto;
+    }
+
+    function limpiar(form) {
+      const m = form.querySelector(".mensaje");
+      m.className = "mensaje";
+      m.textContent = "";
+    }
+
+    // Un captcha por formulario, creado cuando el formulario se ve.
+    function captcha(nombre) {
+      const nodo = document.getElementById("captcha-" + nombre);
+      if (!nodo) return null;
+      if (!captchas[nombre]) {
+        captchas[nombre] = { id: null, token: "" };
+        if (window.turnstile) {
+          captchas[nombre].id = window.turnstile.render(nodo, {
+            sitekey: raiz.dataset.sitekey,
+            action: "panel",
+            language: "es",
+            theme: "dark",
+            callback: function (t) { captchas[nombre].token = t; },
+            "expired-callback": function () { captchas[nombre].token = ""; },
+            "error-callback": function () { captchas[nombre].token = ""; },
+          });
+        }
+      }
+      return captchas[nombre];
+    }
+
+    function reiniciarCaptcha(nombre) {
+      const c = captchas[nombre];
+      if (!c) return;
+      c.token = "";
+      if (c.id !== null && window.turnstile) window.turnstile.reset(c.id);
+    }
+
+    function faltaCaptcha(c) {
+      if (c && c.token) return null;
+      return c && c.id !== null
+        ? "Esperá a que termine la verificación anti-bots."
+        : "No se pudo cargar la verificación anti-bots. Recargá la página.";
+    }
+
+    function mostrar(vista) {
+      vistas.forEach(function (v) { document.getElementById("vista-" + v).hidden = v !== vista; });
+      document.getElementById("panel-subtitulo").textContent = vista === "cuenta"
+        ? "Tu cuenta, tus personajes, tu VIP y tus GKZ Coins."
+        : "Entrá con el usuario y la contraseña del juego.";
+      if (vista === "ingreso" || vista === "olvido") captcha(vista);
+    }
+
+    function pintarCuenta(d) {
+      document.getElementById("cuenta-nombre").textContent = d.loginName;
+      document.getElementById("cuenta-registro").textContent = fechaCorta(d.registered);
+      const estado = document.getElementById("cuenta-estado");
+      estado.classList.toggle("online", d.online === true);
+      estado.lastElementChild.textContent = d.online ? "Conectada al juego" : "Fuera del juego";
+      document.getElementById("cuenta-coins").textContent = numero(d.coins);
+      document.getElementById("cuenta-coins-nota").textContent = d.pendingCoins > 0
+        ? numero(d.pendingCoins) + " se acreditan al abrir la tienda X"
+        : "Para el VIP y la tienda X";
+      const vip = d.vipUntil ? new Date(d.vipUntil) : null;
+      document.getElementById("cuenta-vip").textContent = vip ? "Activo" : "Sin VIP";
+      document.getElementById("cuenta-vip-detalle").textContent = vip
+        ? "Hasta el " + fechaCorta(d.vipUntil) + " (" + Math.max(0, Math.ceil((vip - Date.now()) / 86400000)) + " días)"
+        : "Se compra en el juego con 1.000 GKZ Coins";
+      document.getElementById("cuenta-email").textContent = d.email || "sin correo";
+
+      const aviso = document.getElementById("aviso-conectado");
+      if (d.online) avisar(aviso, "error", "Tu cuenta está conectada al juego. Para destrabar un personaje o cambiar datos, salí del juego.");
+      else { aviso.className = "mensaje"; aviso.textContent = ""; }
+
+      pintarRecarga(d);
+
+      const tbody = document.getElementById("personajes");
+      vaciar(tbody);
+      (Array.isArray(d.characters) ? d.characters : []).forEach(function (c) {
+        const tr = el("tr");
+        const nombre = el("td");
+        nombre.appendChild(el("b", null, c.name));
+        if (c.online) nombre.appendChild(el("span", "en-juego", " · en el juego"));
+        tr.appendChild(nombre);
+        tr.appendChild(el("td", null, c.class || "-"));
+        tr.appendChild(el("td", "num", numero(c.level)));
+        tr.appendChild(el("td", "num", numero(c.resets)));
+        tr.appendChild(el("td", "ocultar-celular", c.map || "-"));
+        const acciones = el("td", "num");
+        const b = el("button", "boton-borde", "Destrabar");
+        b.type = "button";
+        b.disabled = d.online === true;
+        b.addEventListener("click", function () { destrabar(c.name, b); });
+        acciones.appendChild(b);
+        tr.appendChild(acciones);
+        tbody.appendChild(tr);
+      });
+      if (!tbody.children.length) {
+        const tr = el("tr");
+        const td = el("td", "vacio", "Todavía no tenés personajes. Crealos en el juego.");
+        td.colSpan = 6;
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      }
+    }
+
+    // Los packs a la venta y el historial de compras.
+    function pintarRecarga(d) {
+      const packs = document.getElementById("packs");
+      vaciar(packs);
+      const lista = Array.isArray(d.packs) ? d.packs : [];
+      lista.forEach(function (p, i) {
+        const caja = el("article", "pack" + (i === lista.length - 2 ? " destacado" : ""));
+        caja.appendChild(el("small", null, p.name));
+        caja.appendChild(el("span", "coins", numero(p.coins + p.bonus)));
+        caja.appendChild(el("span", "regalo", p.bonus > 0 ? "incluye " + numero(p.bonus) + " de regalo" : "GKZ Coins"));
+        caja.appendChild(el("span", "precio", "USD " + p.price));
+        const b = el("button", "boton", "Comprar");
+        b.type = "button";
+        b.addEventListener("click", function () { comprar(p, b); });
+        caja.appendChild(b);
+        packs.appendChild(caja);
+      });
+
+      const tbody = document.getElementById("compras");
+      vaciar(tbody);
+      (Array.isArray(d.purchases) ? d.purchases : []).forEach(function (c) {
+        const tr = el("tr");
+        tr.appendChild(el("td", null, fechaCorta(c.date)));
+        tr.appendChild(el("td", null, c.description || "-"));
+        tr.appendChild(el("td", "num" + (c.coins < 0 ? " negativo" : ""), (c.coins > 0 ? "+" : "") + numero(c.coins)));
+        tr.appendChild(el("td", "ocultar-celular" + (c.applied ? "" : " pendiente"), c.applied ? "En tu cuenta" : "Al abrir la tienda X"));
+        tbody.appendChild(tr);
+      });
+      if (!tbody.children.length) {
+        const tr = el("tr");
+        const td = el("td", "vacio", "Todavía no compraste coins.");
+        td.colSpan = 4;
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      }
+    }
+
+    // Pide el pago al servidor y va a la página de Mercado Pago.
+    async function comprar(pack, boton) {
+      const msg = document.getElementById("recarga-mensaje");
+      msg.className = "mensaje";
+      boton.disabled = true;
+      try {
+        const res = await panelApi("buy", { pack: pack.id });
+        const url = res.datos && res.datos.url;
+        if (res.estado === 200 && typeof url === "string" && /^https:\/\/([a-z0-9-]+\.)*mercadopago\.com(\.[a-z]{2})?\//.test(url)) {
+          location.href = url;
+          return;
+        }
+        if (res.estado === 401) mostrar("ingreso");
+        else avisar(msg, "error", textoError(res));
+      } catch (e) {
+        avisar(msg, "error", "No hay conexión con el servidor.");
+      }
+      boton.disabled = false;
+    }
+
+    // Al volver de Mercado Pago, la dirección trae el pago: se consulta enseguida para no esperar el aviso.
+    async function volverDelPago() {
+      const q = new URLSearchParams(location.search);
+      const resultado = q.get("pago");
+      if (!resultado) return;
+      const pago = q.get("payment_id") || q.get("collection_id") || "";
+      history.replaceState(null, "", location.pathname + "#recargar");
+      const msg = document.getElementById("recarga-mensaje");
+      if (!/^\d{1,20}$/.test(pago)) {
+        if (resultado === "error") avisar(msg, "error", "El pago no se completó. No se te cobró nada; podés probar de nuevo.");
+        return;
+      }
+      try {
+        const res = await panelApi("confirm", { paymentId: pago });
+        const d = res.datos || {};
+        if (res.estado !== 200) avisar(msg, "error", textoError(res));
+        else if (d.status === "acreditado") avisar(msg, "ok", "¡Gracias! Se acreditaron " + numero(d.coins) + " GKZ Coins. En el juego las ves al abrir la tienda (tecla X).");
+        else if (d.status === "pendiente") avisar(msg, "ok", "Tu pago está pendiente. Cuando Mercado Pago lo apruebe, las coins se acreditan solas.");
+        else avisar(msg, "error", "El pago no se aprobó. No se te cobró nada; podés probar de nuevo.");
+      } catch (e) {
+        avisar(msg, "error", "No pudimos consultar el pago. Si lo pagaste, las coins llegan solas en unos minutos.");
+      }
+      await cargarCuenta();
+      document.getElementById("recargar").scrollIntoView();
+    }
+
+    async function cargarCuenta() {
+      const res = await panelApi("me");
+      if (res.estado === 200 && res.datos) {
+        pintarCuenta(res.datos);
+        mostrar("cuenta");
+        return true;
+      }
+      mostrar("ingreso");
+      return false;
+    }
+
+    async function destrabar(nombre, boton) {
+      const msg = document.getElementById("personajes-mensaje");
+      if (!confirm("¿Llevar a " + nombre + " a Lorencia?")) return;
+      boton.disabled = true;
+      try {
+        const res = await panelApi("unstick", { character: nombre });
+        if (res.estado === 204) {
+          avisar(msg, "ok", nombre + " ya está en Lorencia.");
+          cargarCuenta();
+        } else if (res.estado === 401) {
+          mostrar("ingreso");
+        } else {
+          avisar(msg, "error", textoError(res));
+        }
+      } catch (e) {
+        avisar(msg, "error", "No hay conexión con el servidor.");
+      } finally {
+        boton.disabled = false;
+      }
+    }
+
+    // Manda un formulario: valida, deshabilita el botón y muestra lo que pasó.
+    function alEnviar(id, accion) {
+      const form = document.getElementById(id);
+      form.addEventListener("submit", async function (ev) {
+        ev.preventDefault();
+        const msg = form.querySelector(".mensaje");
+        const boton = form.querySelector("button[type=submit]");
+        limpiar(form);
+        boton.disabled = true;
+        try {
+          await accion(form, function (tipo, texto) { avisar(msg, tipo, texto); });
+        } catch (e) {
+          avisar(msg, "error", "No hay conexión con el servidor.");
+        } finally {
+          boton.disabled = false;
+        }
+      });
+    }
+
+    const claveValida = /^[\x21-\x7E]{6,20}$/;
+
+    alEnviar("form-ingreso", async function (form, avisarForm) {
+      const usuario = form.usuario.value.trim();
+      const clave = form.clave.value;
+      if (!usuario || !clave) return avisarForm("error", "Completá el usuario y la contraseña.");
+      const c = captcha("ingreso");
+      const falta = faltaCaptcha(c);
+      if (falta) return avisarForm("error", falta);
+      const res = await panelApi("login", { loginName: usuario, password: clave, captchaToken: c.token });
+      reiniciarCaptcha("ingreso");
+      if (res.estado === 200) {
+        form.reset();
+        await cargarCuenta();
+      } else {
+        avisarForm("error", textoError(res));
+      }
+    });
+
+    alEnviar("form-olvido", async function (form, avisarForm) {
+      const usuario = form.usuario.value.trim();
+      if (!/^[A-Za-z0-9]{3,10}$/.test(usuario)) return avisarForm("error", "Escribí tu usuario.");
+      const c = captcha("olvido");
+      const falta = faltaCaptcha(c);
+      if (falta) return avisarForm("error", falta);
+      const res = await panelApi("recover", { loginName: usuario, captchaToken: c.token });
+      reiniciarCaptcha("olvido");
+      if (res.estado === 204) {
+        form.reset();
+        avisarForm("ok", "Si la cuenta tiene un correo, te mandamos un enlace. Revisá también la carpeta de spam. El enlace vale 30 minutos.");
+      } else {
+        avisarForm("error", textoError(res));
+      }
+    });
+
+    alEnviar("form-nueva", async function (form, avisarForm) {
+      if (!claveValida.test(form.clave.value)) return avisarForm("error", "La contraseña debe tener de 6 a 20 caracteres, sin espacios ni acentos.");
+      if (form.clave.value !== form.clave2.value) return avisarForm("error", "Las contraseñas no coinciden.");
+      const res = await panelApi("reset", { token: tokenRecuperar, password: form.clave.value });
+      if (res.estado === 204) {
+        form.reset();
+        tokenRecuperar = "";
+        avisarForm("ok", "¡Listo! Ya podés entrar con tu contraseña nueva, en el juego y acá.");
+      } else {
+        avisarForm("error", textoError(res));
+      }
+    });
+
+    alEnviar("form-clave", async function (form, avisarForm) {
+      if (!claveValida.test(form.clave.value)) return avisarForm("error", "La contraseña nueva debe tener de 6 a 20 caracteres, sin espacios ni acentos.");
+      if (form.clave.value !== form.clave2.value) return avisarForm("error", "Las contraseñas nuevas no coinciden.");
+      const res = await panelApi("password", { currentPassword: form.actual.value, newPassword: form.clave.value });
+      if (res.estado === 204) {
+        form.reset();
+        avisarForm("ok", "Contraseña cambiada. Usala desde ahora también en el juego.");
+      } else if (res.estado === 401 && !(res.datos && /actual/.test(res.datos.error || ""))) {
+        mostrar("ingreso");
+      } else {
+        avisarForm("error", textoError(res));
+      }
+    });
+
+    alEnviar("form-email", async function (form, avisarForm) {
+      const email = form.email.value.trim();
+      if (!/^[^\s@<>"']{1,64}@[^\s@<>"']{1,190}\.[A-Za-z]{2,}$/.test(email)) return avisarForm("error", "El correo no es válido.");
+      const res = await panelApi("email", { password: form.clave.value, eMail: email });
+      if (res.estado === 204) {
+        form.reset();
+        document.getElementById("cuenta-email").textContent = email;
+        avisarForm("ok", "Correo cambiado.");
+      } else {
+        avisarForm("error", textoError(res));
+      }
+    });
+
+    document.getElementById("salir").addEventListener("click", async function () {
+      try { await panelApi("logout", {}); } catch (e) { /* igual se muestra la entrada */ }
+      mostrar("ingreso");
+    });
+
+    raiz.querySelectorAll("[data-ir]").forEach(function (a) {
+      a.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        mostrar(a.dataset.ir);
+      });
+    });
+
+    // El enlace del correo trae el token después de # (no llega a ningún servidor ni queda en los registros);
+    // se saca de la dirección enseguida para que no quede en el historial.
+    const m = /^#recuperar=([A-Za-z0-9_-]{20,100})$/.exec(location.hash);
+    if (m) {
+      tokenRecuperar = m[1];
+      history.replaceState(null, "", location.pathname);
+      mostrar("nueva");
+      return;
+    }
+    cargarCuenta()
+      .then(function (dentro) { if (dentro) return volverDelPago(); })
+      .catch(function () { mostrar("ingreso"); });
+  }
+
   // ---------- arranque ----------
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -471,8 +887,11 @@
     cargarDestacados();
     prepararPestanas();
     prepararRegistro();
+    prepararPanel();
 
+    pintarApertura();
     setInterval(pintarEventos, 1000);
+    setInterval(pintarApertura, 1000);
     setInterval(cargarEventos, 5 * 60 * 1000);
     setInterval(cargarEstado, 60 * 1000);
   });

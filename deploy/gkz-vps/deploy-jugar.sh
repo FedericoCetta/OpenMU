@@ -1,8 +1,8 @@
 #!/bin/sh
 # MU GKZ: publica una versión del juego en el navegador (jugar.mugkz.com) sin reiniciar nada.
 #
-# Uso (desde la PC, en la carpeta con Main.html, Main.js, Main.wasm, Main.data, gkz-web.js y gkz-web.css):
-#   tar -cf - Main.html Main.js Main.wasm Main.data gkz-web.js gkz-web.css | ssh root@mugkz.com 'sh /opt/mugkz/deploy-jugar.sh'
+# Uso (desde la PC, en la carpeta con Main.html, Main.js, Main.wasm, Main.data, gkz-web.js, gkz-web.css y gkz-latido.js):
+#   tar -cf - Main.html Main.js Main.wasm Main.data gkz-web.js gkz-web.css gkz-latido.js | ssh root@mugkz.com 'sh /opt/mugkz/deploy-jugar.sh'
 #
 # Como deploy-web.sh: la carpeta /opt/mugkz/jugar está montada en nginx, así que se reemplaza su
 # contenido, nunca la carpeta. Cada archivo va también comprimido (.gz) para que baje más rápido.
@@ -13,7 +13,7 @@ rm -rf "$STAGE"
 mkdir -p "$STAGE"
 tar -xf - -C "$STAGE"
 
-for file in Main.html Main.js Main.wasm Main.data gkz-web.js gkz-web.css; do
+for file in Main.html Main.js Main.wasm Main.data gkz-web.js gkz-web.css gkz-latido.js; do
   if [ ! -f "$STAGE/$file" ]; then
     echo "Falta $file: no se publica nada." >&2
     exit 1
