@@ -103,7 +103,8 @@
         poner("reset-nivel-corto", "Nivel " + numero(r.level));
       }
       if (esNumero(r.zen)) poner("reset-costo", numero(r.zen) + " de zen" + (r.zenMultipliedByResets ? " × resets" : ""));
-      if (esNumero(r.points)) poner("reset-puntos", numero(r.points) + (esNumero(r.pointsDarkLord) ? " · DL " + numero(r.pointsDarkLord) : ""));
+      if (r.points === 0) poner("reset-puntos", "Los de cada nivel");
+      else if (esNumero(r.points)) poner("reset-puntos", numero(r.points) + (esNumero(r.pointsDarkLord) ? " · DL " + numero(r.pointsDarkLord) : ""));
       poner("reset-stats", r.statsBackToZero ? "Vuelven a 0" : "Se mantienen");
       poner("reset-limite", esNumero(r.limit) ? numero(r.limit) : "Sin límite");
     }
