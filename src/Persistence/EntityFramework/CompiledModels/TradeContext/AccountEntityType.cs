@@ -21,7 +21,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForTradeCont
                 "MUnique.OpenMU.Persistence.EntityFramework.Model.Account",
                 typeof(MUnique.OpenMU.Persistence.EntityFramework.Model.Account),
                 baseEntityType,
-                propertyCount: 26,
+                propertyCount: 27,
                 navigationCount: 4,
                 unnamedIndexCount: 1,
                 keyCount: 1);
@@ -234,6 +234,14 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForTradeCont
                 fieldInfo: typeof(MUnique.OpenMU.DataModel.Entities.Account).GetField("<WCoinP>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0);
             wCoinP.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
+
+            var welcomeKitsClaimed = runtimeEntityType.AddProperty(
+                "WelcomeKitsClaimed",
+                typeof(int),
+                propertyInfo: typeof(MUnique.OpenMU.DataModel.Entities.Account).GetProperty("WelcomeKitsClaimed", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MUnique.OpenMU.DataModel.Entities.Account).GetField("<WelcomeKitsClaimed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0);
+            welcomeKitsClaimed.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });

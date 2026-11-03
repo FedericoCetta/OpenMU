@@ -188,6 +188,7 @@ internal sealed class BasicModelConverter
         target.Vault5 = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Vault5)!;
         target.Vault6 = (MUnique.OpenMU.DataModel.Entities.ItemStorage)this.ConvertObject(source.Vault6)!;
         target.VipUntil = source.VipUntil;
+        target.WelcomeKitsClaimed = source.WelcomeKitsClaimed;
         if (source.BankItems is { } bankItemsItems)
         {
             foreach (var item in bankItemsItems)
@@ -1707,6 +1708,7 @@ internal sealed class BasicModelConverter
         target.SocketCount = source.SocketCount;
         target.StorePrice = source.StorePrice;
         target.PetExperience = source.PetExperience;
+        target.ExpiresAt = source.ExpiresAt;
         return target;
     }
 

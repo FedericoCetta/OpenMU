@@ -47,7 +47,7 @@ public class SellItemToNpcAction
             return false;
         }
 
-        if (item.Definition is { IsSellableToNpc: false })
+        if (item.Definition is { IsSellableToNpc: false } || item.ExpiresAt is not null)
         {
             player.Logger.LogWarning(
                 "Player {0} tried to sell {1} to an npc, which its item definition doesn't allow. The client item data may differ from the server.",

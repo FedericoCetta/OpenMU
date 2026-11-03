@@ -4,6 +4,7 @@
 
 namespace MUnique.OpenMU.GameServer.RemoteView;
 
+using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using MUnique.OpenMU.DataModel;
 using MUnique.OpenMU.DataModel.Configuration;
@@ -101,6 +102,13 @@ public class ItemSerializerExtended : IItemSerializer
             targetStruct.SocketCount = (byte)item.SocketCount;
             targetStruct.SocketBonus = GetSocketBonusByte(item);
             SetSocketBytes(targetStruct.Sockets, item);
+        }
+
+        // The expiring items have no sockets, so the expiration still fits into the needed space.
+        if (item.ExpiresAt is { } expiresAt && !targetStruct.Options.HasFlag(OptionFlags.HasSockets))
+        {
+            targetStruct.HasExpiration = true;
+            targetStruct.Expiration = (uint)new DateTimeOffset(expiresAt.ToUniversalTime()).ToUnixTimeSeconds();
         }
 
         return targetStruct.Length;
@@ -221,7 +229,8 @@ public class ItemSerializerExtended : IItemSerializer
     /// Layout:
     ///   Group:  4 bit
     ///   Number: 12 bit
-    ///   Level:  8 bit
+    ///   Level:  7 bit
+    ///   HasExp: 1 bit
     ///   Dura:   8 bit
     ///   OptFlags: 8 bit
     ///     HasOpt
@@ -242,6 +251,7 @@ public class ItemSerializerExtended : IItemSerializer
     ///     Soc_Bon 4 bit
     ///     Soc_Cnt 4 bit
     ///     Sockets n * 8 bit
+    ///     Expiration 32 bit (only without sockets)
     ///
     ///  Total: 5 ~ 15 bytes.
     /// </summary>
@@ -275,8 +285,19 @@ public class ItemSerializerExtended : IItemSerializer
 
         public byte Level
         {
-            get => this._data[2];
-            set => this._data[2] = value;
+            get => (byte)(this._data[2] & 0x7F);
+            set => this._data[2] = (byte)(value & 0x7F); // The buffer isn't cleared, so this also resets the expiration bit.
+        }
+
+        public bool HasExpiration
+        {
+            get => (this._data[2] & 0x80) != 0;
+            set => this._data[2] = (byte)(value ? this._data[2] | 0x80 : this._data[2] & 0x7F);
+        }
+
+        public uint Expiration
+        {
+            set => BinaryPrimitives.WriteUInt32LittleEndian(this._data[(this.Length - 4)..], value);
         }
 
         public byte Durability
@@ -399,6 +420,11 @@ public class ItemSerializerExtended : IItemSerializer
                 {
                     size++;
                     size += this.SocketCount;
+                }
+
+                if (this.HasExpiration)
+                {
+                    size += 4;
                 }
 
                 return size;

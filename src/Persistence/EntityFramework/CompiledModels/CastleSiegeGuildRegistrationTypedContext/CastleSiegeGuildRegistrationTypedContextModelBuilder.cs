@@ -12,7 +12,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForCastleSie
     public partial class CastleSiegeGuildRegistrationTypedContextModel
     {
         private CastleSiegeGuildRegistrationTypedContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("a2ab707b-f17d-4c55-ad03-6e253b5ff98f"), entityTypeCount: 1)
+            : base(skipDetectChanges: false, modelId: new Guid("05253ea3-4e96-4b41-85a0-e4e690bc997c"), entityTypeCount: 1)
         {
         }
 

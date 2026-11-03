@@ -38,7 +38,7 @@ public class DropItemAction
             return;
         }
 
-        if (item.Definition is { IsDroppable: false })
+        if (item.Definition is { IsDroppable: false } || item.ExpiresAt is not null)
         {
             player.Logger.LogWarning(
                 "Player {0} tried to drop {1}, which its item definition doesn't allow. The client item data may differ from the server.",

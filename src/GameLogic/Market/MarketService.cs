@@ -203,6 +203,7 @@ public sealed class MarketService : IDisposable
                 || inventory.GetItem(slot) is not { Definition: { } definition } item
                 || !definition.IsTradable
                 || definition.IsBoundToCharacter
+                || item.ExpiresAt is not null
                 || player.PlayerState.CurrentState == PlayerState.TradeOpened
                 || player.PlayerState.CurrentState == PlayerState.TradeButtonPressed)
             {

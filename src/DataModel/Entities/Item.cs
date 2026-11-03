@@ -69,6 +69,12 @@ public partial class Item
     public int PetExperience { get; set; }
 
     /// <summary>
+    /// Gets or sets the date and time (UTC) at which the item gets deleted (MU GKZ); <c>null</c> if it doesn't expire.
+    /// An item which expires can't leave the inventory of its character.
+    /// </summary>
+    public DateTime? ExpiresAt { get; set; }
+
+    /// <summary>
     /// Assigns the values of another item to this item.
     /// </summary>
     /// <param name="otherItem">The other item.</param>
@@ -80,6 +86,7 @@ public partial class Item
         this.HasSkill = otherItem.HasSkill;
         this.SocketCount = otherItem.SocketCount;
         this.PetExperience = otherItem.PetExperience;
+        this.ExpiresAt = otherItem.ExpiresAt;
         if (otherItem.ItemOptions != null && otherItem.ItemOptions.Any())
         {
             this.ItemOptions.Clear();

@@ -163,6 +163,11 @@ public class Account
     public DateTime? VipUntil { get; set; }
 
     /// <summary>
+    /// Gets or sets how many welcome kits the characters of the account got (MU GKZ). It stays when a character is deleted.
+    /// </summary>
+    public int WelcomeKitsClaimed { get; set; }
+
+    /// <summary>
     /// Gets or sets the items in the jewel bank of the account (MU GKZ).
     /// </summary>
     [MemberOfAggregate]

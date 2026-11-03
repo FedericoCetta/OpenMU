@@ -12,7 +12,7 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.CompiledModels.ForCastleSie
     public partial class CastleSiegePendingRewardTypedContextModel
     {
         private CastleSiegePendingRewardTypedContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("517296c1-eba8-426f-956a-085a487b1d07"), entityTypeCount: 1)
+            : base(skipDetectChanges: false, modelId: new Guid("bf67b20c-aaa1-4b6f-9fdc-62c3a829688a"), entityTypeCount: 1)
         {
         }
 

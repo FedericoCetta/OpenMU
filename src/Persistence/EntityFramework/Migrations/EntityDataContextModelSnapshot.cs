@@ -113,6 +113,9 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
                     b.Property<int>("WCoinP")
                         .HasColumnType("integer");
 
+                    b.Property<int>("WelcomeKitsClaimed")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("LoginName")
@@ -2143,6 +2146,9 @@ namespace MUnique.OpenMU.Persistence.EntityFramework.Migrations
 
                     b.Property<double>("Durability")
                         .HasColumnType("double precision");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("HasSkill")
                         .HasColumnType("boolean");
