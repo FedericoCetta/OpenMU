@@ -111,6 +111,34 @@ services:
     volumes:
       - dbdata:/var/lib/postgresql/data
 
+  # El bot del Discord: bienvenida y tickets. En su propia red, sin acceso a la base ni al server del juego.
+  discord-bot:
+    build: ./discord
+    image: mu-server/discord-bot:local
+    container_name: discord-bot
+    restart: unless-stopped
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+    networks:
+      - discord
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    pids_limit: 64
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: "3"
+
+networks:
+  discord:
+
 volumes:
   adminpanel-keys:
   dbdata:
