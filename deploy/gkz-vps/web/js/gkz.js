@@ -138,7 +138,7 @@
     try {
       const noticias = await pedir("/launcher/news.json");
       vaciar(lista);
-      (Array.isArray(noticias) ? noticias : []).slice(0, 3).forEach(function (n) {
+      (Array.isArray(noticias) ? noticias : []).slice(0, 6).forEach(function (n) {
         const tarjeta = el("article", "noticia");
         const imagen = el("div", "imagen");
         const etiqueta = String(n.tag || "Novedad");
