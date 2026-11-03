@@ -81,6 +81,11 @@ img { max-width: 100%; display: block; }
 .reloj span { margin-top: 4px; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--texto-suave); }
 .apertura-botones { display: flex; gap: 12px; margin-top: 6px; }
 .apertura-botones .boton { width: auto; min-width: 210px; min-height: 48px; padding: 8px 20px; }
+.apertura-botones .boton-borde { display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 8px 16px; }
+.boton.boton-discord { background: linear-gradient(#34397f, #1c1f4d); border-color: #5865f2; color: #fff; }
+.boton-discord svg { width: 18px; height: 18px; flex: none; fill: currentColor; }
+.apertura-botones .boton-discord { min-width: 190px; }
+.comunidad p { margin: 0 0 12px; font-size: 13px; line-height: 1.5; color: var(--texto-suave); }
 .boton-jugar { flex-direction: column; gap: 2px; background: linear-gradient(#b8892f, #7a5414); border-color: var(--dorado); }
 .boton-jugar small { font-size: 9px; font-weight: 600; letter-spacing: .08em; opacity: .85; }
 .boton-jugar[aria-disabled="true"] { cursor: default; opacity: .75; filter: saturate(.6); }

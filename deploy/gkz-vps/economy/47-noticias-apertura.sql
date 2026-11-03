@@ -15,15 +15,15 @@ set "CustomConfiguration" = jsonb_pretty(jsonb_set(
                 'Text', n.texto, 'IsPublished', true) order by n.orden)
             from (values
                 (1, 'Combiná tus ítems', 'Novedad',
-                 'Arrastrá un ítem excellent sobre otro igual y del mismo nivel y convertilos en uno nuevo: mismo ítem y nivel, siempre con luck, conserva el skill y sale con 1 a 3 opciones excellent al azar (70 %, 25 % y 5 %). Exclusivo para VIP, 15 GKZ Coins por combinación.'),
-                (2, 'Tus resets tienen premio', 'Evento',
-                 'Cada hito se reclama una vez por personaje en la tienda (X), categoría Reset. A los 25 resets, las alas de 2da de tu clase; a los 75, joyas y 30 días de VIP; a los 100, las alas de 3ra. Y hay más premios en el camino.'),
-                (3, 'Reseteá sin perder tus stats', 'Servidor',
-                 'El reset te devuelve al nivel 1 sin tocar tus stats ni tus puntos: se mantienen y se siguen sumando. Reset en el nivel 380 (VIP 360) por 5.000.000 de zen, sin límite y sin volver a la selección de personaje. A los 75 resets, aproximadamente, tu personaje queda full.'),
-                (4, 'Volvete VIP', 'Novedad',
-                 'Experiencia x500 en lugar de x300, +50 % de zen, más chance de drop, reset desde el nivel 360, 6 baúles en lugar de 2 y combinación de excellent. Se compra en el juego con GKZ Coins, desde el botón VIP de la ventana del personaje.'),
-                (5, 'Conquistá el castillo', 'Evento',
-                 'Todos los domingos a las 20 h (URU-ARG) se pelea el Castle Siege en Valley of Loren. Formá un clan invencible y volvé a ser el rey.')
+                 'Arrastrá un ítem Exc sobre otro igual y del mismo +. Sale el mismo ítem con Luck, mantiene el Skill y trae 1 a 3 opciones Exc (70/25/5 %). Solo VIP, 15 GKZ Coins.'),
+                (2, 'Premios por reset', 'Evento',
+                 'Se canjean en el shop (X), solapa Reset, una vez por personaje. 25 resets: alas 2. 75 resets: joyas y 30 días de VIP. 100 resets: alas 3. Y más premios en el camino.'),
+                (3, 'Reset acumulativo', 'Servidor',
+                 'Reset en lvl 380 (VIP lvl 360) por 5kk de zen, sin límite de resets y sin deslogear. Volvés a lvl 1 y mantenés stats y puntos. 5 puntos por lvl (DL 6). Full stats 32767 en aprox. 75 resets.'),
+                (4, 'VIP', 'Novedad',
+                 'Exp x500 (normal x300), +50 % de zen, más drop, reset en lvl 360, 6 baúles y combinación de Exc. Se compra con GKZ Coins desde el botón VIP de la ventana del personaje.'),
+                (5, 'Castle Siege', 'Evento',
+                 'Todos los domingos a las 20 h (URU-ARG) en Valley of Loren.')
             ) as n(orden, titulo, etiqueta, texto))
         || (select jsonb_agg(i || '{"IsPublished": false}'::jsonb order by o)
             from jsonb_array_elements(p."CustomConfiguration"::jsonb #> '{Items,$values}') with ordinality as e(i, o)

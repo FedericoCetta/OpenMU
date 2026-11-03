@@ -6,8 +6,8 @@
   <title>MU GKZ · Season 3</title>
   <meta name="description" content="MU GKZ: servidor de MU Online Season 3 con resets, Castle Siege, invasiones y eventos.">
   <link rel="icon" href="img/icono.png">
-  <link rel="stylesheet" href="css/gkz.css?v=11">
-  <script src="js/gkz.js?v=11" defer></script>
+  <link rel="stylesheet" href="css/gkz.css?v=14">
+  <script src="js/gkz.js?v=14" defer></script>
 </head>
 <body data-pagina="inicio">
   <nav class="barra">
@@ -40,6 +40,7 @@
       <div class="apertura-botones">
         <a class="boton" href="registro.html">Registrate gratis</a>
         <a class="boton-borde" href="/launcher/MuGkz.zip" download>Descargar el juego (ZIP)</a>
+        <a class="boton boton-discord" href="https://discord.gg/Hj4e8RdDfj" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>Unite al Discord</a>
         <a class="boton boton-jugar" id="boton-jugar" role="link" aria-disabled="true">
           <span>Jugar online sin instalar</span><small id="boton-jugar-nota">Disponible el 4/11 a las 19 h</small>
         </a>
@@ -122,6 +123,14 @@
         </section>
 
         <section class="panel">
+          <header><div><h3>Comunidad</h3></div></header>
+          <div class="cuerpo comunidad">
+            <p>Sumate al Discord: soporte por tickets, sorteos y todas las novedades del server.</p>
+            <a class="boton boton-discord" href="https://discord.gg/Hj4e8RdDfj" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>Discord</a>
+          </div>
+        </section>
+
+        <section class="panel">
           <header><div><h3>Links rápidos</h3></div></header>
           <div class="cuerpo">
             <ul class="datos-lista">
@@ -140,7 +149,7 @@
     <div class="contenedor">
       <div><h5>MU GKZ</h5><a href="./">Inicio</a><a href="registro.html">Registro</a><a href="rankings.html">Rankings</a></div>
       <div><h5>Información</h5><a href="info.html">Guía</a><a href="info.html#vip">VIP</a><a href="info.html#eventos">Eventos</a></div>
-      <div><h5>Ayuda</h5><a href="panel.html">Mi cuenta</a><a href="reembolsos.html">Reembolsos</a><a href="mailto:soporte@mugkz.com">soporte@mugkz.com</a></div>
+      <div><h5>Ayuda</h5><a href="panel.html">Mi cuenta</a><a href="reembolsos.html">Reembolsos</a><a href="https://discord.gg/Hj4e8RdDfj" target="_blank" rel="noopener">Discord</a><a href="mailto:soporte@mugkz.com">soporte@mugkz.com</a></div>
       <div class="copy">© <span id="anio">2026</span> MU GKZ. MU Online es una marca de Webzen; este es un servidor no oficial.</div>
     </div>
   </footer>
