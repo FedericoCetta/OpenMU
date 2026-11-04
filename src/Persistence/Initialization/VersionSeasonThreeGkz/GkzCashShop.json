@@ -3,7 +3,7 @@
   "scriptVersion": {
     "zone": 512,
     "year": 2026,
-    "yearId": 5
+    "yearId": 7
   },
   "bannerVersion": {
     "zone": 583,
@@ -27,6 +27,10 @@
     {
       "id": 13,
       "name": "Anillos"
+    },
+    {
+      "id": 16,
+      "name": "Extras"
     },
     {
       "id": 15,
@@ -195,74 +199,14 @@
       "description": "Entrada a Devil Square 7."
     },
     {
-      "seq": 31,
-      "category": 12,
-      "name": "Armor of Guardsman (Chaos Castle)",
-      "price": 20,
+      "seq": 47,
+      "category": 13,
+      "name": "Moonstone Pendant",
+      "price": 100,
       "group": 13,
-      "number": 29,
+      "number": 38,
       "level": 0,
-      "description": "Entrada a Chaos Castle, en todos los niveles."
-    },
-    {
-      "seq": 41,
-      "category": 13,
-      "name": "Anillo: Budge Dragon",
-      "price": 100,
-      "group": 13,
-      "number": 10,
-      "level": 0,
-      "description": "Anillo de transformación:#te transforma en Budge Dragon."
-    },
-    {
-      "seq": 42,
-      "category": 13,
-      "name": "Anillo: Giant",
-      "price": 100,
-      "group": 13,
-      "number": 10,
-      "level": 1,
-      "description": "Anillo de transformación:#te transforma en Giant."
-    },
-    {
-      "seq": 43,
-      "category": 13,
-      "name": "Anillo: Skeleton Warrior",
-      "price": 100,
-      "group": 13,
-      "number": 10,
-      "level": 2,
-      "description": "Anillo de transformación:#te transforma en Skeleton Warrior."
-    },
-    {
-      "seq": 44,
-      "category": 13,
-      "name": "Anillo: Poison Bull",
-      "price": 100,
-      "group": 13,
-      "number": 10,
-      "level": 3,
-      "description": "Anillo de transformación:#te transforma en Poison Bull."
-    },
-    {
-      "seq": 45,
-      "category": 13,
-      "name": "Anillo: Thunder Lich",
-      "price": 100,
-      "group": 13,
-      "number": 10,
-      "level": 4,
-      "description": "Anillo de transformación:#te transforma en Thunder Lich."
-    },
-    {
-      "seq": 46,
-      "category": 13,
-      "name": "Anillo: Death Cow",
-      "price": 100,
-      "group": 13,
-      "number": 10,
-      "level": 5,
-      "description": "Anillo de transformación:#te transforma en Death Cow."
+      "description": "Hay que tenerlo equipado para entrar al evento de Kanturu."
     },
     {
       "seq": 51,
@@ -285,6 +229,72 @@
       "level": 0,
       "description": "Pack de 10 Jewel of Soul.",
       "quantity": 10
+    },
+    {
+      "seq": 81,
+      "category": 14,
+      "name": "10 Jewel of Life",
+      "price": 600,
+      "group": 14,
+      "number": 16,
+      "level": 0,
+      "description": "Pack de 10 Jewel of Life.",
+      "quantity": 10
+    },
+    {
+      "seq": 82,
+      "category": 14,
+      "name": "10 Jewel of Chaos",
+      "price": 300,
+      "group": 12,
+      "number": 15,
+      "level": 0,
+      "description": "Pack de 10 Jewel of Chaos.",
+      "quantity": 10
+    },
+    {
+      "seq": 91,
+      "category": 16,
+      "name": "30 Box of Kundun +1",
+      "price": 500,
+      "group": 14,
+      "number": 11,
+      "level": 8,
+      "description": "Pack de 30 Box of Kundun +1.",
+      "quantity": 30
+    },
+    {
+      "seq": 92,
+      "category": 16,
+      "name": "64 Box of Kundun +1",
+      "price": 1000,
+      "group": 14,
+      "number": 11,
+      "level": 8,
+      "description": "Pack de 64 Box of Kundun +1.",
+      "quantity": 64
+    },
+    {
+      "seq": 93,
+      "category": 16,
+      "name": "30 Box of Kundun +2",
+      "price": 500,
+      "group": 14,
+      "number": 11,
+      "level": 9,
+      "description": "Pack de 30 Box of Kundun +2.",
+      "quantity": 30
+    },
+    {
+      "seq": 94,
+      "category": 16,
+      "name": "64 Box of Kundun +2",
+      "price": 1000,
+      "group": 14,
+      "number": 11,
+      "level": 9,
+      "description": "Pack de 64 Box of Kundun +2.",
+      "quantity": 64
     },
     {
       "seq": 101,
@@ -590,6 +600,214 @@
       "level": 12,
       "description": "30 Box of Kundun +5.#Se repite a los 300, 400 y 500 resets.",
       "unit": "Reset"
+    },
+    {
+      "seq": 210,
+      "category": 15,
+      "name": "Premio 501 resets",
+      "price": 501,
+      "group": 8,
+      "number": 29,
+      "level": 13,
+      "description": "Elegís un set de tu clase: +13 +28 Luck, 3 opciones Exc (Reflect, DD, HP) y 380 si es set 380.#Se canjea una vez, al llegar a 501 resets.",
+      "unit": "Reset",
+      "setChoices": [
+        {
+          "priceSeq": 1000,
+          "number": 0,
+          "name": "Bronze Set"
+        },
+        {
+          "priceSeq": 1001,
+          "number": 1,
+          "name": "Dragon Set"
+        },
+        {
+          "priceSeq": 1002,
+          "number": 2,
+          "name": "Pad Set"
+        },
+        {
+          "priceSeq": 1003,
+          "number": 3,
+          "name": "Legendary Set"
+        },
+        {
+          "priceSeq": 1004,
+          "number": 4,
+          "name": "Bone Set"
+        },
+        {
+          "priceSeq": 1005,
+          "number": 5,
+          "name": "Leather Set"
+        },
+        {
+          "priceSeq": 1006,
+          "number": 6,
+          "name": "Scale Set"
+        },
+        {
+          "priceSeq": 1007,
+          "number": 7,
+          "name": "Sphinx Set"
+        },
+        {
+          "priceSeq": 1008,
+          "number": 8,
+          "name": "Brass Set"
+        },
+        {
+          "priceSeq": 1009,
+          "number": 9,
+          "name": "Plate Set"
+        },
+        {
+          "priceSeq": 1010,
+          "number": 10,
+          "name": "Vine Set"
+        },
+        {
+          "priceSeq": 1011,
+          "number": 11,
+          "name": "Silk Set"
+        },
+        {
+          "priceSeq": 1012,
+          "number": 12,
+          "name": "Wind Set"
+        },
+        {
+          "priceSeq": 1013,
+          "number": 13,
+          "name": "Spirit Set"
+        },
+        {
+          "priceSeq": 1014,
+          "number": 14,
+          "name": "Guardian Set"
+        },
+        {
+          "priceSeq": 1015,
+          "number": 15,
+          "name": "Storm Crow Set"
+        },
+        {
+          "priceSeq": 1016,
+          "number": 16,
+          "name": "Black Dragon Set"
+        },
+        {
+          "priceSeq": 1017,
+          "number": 17,
+          "name": "Dark Phoenix Set"
+        },
+        {
+          "priceSeq": 1018,
+          "number": 18,
+          "name": "Grand Soul Set"
+        },
+        {
+          "priceSeq": 1019,
+          "number": 19,
+          "name": "Divine Set"
+        },
+        {
+          "priceSeq": 1020,
+          "number": 20,
+          "name": "Thunder Hawk Set"
+        },
+        {
+          "priceSeq": 1021,
+          "number": 21,
+          "name": "Great Dragon Set"
+        },
+        {
+          "priceSeq": 1022,
+          "number": 22,
+          "name": "Dark Soul Set"
+        },
+        {
+          "priceSeq": 1023,
+          "number": 23,
+          "name": "Hurricane Set"
+        },
+        {
+          "priceSeq": 1024,
+          "number": 24,
+          "name": "Red Spirit Set"
+        },
+        {
+          "priceSeq": 1025,
+          "number": 25,
+          "name": "Light Plate Set"
+        },
+        {
+          "priceSeq": 1026,
+          "number": 26,
+          "name": "Adamantine Set"
+        },
+        {
+          "priceSeq": 1027,
+          "number": 27,
+          "name": "Dark Steel Set"
+        },
+        {
+          "priceSeq": 1028,
+          "number": 28,
+          "name": "Dark Master Set"
+        },
+        {
+          "priceSeq": 1029,
+          "number": 29,
+          "name": "Dragon Knight Set"
+        },
+        {
+          "priceSeq": 1030,
+          "number": 30,
+          "name": "Venom Mist Set"
+        },
+        {
+          "priceSeq": 1031,
+          "number": 31,
+          "name": "Sylphid Ray Set"
+        },
+        {
+          "priceSeq": 1032,
+          "number": 32,
+          "name": "Volcano Set"
+        },
+        {
+          "priceSeq": 1033,
+          "number": 33,
+          "name": "Sunlight Set"
+        },
+        {
+          "priceSeq": 1034,
+          "number": 34,
+          "name": "Ashcrow Set"
+        },
+        {
+          "priceSeq": 1035,
+          "number": 35,
+          "name": "Eclipse Set"
+        },
+        {
+          "priceSeq": 1036,
+          "number": 36,
+          "name": "Iris Set"
+        },
+        {
+          "priceSeq": 1037,
+          "number": 37,
+          "name": "Valiant Set"
+        },
+        {
+          "priceSeq": 1038,
+          "number": 38,
+          "name": "Glorious Set"
+        }
+      ]
     }
   ]
 }

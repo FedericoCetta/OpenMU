@@ -82,8 +82,9 @@ public static class GkzResetRewardClaims
     /// <param name="player">The player.</param>
     /// <param name="shop">The shop configuration.</param>
     /// <param name="packageSequence">The package sequence of the claim.</param>
+    /// <param name="priceSequence">The price sequence of the chosen set, if the milestone has a choice.</param>
     /// <returns>The result.</returns>
-    public static async ValueTask<CashShopBuyResult> ClaimAsync(Player player, CashShopConfiguration shop, int packageSequence)
+    public static async ValueTask<CashShopBuyResult> ClaimAsync(Player player, CashShopConfiguration shop, int packageSequence, int priceSequence)
     {
         if (player.GameContext.FeaturePlugIns.GetPlugIn<GkzResetRewardsPlugIn>() is not { } plugIn
             || player.Account is not { } account
@@ -119,6 +120,19 @@ public static class GkzResetRewardClaims
             }
 
             var products = new List<CashShopProduct>();
+            if (milestone.ChoosesSet)
+            {
+                var classIndex = GkzResetRewardsPlugIn.GetClassIndex(characterClass.Number);
+                if (shop.Packages.FirstOrDefault(p => p.PackageSequence == packageSequence)?.Products.FirstOrDefault(p => p.PriceSequence == priceSequence) is not { ItemDefinition: { } armor } chosenSet
+                    || !armor.QualifiedCharacters.Any(c => GkzResetRewardsPlugIn.GetClassIndex(c.Number) == classIndex))
+                {
+                    player.Logger.LogWarning("Player {player} chose the set {priceSequence}, which isn't of the class.", player, priceSequence);
+                    return CashShopBuyResult.InvalidPriceOption;
+                }
+
+                products.Add(chosenSet);
+            }
+
             foreach (var sequence in GkzResetRewardsPlugIn.GetMilestonePackages(configuration, claimable, GkzResetRewardsPlugIn.GetClassIndex(characterClass.Number)))
             {
                 if (shop.Packages.FirstOrDefault(p => p.PackageSequence == sequence)?.Products.FirstOrDefault() is not { } product)

@@ -45,5 +45,6 @@ public class GkzResetRewardsConfiguration
         new() { Resets = 150, Packages = [GkzResetRewardPackages.Boxes10, GkzResetRewardPackages.Boxes5, GkzResetRewardPackages.Soul10, GkzResetRewardPackages.Bless10] },
         new() { Resets = 175, Packages = [GkzResetRewardPackages.Soul20, GkzResetRewardPackages.Bless20] },
         new() { Resets = 200, Packages = [GkzResetRewardPackages.Boxes10, GkzResetRewardPackages.Boxes10, GkzResetRewardPackages.Boxes10] },
+        new() { Resets = 501, ChoosesSet = true },
     ];
 }

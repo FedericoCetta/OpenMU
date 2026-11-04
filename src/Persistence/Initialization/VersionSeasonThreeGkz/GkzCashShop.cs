@@ -13,8 +13,8 @@ using MUnique.OpenMU.GameLogic.Resets;
 /// <summary>
 /// The item shop of MU GKZ (X key), from <c>GkzCashShop.json</c>. The client script is built from the same file
 /// by <c>tools/gkz_shop_script.py</c>, so the sequence numbers, names and prices always match.
-/// Everything is paid with the GKZ Coins (WCoinC): talismans, packs of jewels (only Bless and Soul, which also
-/// drop), event invitations and transformation rings.
+/// Everything is paid with the GKZ Coins (WCoinC): talismans, packs of jewels and Box of Kundun, event invitations
+/// and the Moonstone Pendant.
 /// </summary>
 internal static class GkzCashShop
 {
@@ -85,6 +85,31 @@ internal static class GkzCashShop
             package.IsGiftable = forSale && !GkzResetRewardClaims.IsClaimPackage(entry.Seq);
             package.IsBundle = false;
 
+            // The player chooses one of these products, as price option; they're told apart by the price sequence.
+            if (entry.SetChoices is { Count: > 0 } choices)
+            {
+                foreach (var choice in choices)
+                {
+                    var choiceProduct = package.Products.FirstOrDefault(p => p.PriceSequence == choice.PriceSeq);
+                    if (choiceProduct is null)
+                    {
+                        choiceProduct = context.CreateNew<CashShopProduct>();
+                        package.Products.Add(choiceProduct);
+                    }
+
+                    choiceProduct.ProductSequence = entry.Seq;
+                    choiceProduct.PriceSequence = choice.PriceSeq;
+                    choiceProduct.Price = entry.Price;
+                    choiceProduct.ItemDefinition = gameConfiguration.Items.FirstOrDefault(i => i.Group == entry.Group && i.Number == choice.Number);
+                    choiceProduct.ItemLevel = entry.Level;
+                    choiceProduct.Quantity = 1;
+                    choiceProduct.Duration = TimeSpan.Zero;
+                }
+
+                package.IsForSale = forSale;
+                continue;
+            }
+
             // One product per package, with the sequence number of the package as product and price sequence.
             var product = package.Products.FirstOrDefault();
             if (product is null)
@@ -130,5 +155,14 @@ internal static class GkzCashShop
     /// <param name="Coin">"reset" for GKZ Reset Coins (the Goblin Points), otherwise GKZ Coins.</param>
     /// <param name="Quantity">The quantity of the item; stackable items come in stacks.</param>
     /// <param name="ForSale"><c>false</c> for packages which are only given away, e.g. reset rewards.</param>
-    internal sealed record Package(int Seq, int Category, string Name, int Price, byte Group, short Number, byte Level, string Description, string? Coin = null, int? Quantity = null, bool? ForSale = null);
+    /// <param name="SetChoices">The sets to choose from, as price options, by the number of their armor in <paramref name="Group"/>.</param>
+    internal sealed record Package(int Seq, int Category, string Name, int Price, byte Group, short Number, byte Level, string Description, string? Coin = null, int? Quantity = null, bool? ForSale = null, IReadOnlyList<SetChoice>? SetChoices = null);
+
+    /// <summary>
+    /// A set to choose from.
+    /// </summary>
+    /// <param name="PriceSeq">The price sequence.</param>
+    /// <param name="Number">The number of the armor of the set.</param>
+    /// <param name="Name">The name.</param>
+    internal sealed record SetChoice(int PriceSeq, short Number, string Name);
 }

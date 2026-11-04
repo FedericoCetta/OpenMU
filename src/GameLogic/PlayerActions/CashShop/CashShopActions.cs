@@ -103,7 +103,7 @@ public class CashShopActions
         if (GkzResetRewardClaims.IsClaimPackage(packageSequence))
         {
             // MU GKZ: the reset rewards are claimed, not bought.
-            var claimResult = await GkzResetRewardClaims.ClaimAsync(player, configuration, packageSequence).ConfigureAwait(false);
+            var claimResult = await GkzResetRewardClaims.ClaimAsync(player, configuration, packageSequence, priceSequence).ConfigureAwait(false);
             await player.InvokeViewPlugInAsync<ICashShopViewPlugIn>(p => p.ShowBuyResultAsync(claimResult)).ConfigureAwait(false);
             return;
         }

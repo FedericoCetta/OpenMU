@@ -11,6 +11,8 @@ using MUnique.OpenMU.DataModel;
 using MUnique.OpenMU.DataModel.Configuration;
 using MUnique.OpenMU.DataModel.Configuration.Items;
 using MUnique.OpenMU.DataModel.Entities;
+using MUnique.OpenMU.GameLogic;
+using MUnique.OpenMU.GameLogic.Resets;
 using MUnique.OpenMU.GameLogic.WelcomeKit;
 using MUnique.OpenMU.GameServer.RemoteView;
 using MUnique.OpenMU.Persistence;
@@ -137,6 +139,44 @@ public class GkzWelcomeKitPlugInTest
 
         Assert.That(length, Is.EqualTo(5));
         Assert.That(data[2], Is.EqualTo(3));
+    }
+
+    /// <summary>
+    /// A piece of the set of the reward of 501 resets is +13 +28 with luck, the option of level 380 and exactly three excellent options.
+    /// </summary>
+    [Test]
+    public void ResetSetPieceHasThreeExcellentOptions()
+    {
+        var definition = new Mock<ItemOptionDefinition> { CallBase = true };
+        var normal = new Mock<IncreasableItemOption> { CallBase = true };
+        normal.Setup(o => o.LevelDependentOptions).Returns(new List<ItemOptionOfLevel> { new() { Level = 4 }, new() { Level = 7 } });
+        normal.Object.OptionType = ItemOptionTypes.Option;
+        var options = new List<IncreasableItemOption> { normal.Object, new() { OptionType = ItemOptionTypes.Luck }, new() { OptionType = ItemOptionTypes.GuardianOption } };
+        for (var number = 1; number <= 6; number++)
+        {
+            options.Add(new IncreasableItemOption { OptionType = ItemOptionTypes.Excellent, Number = number });
+        }
+
+        definition.Setup(d => d.PossibleOptions).Returns(options);
+        var itemDefinition = new Mock<ItemDefinition> { CallBase = true };
+        itemDefinition.Setup(d => d.PossibleItemOptions).Returns(new List<ItemOptionDefinition> { definition.Object });
+        itemDefinition.Object.Group = 8;
+        itemDefinition.Object.Number = 29;
+        itemDefinition.Object.Durability = 80;
+        var links = new List<ItemOptionLink>();
+        var item = new Mock<Item> { CallBase = true };
+        item.Setup(i => i.ItemOptions).Returns(links);
+        item.Setup(i => i.ItemSetGroups).Returns(new List<ItemOfItemSet>());
+        item.Object.Definition = itemDefinition.Object;
+
+        GkzResetSetDeliveryPlugIn.ApplyOptions(item.Object, () => new ItemOptionLink());
+
+        Assert.That(item.Object.Level, Is.EqualTo(13));
+        Assert.That(links.Single(l => l.ItemOption == normal.Object).Level, Is.EqualTo(7));
+        Assert.That(links.Count(l => l.ItemOption!.OptionType == ItemOptionTypes.Excellent), Is.EqualTo(3));
+        Assert.That(links.Where(l => l.ItemOption!.OptionType == ItemOptionTypes.Excellent).Select(l => l.ItemOption!.Number), Is.EquivalentTo(new[] { 3, 4, 6 }));
+        Assert.That(links.Any(l => l.ItemOption!.OptionType == ItemOptionTypes.Luck), Is.True);
+        Assert.That(links.Any(l => l.ItemOption!.OptionType == ItemOptionTypes.GuardianOption), Is.True);
     }
 
     private static Item CreateWings(DateTime? expiresAt)

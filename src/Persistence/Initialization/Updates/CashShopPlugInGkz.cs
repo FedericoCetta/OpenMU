@@ -24,7 +24,7 @@ public class CashShopPlugInGkz : UpdatePlugInBase
     /// <summary>
     /// The plug in description.
     /// </summary>
-    internal const string PlugInDescription = "The item shop of the X key: Talisman of Chaos Assembly, packs of 10 Jewel of Bless and Soul, event invitations and transformation rings for GKZ Coins, and the reset rewards, which are claimed in the Reset category like a battle pass. Apply it again after a change of the catalog.";
+    internal const string PlugInDescription = "The item shop of the X key: Talisman of Chaos Assembly, packs of jewels and Box of Kundun, event invitations and the Moonstone Pendant for GKZ Coins, and the reset rewards, which are claimed in the Reset category like a battle pass. Apply it again after a change of the catalog.";
 
     /// <inheritdoc />
     public override string DataInitializationKey => VersionSeasonThreeGkz.DataInitialization.Id;
@@ -45,11 +45,14 @@ public class CashShopPlugInGkz : UpdatePlugInBase
     /// <remarks>Version 2: the shop of the GKZ Reset Coins and the packages of the reset rewards.
     /// Version 3: the reset rewards are claimed in the shop, with the attribute of the claims.
     /// Version 4: one Reset category like a battle pass, without the Reset Coins.
-    /// Version 5: the Jewels category, with packs of 10 Jewel of Bless and 10 Jewel of Soul.</remarks>
-    public override int Version => 5;
+    /// Version 5: the Jewels category, with packs of 10 Jewel of Bless and 10 Jewel of Soul.
+    /// Version 6: Jewel of Life and Chaos, the Moonstone Pendant instead of the transformation rings, no Armor of
+    /// Guardsman, and the Extras category with packs of Box of Kundun.
+    /// Version 7: higher prices for the packs of Box of Kundun.</remarks>
+    public override int Version => 7;
 
     /// <inheritdoc />
-    public override DateTime UpdatedAt => new(2026, 10, 18, 5, 0, 0, DateTimeKind.Utc);
+    public override DateTime UpdatedAt => new(2026, 11, 4, 15, 0, 0, DateTimeKind.Utc);
 
     /// <inheritdoc />
     protected override ValueTask ApplyAsync(IContext context, GameConfiguration gameConfiguration)

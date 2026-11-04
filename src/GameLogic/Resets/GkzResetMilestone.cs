@@ -28,4 +28,9 @@ public class GkzResetMilestone
     /// Gets or sets the days of VIP which are given; they're added to a running VIP.
     /// </summary>
     public int VipDays { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the player chooses a set of the class, as price option of the package.
+    /// </summary>
+    public bool ChoosesSet { get; set; }
 }

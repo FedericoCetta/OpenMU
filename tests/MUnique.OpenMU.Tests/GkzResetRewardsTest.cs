@@ -81,7 +81,7 @@ public class GkzResetRewardsTest
         var hundredTwentyFive = this._configuration.Milestones.Single(m => m.Resets == 125);
         var all = GkzResetRewardClaims.GetAllOccurrences(this._configuration);
 
-        Assert.That(all, Has.Count.EqualTo(21), "10, 25, 50, 75, 100, then every 25 until 500");
+        Assert.That(all, Has.Count.EqualTo(22), "10, 25, 50, 75, 100, then every 25 until 500, and 501");
         Assert.That(GkzResetRewardClaims.GetClaimable(this._configuration, tenResets, 9, 0), Is.Zero, "not reached");
         Assert.That(GkzResetRewardClaims.GetClaimable(this._configuration, tenResets, 300, 0), Is.EqualTo(10), "reached long ago, still there");
         Assert.That(GkzResetRewardClaims.GetClaimable(this._configuration, tenResets, 300, 1), Is.Zero, "claimed");
@@ -103,16 +103,16 @@ public class GkzResetRewardsTest
         var accountId = player.Account!.GetId();
         player.Attributes![Stats.Resets] = 9;
 
-        Assert.That(await GkzResetRewardClaims.ClaimAsync(player, shop, GkzResetRewardPackages.FirstClaim).ConfigureAwait(false), Is.EqualTo(CashShopBuyResult.RefusedByPlugIn));
+        Assert.That(await GkzResetRewardClaims.ClaimAsync(player, shop, GkzResetRewardPackages.FirstClaim, 0).ConfigureAwait(false), Is.EqualTo(CashShopBuyResult.RefusedByPlugIn));
         Assert.That(await player.PersistenceContext.GetCashShopStorageItemsAsync(accountId).ConfigureAwait(false), Is.Empty);
 
         player.Attributes[Stats.Resets] = 12;
-        Assert.That(await GkzResetRewardClaims.ClaimAsync(player, shop, GkzResetRewardPackages.FirstClaim).ConfigureAwait(false), Is.EqualTo(CashShopBuyResult.Success));
+        Assert.That(await GkzResetRewardClaims.ClaimAsync(player, shop, GkzResetRewardPackages.FirstClaim, 0).ConfigureAwait(false), Is.EqualTo(CashShopBuyResult.Success));
         var stored = await player.PersistenceContext.GetCashShopStorageItemsAsync(accountId).ConfigureAwait(false);
         Assert.That(stored.Select(s => s.ProductSequence), Is.EquivalentTo(new[] { GkzResetRewardPackages.Soul10, GkzResetRewardPackages.Bless10 }));
         Assert.That(stored.All(s => !s.IsGift), Is.True);
 
-        Assert.That(await GkzResetRewardClaims.ClaimAsync(player, shop, GkzResetRewardPackages.FirstClaim).ConfigureAwait(false), Is.EqualTo(CashShopBuyResult.RefusedByPlugIn), "only once");
+        Assert.That(await GkzResetRewardClaims.ClaimAsync(player, shop, GkzResetRewardPackages.FirstClaim, 0).ConfigureAwait(false), Is.EqualTo(CashShopBuyResult.RefusedByPlugIn), "only once");
         Assert.That(await player.PersistenceContext.GetCashShopStorageItemsAsync(accountId).ConfigureAwait(false), Has.Count.EqualTo(2));
     }
 
@@ -126,7 +126,7 @@ public class GkzResetRewardsTest
         var shop = player.GameContext.Configuration.CashShopConfiguration!;
         player.Attributes![Stats.Resets] = 25;
 
-        Assert.That(await GkzResetRewardClaims.ClaimAsync(player, shop, GkzResetRewardPackages.FirstClaim + 1).ConfigureAwait(false), Is.EqualTo(CashShopBuyResult.Success));
+        Assert.That(await GkzResetRewardClaims.ClaimAsync(player, shop, GkzResetRewardPackages.FirstClaim + 1, 0).ConfigureAwait(false), Is.EqualTo(CashShopBuyResult.Success));
         var stored = await player.PersistenceContext.GetCashShopStorageItemsAsync(player.Account!.GetId()).ConfigureAwait(false);
         var classIndex = GkzResetRewardsPlugIn.GetClassIndex(player.SelectedCharacter!.CharacterClass!.Number);
         Assert.That(stored.Single().ProductSequence, Is.EqualTo(GkzResetRewardPackages.SecondWings + classIndex));
@@ -145,7 +145,7 @@ public class GkzResetRewardsTest
         player.Attributes![Stats.Resets] = 80;
         var seventyFive = GkzResetRewardPackages.FirstClaim + this._configuration.Milestones.FindIndex(m => m.Resets == 75);
 
-        Assert.That(await GkzResetRewardClaims.ClaimAsync(player, shop, seventyFive).ConfigureAwait(false), Is.EqualTo(CashShopBuyResult.Success));
+        Assert.That(await GkzResetRewardClaims.ClaimAsync(player, shop, seventyFive, 0).ConfigureAwait(false), Is.EqualTo(CashShopBuyResult.Success));
         Assert.That(player.Account.VipUntil, Is.EqualTo(vipUntil.AddDays(30)).Within(TimeSpan.FromSeconds(1)));
         Assert.That(await player.PersistenceContext.GetCashShopStorageItemsAsync(player.Account.GetId()).ConfigureAwait(false), Has.Count.EqualTo(4));
     }

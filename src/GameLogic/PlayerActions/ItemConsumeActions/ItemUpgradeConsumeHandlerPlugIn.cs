@@ -15,6 +15,9 @@ using MUnique.OpenMU.Persistence;
 /// </summary>
 public abstract class ItemUpgradeConsumeHandlerPlugIn : ItemModifyConsumeHandlerPlugIn
 {
+    // MU GKZ: the jewels raise the option up to +16; the levels above only come with the set of the reward of 501 resets.
+    private const int MaximumUpgradableOptionLevel = 4;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ItemUpgradeConsumeHandlerPlugIn"/> class.
     /// </summary>
@@ -94,7 +97,7 @@ public abstract class ItemUpgradeConsumeHandlerPlugIn : ItemModifyConsumeHandler
 
         var itemOption = item.ItemOptions.First(o => o.ItemOption?.OptionType == this.Configuration.OptionType);
         var increasableOption = itemOption.ItemOption;
-        var higherOptionPossible = increasableOption?.LevelDependentOptions.Any(o => o.Level > itemOption.Level && o.RequiredItemLevel <= item.Level) ?? false;
+        var higherOptionPossible = increasableOption?.LevelDependentOptions.Any(o => o.Level > itemOption.Level && o.Level <= MaximumUpgradableOptionLevel && o.RequiredItemLevel <= item.Level) ?? false;
         if (!higherOptionPossible)
         {
             return false;
