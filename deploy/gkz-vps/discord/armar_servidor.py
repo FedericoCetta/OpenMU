@@ -92,7 +92,7 @@ soporte_cat = asegurar("soporte", 4, {"name": "🛠️ SOPORTE", "position": 2})
 solo_lectura = permisos((SERVIDOR, 0, SOLO_LECTURA))
 # El bot necesita permisos propios donde @everyone no escribe o no ve: sin Administrador, esa prohibición también lo alcanza.
 DEL_BOT = (ROL_BOT, VER | ESCRIBIR | HISTORIAL | ENLACES | ADJUNTOS | GESTIONAR_CANALES | GESTIONAR_ROLES, 0)
-bienvenidas = asegurar("bienvenid", 0, {"name": nombre("💥", "bienvenidas"), "parent_id": info["id"], "position": 0, "topic": "Bienvenidos a MU GKZ, Season 3 como se jugaba.", "permission_overwrites": permisos((SERVIDOR, 0, SOLO_LECTURA), DEL_BOT)})
+bienvenidas = asegurar("bienvenid", 0, {"name": nombre("💥", "bienvenidas"), "parent_id": info["id"], "position": 0, "topic": "Bienvenidos a MU GKZ, Season 3 old school.", "permission_overwrites": permisos((SERVIDOR, 0, SOLO_LECTURA), DEL_BOT)})
 anuncios = asegurar("anuncios", 0, {"name": nombre("📢", "anuncios"), "parent_id": servidor["id"], "position": 0, "topic": "Las novedades oficiales de MU GKZ.", "permission_overwrites": solo_lectura})
 sorteos = asegurar("sorteos", 0, {"name": nombre("🎁", "sorteos"), "parent_id": servidor["id"], "position": 1, "topic": "Sorteos y premios para la comunidad.", "permission_overwrites": solo_lectura})
 changelogs = asegurar("changelogs", 0, {"name": nombre("⚙️", "changelogs"), "parent_id": servidor["id"], "position": 2, "topic": "Los cambios de cada actualización.", "permission_overwrites": solo_lectura})

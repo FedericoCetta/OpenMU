@@ -178,7 +178,7 @@ class Cliente(discord.Client):
             apertura = "**Ya estamos abiertos.** Creá tu cuenta y entrá a jugar."
         mensaje = discord.Embed(
             title="¡Bienvenido a MU GKZ!",
-            description=f"Reviví lo mejor del MU: Season 3 como se jugaba.\n\n{apertura}\n\n"
+            description=f"MU Season 3 old school, con premios por resets.\n\n{apertura}\n\n"
                         f"🌐 **Web y registro:** {WEB}\n📢 Enterate de todo en <#{IDS['anuncios']}>\n🎫 ¿Necesitás ayuda? Abrí un ticket en <#{IDS['tickets']}>",
             color=COLOR)
         mensaje.set_image(url=IMAGEN)
