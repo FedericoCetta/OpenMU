@@ -3,7 +3,7 @@
   "scriptVersion": {
     "zone": 512,
     "year": 2026,
-    "yearId": 7
+    "yearId": 8
   },
   "bannerVersion": {
     "zone": 583,
@@ -781,31 +781,6 @@
           "priceSeq": 1033,
           "number": 33,
           "name": "Sunlight Set"
-        },
-        {
-          "priceSeq": 1034,
-          "number": 34,
-          "name": "Ashcrow Set"
-        },
-        {
-          "priceSeq": 1035,
-          "number": 35,
-          "name": "Eclipse Set"
-        },
-        {
-          "priceSeq": 1036,
-          "number": 36,
-          "name": "Iris Set"
-        },
-        {
-          "priceSeq": 1037,
-          "number": 37,
-          "name": "Valiant Set"
-        },
-        {
-          "priceSeq": 1038,
-          "number": 38,
-          "name": "Glorious Set"
         }
       ]
     }

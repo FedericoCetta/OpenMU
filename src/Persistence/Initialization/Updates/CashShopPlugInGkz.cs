@@ -48,8 +48,9 @@ public class CashShopPlugInGkz : UpdatePlugInBase
     /// Version 5: the Jewels category, with packs of 10 Jewel of Bless and 10 Jewel of Soul.
     /// Version 6: Jewel of Life and Chaos, the Moonstone Pendant instead of the transformation rings, no Armor of
     /// Guardsman, and the Extras category with packs of Box of Kundun.
-    /// Version 7: higher prices for the packs of Box of Kundun.</remarks>
-    public override int Version => 7;
+    /// Version 7: higher prices for the packs of Box of Kundun, and the reward of 501 resets.
+    /// Version 8: the reward of 501 resets without the sets which came after Season 3.</remarks>
+    public override int Version => 8;
 
     /// <inheritdoc />
     public override DateTime UpdatedAt => new(2026, 11, 4, 15, 0, 0, DateTimeKind.Utc);
